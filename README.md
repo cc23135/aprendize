@@ -32,12 +32,11 @@ O **Aprendize** é um aplicativo projetado para otimizar a experiência de estud
 
 ## 📁 Anexos
 
-- [Design no Canva](link-para-design-canva)
-- [Protótipo no Figma](link-para-prototipo-figma)
-- [MER](link-para-mer)
-- [Design de Telas](link-para-design-telas)
-- [Drive](link-para-drive)
-- [Github](link-para-repositorio-github)
+- [Design no Canva](https://www.canva.com/pt_br/login/?redirect=%2Fdesign%2FDAGNgig3Gis%2FoqhxYU6KLmtk2G2coNM0lw%2Fedit)
+- [Protótipo no Figma](https://www.figma.com/design/E1tBrXkEF3vLZ3pXjn87vO/Aprendize?node-id=0-1)
+- [MER](https://lucid.app/lucidchart/e2f256d3-c3a7-4f2e-989a-aa9174ed20bf/edit?beaconFlowId=A0531744E941EAEE&invitationId=inv_bab0ff9a-d43e-43a1-8ddc-83a0cb3310e0&page=HWEp-vi-RSFO#)
+- [Docs](https://docs.google.com/document/d/13lYIa2goEvbmv9-VFuTJ4FxTMG0gYBkv5I9BB-ekzoM/edit)
+- [Drive](https://drive.google.com/drive/folders/1m9Y1Mtlh5-NJmDtdsa6GCkAD-0JHnwxi)
 
 ## 🚀 Instruções de Configuração
 
