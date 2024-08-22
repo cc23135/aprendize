@@ -47,7 +47,7 @@ O **Aprendize** é um aplicativo projetado para otimizar a experiência de estud
   cd aprendiz
 ```
 ```console
-  cd aprendiz
+  cd flutter
 ```
 ```console
   flutter pub get
