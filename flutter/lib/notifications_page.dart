@@ -22,7 +22,7 @@ class NotificationsPage extends StatelessWidget {
           SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {
-              // Ação ao clicar no botão
+              print("Pressionado");
             },
             child: Text('Ver Mais'),
           ),
