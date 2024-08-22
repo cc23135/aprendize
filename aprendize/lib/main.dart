@@ -1,49 +1,28 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false, // Remove a etiqueta de debug
-      theme: ThemeData(
-        primarySwatch: Colors.green, // Cor principal do estilo Duolingo
-      ),
-      home: const HomeScreen(),
+      debugShowCheckedModeBanner: false,
+      home: MyHomePage(),
     );
   }
 }
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
-
+class MyHomePage extends StatefulWidget {
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  int _counter = 0;
+class _MyHomePageState extends State<MyHomePage> {
+  int _selectedIndex = 0;
 
-  void _incrementCounter() {
+  void _onItemTapped(int index) {
     setState(() {
-      _counter++;
-    });
-  }
-
-  void _decrementCounter() {
-    setState(() {
-      _counter--;
-    });
-  }
-
-  void _resetCounter() {
-    setState(() {
-      _counter = 0;
+      _selectedIndex = index;
     });
   }
 
@@ -51,68 +30,68 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Contador Flutter'),
-        backgroundColor: Colors.green, // Cor do AppBar
+  backgroundColor: Colors.transparent, // Define a cor do AppBar como transparente
+  elevation: 0, // Remove a sombra do AppBar
+  title: Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: <Widget>[
+      IconButton(
+        icon: Icon(Icons.notifications),
+        onPressed: () {
+          // Ação ao clicar em notificações
+        },
       ),
+      IconButton(
+        icon: Icon(Icons.person),
+        onPressed: () {
+          // Ação ao clicar no usuário
+        },
+      ),
+    ],
+  ),
+  
+),
+
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Image.asset('assets/images/mona.png'), // Imagem da Mona Lisa
+            SizedBox(height: 20), // Espaço entre a imagem e o texto
             Text(
-              'Contador: $_counter',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _incrementCounter,
-              child: const Text('Incrementar'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green, // Cor do botão
-              ),
-            ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: _decrementCounter,
-              child: const Text('Decrementar'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green, // Cor do botão
-              ),
-            ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: _resetCounter,
-              child: const Text('Resetar'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green, // Cor do botão
-              ),
+              'Ítem selecionado: ${_selectedIndex + 1}',
+              style: TextStyle(fontSize: 24),
             ),
           ],
         ),
       ),
-      bottomNavigationBar: BottomAppBar(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: <Widget>[
-            IconButton(
-              icon: const Icon(Icons.home),
-              onPressed: () {
-                // Ação para o botão Home
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.search),
-              onPressed: () {
-                // Ação para o botão Search
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.person),
-              onPressed: () {
-                // Ação para o botão Profile
-              },
-            ),
-          ],
-        ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.analytics),
+            label: 'Estatísticas',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.star),
+            label: 'Ranking',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat),
+            label: 'Chats',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_today),
+            label: 'Calendário',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.amber[800],
+        unselectedItemColor: Colors.grey,
+        onTap: _onItemTapped,
       ),
     );
   }
