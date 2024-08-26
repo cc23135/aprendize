@@ -1,32 +1,42 @@
 import 'dart:math';
 
+import 'package:aprendize/login-page.dart';
 import 'package:flutter/material.dart';
 import 'main.dart';
 import 'colors.dart';
 import 'package:image_picker/image_picker.dart';
 
-class LoginPage extends StatefulWidget {
+
+class SignInPage extends StatefulWidget {
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _SignInPageState createState() => _SignInPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _SignInPageState extends State<SignInPage> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
-  void _login() {
+  void _sigin() {
     // Aqui você pode adicionar lógica real de autenticação.
     // Por enquanto, vamos simular o sucesso do login e redirecionar.
 
-    if (_usernameController.text == "")
-      print("informe o username");
-    else if (_passwordController.text == "")
-      print("Informe uma senha");
-    else if (_passwordController.text != _confirmPasswordController.text)
-      print("As senhas não conferem");
+    bool loginCorreto = true;
 
-    else{
+    if (_usernameController.text == ""){
+      print("informe o username");
+      loginCorreto = false;
+    }
+    if (_passwordController.text == ""){
+      print("Informe uma senha");
+      loginCorreto = false;
+    }
+    else if (_passwordController.text != _confirmPasswordController.text){
+      print("As senhas não conferem");
+      loginCorreto = false;
+    }
+
+    if (loginCorreto){
       
       // estabelece conexão com o banco de dados e pergunta se as informações estão corretas
       bool resposta = true;
@@ -41,6 +51,12 @@ class _LoginPageState extends State<LoginPage> {
 
     }
 
+  }
+  
+  void _navegarParaLogin(){
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => LoginPage()),
+    );
   }
 
   
@@ -79,7 +95,7 @@ void _alterarFoto() async {
         child: SingleChildScrollView(
 
           // define largura
-          padding: EdgeInsets.all(20.0),
+          padding: EdgeInsets.all(26.0),
           
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -196,10 +212,27 @@ void _alterarFoto() async {
                 ),
               ),
 
+
+              SizedBox(height: 20,),
+
+              MouseRegion(
+                cursor: SystemMouseCursors.click, // Change the cursor to a pointer when hovering
+                child: GestureDetector(
+                  onTap: _navegarParaLogin,
+                  child: Text(
+                    'Já possui uma conta? Faça o login',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+
               SizedBox(height: 60),
 
               ElevatedButton(
-                onPressed: _login,
+                onPressed: _sigin,
                 child: Text('Próximo'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.purple,

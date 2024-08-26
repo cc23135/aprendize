@@ -6,7 +6,7 @@ import 'chats_page.dart';
 import 'calendar_page.dart';
 import 'notifications_page.dart';
 import 'user_page.dart';
-import 'sigin-page.dart';
+import 'login-page.dart';
 import 'colors.dart';
 
 void main() => runApp(MyApp());
