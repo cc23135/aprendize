@@ -1,3 +1,8 @@
+// quando digita já retira o aviso pedindo pra consertar
+// borda do input muda de cor se errado?
+
+// criar resposta quando BD retorna false
+
 import 'dart:math';
 
 import 'package:aprendize/login-page.dart';
@@ -17,24 +22,56 @@ class _SignInPageState extends State<SignInPage> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
+  
+  double _tamUsername = 0;
+  double _tamSenha = 0;
+  double _tamConfirmarSenha = 0;
+
+
+  String _caminhoDaImagem = "";
+
+
   void _sigin() {
     // Aqui você pode adicionar lógica real de autenticação.
     // Por enquanto, vamos simular o sucesso do login e redirecionar.
 
     bool loginCorreto = true;
 
+    
     if (_usernameController.text == ""){
-      print("informe o username");
+      setState(() {
+        _tamUsername = 15; // Hide the username text
+      });
+
       loginCorreto = false;
+    } else{
+      setState(() {
+        _tamUsername = 0; // Hide the username text
+      });
     }
+    
+
     if (_passwordController.text == ""){
-      print("Informe uma senha");
       loginCorreto = false;
+
+      setState(() {
+        _tamSenha = 15;
+        _tamConfirmarSenha = 0;
+      });
+
+    } else{
+      setState(() {
+        _tamSenha = 0;
+      });
+
+      if (_passwordController.text != _confirmPasswordController.text){
+        _tamConfirmarSenha = 15;
+        loginCorreto = false;
+      } else
+        _tamConfirmarSenha = 0;
+
     }
-    else if (_passwordController.text != _confirmPasswordController.text){
-      print("As senhas não conferem");
-      loginCorreto = false;
-    }
+
 
     if (loginCorreto){
       
@@ -67,22 +104,23 @@ void _alterarFoto() async {
   final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
 
   if (image != null) {
-    // Handle the selected image
-    // For example, you could display it or save its path
-    print('Image selected: ${image.path}');
+    setState(() {
+      _caminhoDaImagem = image.path;
+    });
+
   } else {
-    // Handle the case when the user cancels the picker
-    print('No image selected.');
+      // Handle the case when the user cancels the picker
+      setState(() {
+      _caminhoDaImagem = "";
+      });
+      print('No image selected.');
 
     // COLOCAR AVISO GRÁFICO
   }
 }
 
-// separar LOGIN de SIGN
 
-// sized box está servindo como gap, consertar isso?
-// width responsivo 
-// botão próximo maior e mais forte
+// width responsivo
 
 
   @override
@@ -132,6 +170,7 @@ void _alterarFoto() async {
                           ),
                           // Image with fallback
                           Image.asset(
+                            // _caminhoDaImagem
                             'assets/images/mona.png', // Path to your image
                             height: 130.0, // Fixed height of 130px
                             width: 130.0, // Fixed width of 130px
@@ -187,6 +226,12 @@ void _alterarFoto() async {
                 ),
               ),
 
+              
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text("Informe o username", style: TextStyle(fontSize: _tamUsername, fontStyle: FontStyle.italic, color: const Color.fromARGB(255, 189, 54, 44))),
+              ),
+
               SizedBox(height: 10),
               TextField(
                 controller: _passwordController,
@@ -197,6 +242,11 @@ void _alterarFoto() async {
                   labelStyle: TextStyle(color: Colors.white),
                   border: OutlineInputBorder(),
                 ),
+              ),
+              
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text("Informe a senha", style: TextStyle(fontSize: _tamSenha, fontStyle: FontStyle.italic, color: const Color.fromARGB(255, 189, 54, 44))),
               ),
 
               SizedBox(height: 10),
@@ -210,6 +260,11 @@ void _alterarFoto() async {
                   labelStyle: TextStyle(color: Colors.white),
                   border: OutlineInputBorder(),
                 ),
+              ),
+                            
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text("As senhas não conferem", style: TextStyle(fontSize: _tamConfirmarSenha, fontStyle: FontStyle.italic, color: const Color.fromARGB(255, 189, 54, 44))),
               ),
 
 
@@ -233,7 +288,7 @@ void _alterarFoto() async {
 
               ElevatedButton(
                 onPressed: _sigin,
-                child: Text('Próximo'),
+                child: Text('Entrar'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.purple,
                    minimumSize: Size(180, 55), // Width set to infinity to occupy full width, height set to 60
