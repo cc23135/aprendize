@@ -1,0 +1,143 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_icons/flutter_icons.dart'; // Adicione esta linha para usar ícones adicionais
+import 'package:percent_indicator/percent_indicator.dart'; // Adicione esta linha para usar o PercentIndicator
+
+class HomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            // Saudação ao usuário
+            Center(
+              child: Column(
+                children: <Widget>[
+                  Text(
+                    'Olá, Usuário!',
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'Aqui está a página inicial com uma imagem e alguns textos.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  SizedBox(height: 20),
+                ],
+              ),
+            ),
+            
+            // Linha com dois cards
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Expanded(
+                  child: Card(
+                    elevation: 5,
+                    margin: EdgeInsets.only(right: 10),
+                    child: ListTile(
+                      contentPadding: EdgeInsets.all(16),
+                      leading: Icon(Icons.play_arrow, size: 40, color: Colors.blue),
+                      title: Text('Começar Estudo Livre'),
+                      subtitle: Text('Inicie uma sessão de estudo livre agora mesmo.'),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Card(
+                    elevation: 5,
+                    margin: EdgeInsets.only(left: 10),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text('Relatório Diário', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Expanded(
+                                child: Column(
+                                  children: <Widget>[
+                                    Text('Exercícios Hoje'),
+                                    SizedBox(height: 5),
+                                    CircularPercentIndicator(
+                                      radius: 40.0,
+                                      lineWidth: 5.0,
+                                      percent: 0.7, // exemplo de porcentagem
+                                      center: Text("70%"),
+                                      progressColor: Colors.blue,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                child: Column(
+                                  children: <Widget>[
+                                    Text('Horas Estudadas Hoje'),
+                                    SizedBox(height: 5),
+                                    CircularPercentIndicator(
+                                      radius: 40.0,
+                                      lineWidth: 5.0,
+                                      percent: 0.5, // exemplo de porcentagem
+                                      center: Text("50%"),
+                                      progressColor: Colors.green,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            
+            SizedBox(height: 20),
+
+            // Título Estudar Hoje
+            Text(
+              'Estudar Hoje',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 10),
+            // Card com detalhes de estudo
+            Card(
+              elevation: 5,
+              child: ListTile(
+                contentPadding: EdgeInsets.all(16),
+                title: Text('Título do Estudo'),
+                subtitle: Text('Quantos exercícios: 5\nTempo de estudo: 2h'),
+              ),
+            ),
+            
+            SizedBox(height: 20),
+
+            // Título Revisar
+            Text(
+              'Revisar',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 10),
+            // Card com detalhes de revisão
+            Card(
+              elevation: 5,
+              child: ListTile(
+                contentPadding: EdgeInsets.all(16),
+                title: Text('Título da Revisão'),
+                subtitle: Text('Quantos exercícios: 3\nTempo de revisão: 1h'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
