@@ -1,3 +1,8 @@
+// quando digita já retira o aviso pedindo pra consertar
+// borda do input muda de cor se errado?
+
+// criar resposta quando BD retorna false
+
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -16,6 +21,12 @@ class _LoginPageState extends State<LoginPage> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
 
+
+  double _tamUsername = 0;
+  double _tamSenha = 0;
+
+  // void _showSnackBar(String message) {
+
   void _login() {
     // Aqui você pode adicionar lógica real de autenticação.
     // Por enquanto, vamos simular o sucesso do login e redirecionar.
@@ -23,12 +34,29 @@ class _LoginPageState extends State<LoginPage> {
      bool loginCorreto = true;
 
     if (_usernameController.text == ""){
-      print("informe o username");
+      setState(() {
+        _tamUsername = 15; // Hide the username text
+      });
+
       loginCorreto = false;
+    } else{
+      setState(() {
+        _tamUsername = 0; // Hide the username text
+      });
     }
+    
+
     if (_passwordController.text == ""){
-      print("Informe uma senha");
       loginCorreto = false;
+
+      setState(() {
+        _tamSenha = 15;
+      });
+
+    } else{
+      setState(() {
+        _tamSenha = 0;
+      });
     }
 
     if (loginCorreto){
@@ -53,9 +81,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-// sized box está servindo como gap, consertar isso?
 // width responsivo 
-// botão próximo maior e mais forte
 
 
   @override
@@ -91,6 +117,11 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
 
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text("Informe o username", style: TextStyle(fontSize: _tamUsername, fontStyle: FontStyle.italic, color: const Color.fromARGB(255, 189, 54, 44))),
+              ),
+
               SizedBox(height: 10),
 
               TextField(
@@ -102,6 +133,11 @@ class _LoginPageState extends State<LoginPage> {
                   labelStyle: TextStyle(color: Colors.white),
                   border: OutlineInputBorder(),
                 ),
+              ),
+              
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text("Informe a senha", style: TextStyle(fontSize: _tamSenha, fontStyle: FontStyle.italic, color: const Color.fromARGB(255, 189, 54, 44))),
               ),
 
               SizedBox(height: 20,),
