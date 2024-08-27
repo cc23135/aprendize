@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'criar_colecao_page.dart';
+import 'colecao_page.dart';
 
 class ChatsPage extends StatefulWidget {
   @override
@@ -44,13 +46,17 @@ class _ChatsPageState extends State<ChatsPage> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      // Ação ao clicar no botão para criar um chat
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => CriarColecaoPage()), // Navegação para PomodoroPage
+                      );
                     },
                     child: Icon(Icons.add),
                   ),
                 ],
               ),
               SizedBox(height: 20),
+              // Lista de cards de chats (Não filtrados)
               // Lista de cards de chats (Não filtrados)
               ListView.builder(
                 shrinkWrap: true,
@@ -96,10 +102,22 @@ class _ChatsPageState extends State<ChatsPage> {
                               ],
                             )
                           : null,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChatDetailsPage(
+                              title: chat.title,
+                              students: chat.students,
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   );
                 },
               ),
+
               SizedBox(height: 20),
               // Título para pesquisar chats
               Text(
