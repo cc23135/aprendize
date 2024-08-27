@@ -3,30 +3,67 @@ import 'package:flutter/material.dart';
 class UserPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Icon(Icons.person, size: 100, color: Colors.green),
-          SizedBox(height: 20),
-          Text(
-            'Perfil do Usuário',
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 10),
-          Text(
-            'Aqui você pode gerenciar suas informações pessoais e configurações.',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 18),
-          ),
-          SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-              // Ação ao clicar no botão
-            },
-            child: Text('Editar Perfil'),
-          ),
-        ],
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            SizedBox(height: 50),
+            CircleAvatar(
+              radius: 50,
+              backgroundImage: AssetImage('assets/profile_picture.png'), // Adicione a imagem de perfil no diretório assets
+              backgroundColor: Colors.grey.shade200,
+            ),
+            SizedBox(height: 20),
+            // Nome do usuário
+            Text(
+              'Nome do Usuário',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 20),
+            // Container com cards
+            Expanded(
+              child: Container(
+                padding: EdgeInsets.all(8),
+                child: ListView(
+                  children: <Widget>[
+                    Card(
+                      margin: EdgeInsets.symmetric(vertical: 8),
+                      child: ListTile(
+                        title: Text('Título 1'),
+                        subtitle: Text('Subtítulo 1'),
+                      ),
+                    ),
+                    Card(
+                      margin: EdgeInsets.symmetric(vertical: 8),
+                      child: ListTile(
+                        title: Text('Título 2'),
+                        subtitle: Text('Subtítulo 2'),
+                      ),
+                    ),
+                    // Adicione mais cartões conforme necessário
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
+            // Botões de trocar tema e logout
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                ElevatedButton(
+                  onPressed: () {},
+                  child: Text('Trocar Tema'),
+                ),
+                ElevatedButton(
+                  onPressed: () {},
+                  child: Text('Logout'),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
