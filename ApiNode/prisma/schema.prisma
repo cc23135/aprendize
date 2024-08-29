@@ -1,0 +1,119 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model Colecao {
+  idColecao      Int              @id(map: "PK__Colecao__DE1F08E653A82ADA") @default(autoincrement())
+  nome           String           @db.VarChar(100)
+  descricao      String?          @db.VarChar(500)
+  linkImagem     String           @db.VarChar(500)
+  idCriador      Int
+  dataCriacao    DateTime         @db.Date
+  Usuario        Usuario          @relation(fields: [idCriador], references: [idUsuario], onUpdate: NoAction, map: "FK__Colecao__idCriad__40058253")
+  Materia        Materia[]
+  Mensagem       Mensagem[]
+  UsuarioColecao UsuarioColecao[]
+}
+
+model DiaRotina {
+  idDiaRotina    Int       @id(map: "PK__DiaRotin__3C5464AB6DE0ECAD") @default(autoincrement())
+  idMateria      Int
+  idUsuario      Int
+  metaExercicios Int?
+  metaTempo      DateTime? @db.Time
+  diaDaSemana    Int
+  Materia        Materia   @relation(fields: [idMateria], references: [idMateria], onUpdate: NoAction, map: "FK__DiaRotina__idMat__607251E5")
+  Usuario        Usuario   @relation(fields: [idUsuario], references: [idUsuario], onUpdate: NoAction, map: "FK__DiaRotina__idUsu__6166761E")
+}
+
+model Estudo {
+  idEstudo                Int       @id(map: "PK__Estudo__99E10CBB27892B4A") @default(autoincrement())
+  idTopico                Int
+  idUsuario               Int
+  metaExercicios          Int?
+  metaTempo               DateTime? @db.Time
+  qtosExercicios          Int?
+  qtosExerciciosAcertados Int?
+  qtoTempo                DateTime  @db.Time
+  dataEstudo              DateTime  @db.Date
+  Topico                  Topico    @relation(fields: [idTopico], references: [idTopico], onUpdate: NoAction, map: "FK__Estudo__idTopico__4D5F7D71")
+  Usuario                 Usuario   @relation(fields: [idUsuario], references: [idUsuario], onUpdate: NoAction, map: "FK__Estudo__idUsuari__4E53A1AA")
+}
+
+model Materia {
+  idMateria Int         @id(map: "PK__Materia__4B740AB30991AFF2") @default(autoincrement())
+  nome      String      @db.VarChar(100)
+  capa      String      @db.VarChar(100)
+  idColecao Int?
+  DiaRotina DiaRotina[]
+  Colecao   Colecao?    @relation(fields: [idColecao], references: [idColecao], onDelete: NoAction, onUpdate: NoAction, map: "FK__Materia__idColec__42E1EEFE")
+  Topico    Topico[]
+}
+
+model Mensagem {
+  idMensagem    Int      @id(map: "PK__Mensagem__AAFB640D6C8E2B29") @default(autoincrement())
+  conteudo      String   @db.VarChar(1000)
+  idUsuario     Int
+  tempoMensagem DateTime @db.DateTime
+  idColecao     Int
+  Colecao       Colecao  @relation(fields: [idColecao], references: [idColecao], onUpdate: NoAction, map: "FK__Mensagem__idCole__5D95E53A")
+  Usuario       Usuario  @relation(fields: [idUsuario], references: [idUsuario], onUpdate: NoAction, map: "FK__Mensagem__idUsua__5CA1C101")
+}
+
+model Notificacao {
+  idNotificacao Int     @id(map: "PK__Notifica__4955F61D098807CD") @default(autoincrement())
+  conteudo      String  @db.VarChar(300)
+  idUsuario     Int
+  lida          Boolean
+  Usuario       Usuario @relation(fields: [idUsuario], references: [idUsuario], onUpdate: NoAction, map: "FK__Notificac__idUsu__55009F39")
+}
+
+model Tarefa {
+  idTarefa       Int       @id(map: "PK__Tarefa__682C5D3798A5A35D") @default(autoincrement())
+  idTopico       Int
+  idUsuario      Int
+  metaExercicios Int?
+  metaTempo      DateTime? @db.Time
+  dataTarefa     DateTime  @db.Date
+  ehRevisao      Boolean
+  Topico         Topico    @relation(fields: [idTopico], references: [idTopico], onUpdate: NoAction, map: "FK__Tarefa__idTopico__51300E55")
+  Usuario        Usuario   @relation(fields: [idUsuario], references: [idUsuario], onUpdate: NoAction, map: "FK__Tarefa__idUsuari__5224328E")
+}
+
+model Topico {
+  idTopico  Int      @id(map: "PK__Topico__35539279879E5461") @default(autoincrement())
+  nome      String   @db.VarChar(100)
+  ordem     Int
+  idMateria Int
+  Estudo    Estudo[]
+  Tarefa    Tarefa[]
+  Materia   Materia  @relation(fields: [idMateria], references: [idMateria], onUpdate: NoAction, map: "FK__Topico__idMateri__45BE5BA9")
+}
+
+model Usuario {
+  idUsuario        Int              @id(map: "PK__Usuario__645723A6C24B47AA") @default(autoincrement())
+  nome             String           @db.VarChar(100)
+  senha            String           @db.VarChar(30)
+  linkFotoDePerfil String           @db.VarChar(100)
+  Colecao          Colecao[]
+  DiaRotina        DiaRotina[]
+  Estudo           Estudo[]
+  Mensagem         Mensagem[]
+  Notificacao      Notificacao[]
+  Tarefa           Tarefa[]
+  UsuarioColecao   UsuarioColecao[]
+}
+
+model UsuarioColecao {
+  idUsuarioColecao Int     @id(map: "PK__UsuarioC__AFB6A180EFD06ACE") @default(autoincrement())
+  idUsuario        Int
+  idColecao        Int
+  cargo            String? @db.Char(1)
+  Colecao          Colecao @relation(fields: [idColecao], references: [idColecao], onUpdate: NoAction, map: "FK__UsuarioCo__idCol__58D1301D")
+  Usuario          Usuario @relation(fields: [idUsuario], references: [idUsuario], onUpdate: NoAction, map: "FK__UsuarioCo__idUsu__57DD0BE4")
+}
