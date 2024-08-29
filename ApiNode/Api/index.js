@@ -1,15 +1,23 @@
-require('dotenv').config({ path: '../.env' });
+require('dotenv').config({ path: '../.env' }); // Ajuste o caminho se necessário
 const express = require('express');
 const { PrismaClient } = require('@prisma/client');
+const cors = require('cors');
 
-const app = express();
+const app = express(); // Inicialização do Express
 const prisma = new PrismaClient();
 
 const port = process.env.PORT || 3000;
 
+const corsOptions = {
+  origin: '*', 
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], 
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+app.use(cors(corsOptions));
+
 app.use(express.json());
 
-app.get('/', async (req, res) => {
+app.get('/', (req, res) => {
   res.send('Hello, World!');
 });
 

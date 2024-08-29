@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'AppStateSingleton.dart';
 
 class UserPage extends StatelessWidget {
   @override
@@ -26,7 +27,9 @@ class UserPage extends StatelessWidget {
                   ),
                   child: CircleAvatar(
                     radius: 50,
-                    backgroundImage: AssetImage('assets/images/mona.png'),
+                    backgroundImage: AppStateSingleton().userProfileImageUrl.isNotEmpty
+                        ? NetworkImage(AppStateSingleton().userProfileImageUrl)
+                        : AssetImage('assets/images/mona.png') as ImageProvider, // Imagem padrão se a URL estiver vazia
                     backgroundColor: Colors.grey.shade800,
                   ),
                 ),

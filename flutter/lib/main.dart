@@ -8,6 +8,10 @@ import 'notifications_page.dart';
 import 'user_page.dart';
 import 'login-page.dart';
 import 'colors.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+import 'AppStateSingleton.dart';
 
 void main() => runApp(MyApp());
 
@@ -42,6 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
   bool _showNotifications = false;
   bool _showUserPage = false;
+  String _userProfileImageUrl = '';
 
   final List<Widget> _pages = [
     HomePage(),
@@ -50,6 +55,28 @@ class _MyHomePageState extends State<MyHomePage> {
     ChatsPage(),
     CalendarPage(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserProfileImage();
+  }
+
+  Future<void> _fetchUserProfileImage() async {
+    final response = await http.get(Uri.parse('http://localhost:6060/api/users')); // Altere para sua URL da API
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      print(data);
+      if (data.isNotEmpty) {
+        setState(() {
+            AppStateSingleton().userProfileImageUrl = data[0]['linkFotoDePerfil'] ?? '';
+        });
+      }
+    } else {
+      print('Failed to load profile image');
+    }
+  
+}
 
   void _onItemTapped(int index) {
     setState(() {
@@ -98,7 +125,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                   child: CircleAvatar(
                     radius: 16,
-                    backgroundImage: AssetImage('assets/images/mona.png'),
+                    backgroundImage: AppStateSingleton().userProfileImageUrl.isNotEmpty
+                        ? NetworkImage(AppStateSingleton().userProfileImageUrl)
+                        : AssetImage('assets/images/mona.png') as ImageProvider, // Imagem padrão se a URL estiver vazia
                     backgroundColor: Colors.transparent,
                     child: Container(
                       decoration: BoxDecoration(
