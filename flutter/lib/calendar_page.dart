@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'create_study_day_page.dart'; // Importe a CreateStudyDayPage
 
 class CalendarPage extends StatefulWidget {
   @override
@@ -62,7 +63,12 @@ class _CalendarPageState extends State<CalendarPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          _showAddTaskDialog(context);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CreateStudyDayPage(), // Navega para a CreateStudyDayPage
+            ),
+          );
         },
         child: Icon(Icons.add),
         backgroundColor: Colors.orange,

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-
+import 'members_page.dart'; // Importe a nova página
+import 'pate_pago_page.dart';
+import 'materia_page.dart';
 
 class ChatDetailsPage extends StatelessWidget {
   final String title;
@@ -26,16 +28,37 @@ class ChatDetailsPage extends StatelessWidget {
             ),
             SizedBox(height: 20),
             Center(
-              child: Text(
-                '$title - $students membros',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              child: Column(
+                children: [
+                  Text(
+                    '$title - $students membros',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 10),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MembersPage(),
+                        ),
+                      );
+                    },
+                    child: Text('Ver Membros'),
+                  ),
+                ],
               ),
             ),
             SizedBox(height: 20),
             Center(
               child: ElevatedButton(
                 onPressed: () {
-                  
+                  Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PatePagoPage(title: "Unicamp", students: 134,),
+                        ),
+                      );
                 },
                 child: Text('Chat/Entrar'),
               ),
@@ -57,19 +80,31 @@ class ChatDetailsPage extends StatelessWidget {
               'Matérias',
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
-            // Aqui você pode adicionar os cards de matérias conforme necessário
             Expanded(
               child: ListView(
                 children: [
-                  _buildMateriaCard('Matemática 3', '12 Tópicos'),
-                  _buildMateriaCard('Biologia 2', '15 Tópicos'),
+                  _buildMateriaCard('Matemática 3', '12 Tópicos', () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MateriaPage(),
+                      ),
+                    );
+                  }),
+                  _buildMateriaCard('Matemática 3', '12 Tópicos', () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MateriaPage(),
+                      ),
+                    );
+                  }),
                 ],
               ),
             ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                // Ação ao clicar em "Sair do grupo"
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
@@ -100,14 +135,16 @@ class ChatDetailsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildMateriaCard(String title, String subtitle) {
+  Widget _buildMateriaCard(String title, String subtitle, VoidCallback onTap) {
     return Card(
       elevation: 4,
       margin: EdgeInsets.only(bottom: 10),
       child: ListTile(
         title: Text(title),
         subtitle: Text(subtitle),
+        onTap: onTap, // Adiciona a funcionalidade de clique
       ),
     );
   }
+
 }

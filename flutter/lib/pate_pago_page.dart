@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class ChatDetailsPage extends StatelessWidget {
+class PatePagoPage extends StatelessWidget {
   final String title;
   final int students;
 
-  ChatDetailsPage({required this.title, required this.students});
+  PatePagoPage({required this.title, required this.students});
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +48,19 @@ class ChatDetailsPage extends StatelessWidget {
                 child: ListView(
                   children: [
                     _buildMessage('assets/images/mona.png', 'João', 'Olá, como estão todos?'),
+                    _buildMessage('assets/images/mona.png', 'Maria', 'Estou bem, obrigado!'),
+                    _buildMessage('assets/images/mona.png', 'Maria', 'Estou bem, obrigado!'),
+                    _buildMessage('assets/images/mona.png', 'Maria', 'Estou bem, obrigado!'),
+                    _buildMessage('assets/images/mona.png', 'Maria', 'Estou bem, obrigado!'),
+                    _buildMessage('assets/images/mona.png', 'Maria', 'Estou bem, obrigado!'),
+                    _buildMessage('assets/images/mona.png', 'Maria', 'Estou bem, obrigado!'),
+                    _buildMessage('assets/images/mona.png', 'Maria', 'Estou bem, obrigado!'),
+                    _buildMessage('assets/images/mona.png', 'Maria', 'Estou bem, obrigado!'),
+                    _buildMessage('assets/images/mona.png', 'Maria', 'Estou bem, obrigado!'),
+                    _buildMessage('assets/images/mona.png', 'Maria', 'Estou bem, obrigado!'),
+                    _buildMessage('assets/images/mona.png', 'Maria', 'Estou bem, obrigado!'),
+                    _buildMessage('assets/images/mona.png', 'Maria', 'Estou bem, obrigado!'),
+                    _buildMessage('assets/images/mona.png', 'Maria', 'Estou bem, obrigado!'),
                     _buildMessage('assets/images/mona.png', 'Maria', 'Estou bem, obrigado!'),
                     // Adicione mais mensagens conforme necessário
                   ],
