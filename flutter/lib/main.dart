@@ -13,7 +13,10 @@ import 'package:http/http.dart' as http;
 
 import 'AppStateSingleton.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  AppStateSingleton().ApiUrl = "http://localhost:6060/"; 
+  runApp(MyApp()); 
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -46,7 +49,6 @@ class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
   bool _showNotifications = false;
   bool _showUserPage = false;
-  String _userProfileImageUrl = '';
 
   final List<Widget> _pages = [
     HomePage(),
@@ -63,7 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _fetchUserProfileImage() async {
-    final response = await http.get(Uri.parse('http://localhost:6060/api/users')); // Altere para sua URL da API
+    final response = await http.get(Uri.parse(AppStateSingleton().ApiUrl + 'api/users')); // Altere para sua URL da API
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
       if (data.isNotEmpty) {

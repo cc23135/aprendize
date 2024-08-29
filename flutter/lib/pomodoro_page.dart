@@ -7,35 +7,40 @@ class PomodoroPage extends StatefulWidget {
 }
 
 class _PomodoroPageState extends State<PomodoroPage> {
-  late Timer _timer;
-  int _totalSeconds = 1 * 60; // Tempo total do timer em segundos (25 minutos por padrão)
-  int _remainingSeconds = 1 * 60; // Tempo restante do timer
+  Timer? _timer;
+  final int _totalSeconds = 25 * 60; // Tempo total do timer em segundos (25 minutos por padrão)
+  int _remainingSeconds = 25 * 60; // Tempo restante do timer
   bool _isRunning = false;
 
   void _startTimer() {
-    _isRunning = true;
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      if (_remainingSeconds > 0) {
-        setState(() {
-          _remainingSeconds--;
-        });
-      } else {
-        _stopTimer(); // Para o timer quando o tempo acaba
-      }
+    setState(() {
+      _isRunning = true;
+      _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+        if (_remainingSeconds > 0) {
+          setState(() {
+            _remainingSeconds--;
+          });
+        } else {
+          _stopTimer(); // Para o timer quando o tempo acaba
+        }
+      });
     });
   }
 
   void _stopTimer() {
-    _isRunning = false;
-    _timer.cancel();
+    setState(() {
+      _isRunning = false;
+      _timer?.cancel();
+    });
   }
 
   void _resetTimer() {
+    if (_isRunning) {
+      _stopTimer(); // Parar o timer antes de resetar
+    }
     setState(() {
       _remainingSeconds = _totalSeconds;
-      _isRunning = false;
     });
-    _timer.cancel();
   }
 
   @override
@@ -74,7 +79,7 @@ class _PomodoroPageState extends State<PomodoroPage> {
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
               ),
             ),
-            SizedBox(height: 30), // Espaço de 200 pixels entre o indicador e o contador
+            SizedBox(height: 30), // Espaço de 30 pixels entre o indicador e o contador
 
             // Contador de tempo
             Text(

@@ -4,6 +4,7 @@ class AppStateSingleton {
   factory AppStateSingleton() => _instance;
   AppStateSingleton._internal();
 
+  String ApiUrl = '';
   String userProfileImageUrl = '';
   String userName = '';
   List<String> collections = [];
