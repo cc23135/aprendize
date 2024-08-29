@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'main.dart';
 import 'colors.dart';
 import 'package:image_picker/image_picker.dart';
-
+import 'package:aprendize/colecao_inicial.dart';
 
 class SignInPage extends StatefulWidget {
   @override
@@ -81,11 +81,10 @@ class _SignInPageState extends State<SignInPage> {
       if (resposta){
         // define informações do usuário e sua senha
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => MyHomePage()),
+          MaterialPageRoute(builder: (context) => colecaoInicialPage()),
         );
       } else
         print("Tratar banco de dados");
-
     }
 
   }
