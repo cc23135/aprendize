@@ -1,10 +1,12 @@
-// quando digita já retira o aviso pedindo pra consertar
-// borda do input muda de cor se errado?
+// criar resposta quando não escolheu card
+// colocar foto de fundo
+// search funcional
 
 // criar resposta quando BD retorna false
 
 import 'dart:math';
 
+import 'package:aprendize/home_page.dart';
 import 'package:flutter/material.dart';
 import 'main.dart';
 import 'colors.dart';
@@ -24,6 +26,12 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
   final FocusNode _focusNode = FocusNode();
   Color _iconColor = Colors.white54; // Set initial color to white54
 
+
+  int? _hoveredIndexCard; // To keep track of which card is hovered
+
+  int? _selectedCardIndex; // To keep track of the selected card
+  int? _idColecaoSelecionado; 
+
   @override
   void initState() {
     super.initState();
@@ -41,6 +49,32 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
     _focusNode.removeListener(_onFocusChange);
     _focusNode.dispose();
     super.dispose();
+  }
+
+  void _escolher(){
+
+    if (_selectedCardIndex == null){
+      // informar que nenhuma coleção inicial foi escolhida
+    } else{
+      bool resposta = true;
+
+      if (resposta){
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => MyHomePage()),
+        );
+      } else{
+        // tratar erro do banco de dados
+      }
+
+
+    }
+    
+  }
+
+  void _voltar(){
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => SignInPage()),
+    );
   }
 
 
@@ -109,106 +143,122 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
               SizedBox(height: 20),
 
               Container(
-                height: 370, // Set the desired height
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.darkPurple), // Border color and width
-                  borderRadius: BorderRadius.circular(10), // Border radius
-                ),
+              height: 380, // Set the desired height
+              width: double.infinity,
+              decoration: BoxDecoration(
+                border: Border.all(color: AppColors.darkPurple, width: 1.5), // Border color and width
+                borderRadius: BorderRadius.circular(10), // Border radius
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: List.generate(
+                    20,
+                    (index) => Padding(
+                      padding: const EdgeInsets.all(8.0),
 
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: List.generate(
-                      20,
-                      (index) => Padding(
-                        padding: const EdgeInsets.all(8.0),
 
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedCardIndex = index; // Update selected card index
+                            _idColecaoSelecionado = 2; // ARRUMAR PRO BD
+                          });
+                        },
 
-                        child: Container(
-                          height: 130,
-                          width: double.infinity,
-                          
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.white54), // Border color and width
-                            borderRadius: BorderRadius.circular(10), // Border radius
+                        child: MouseRegion(
+                          onEnter: (_) {
+                            setState(() {
+                              _hoveredIndexCard = index; // Set the hovered index
+                            });
+                          },
+                          onExit: (_) {
+                            setState(() {
+                              _hoveredIndexCard = null; // Clear the hovered index
+                            });
+                          },
+
+                          // esse é o card
+                          child: Container(
+                            height: 130,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              
+                              border: Border.all(
+                                color: _selectedCardIndex == index
+                                    ? Colors.deepPurple[100]! // Color for selected card
+                                    : (_hoveredIndexCard == index ? Colors.white70 : Colors.white54),
+                                width: 1.5, // Set the border width
+                              ),
+
+                              borderRadius: BorderRadius.circular(10), // Border radius
+                            ),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Coleção $index',
+                                      style: TextStyle(color: Colors.white, fontSize: 20),
+                                    ),
+                                    Text(
+                                      "$index estudante(s)",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
-
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-
-                                
-
-                                children: [
-                                  Text(
-                                    'Coleção $index',
-                                    style: TextStyle(color: Colors.white, fontSize: 20),
-                                  ),
-
-                                  Text("$index estudante(s)")
-                                ],
-
-                              )
-                            )
-                          )
-
-
                         ),
-
-
                       ),
                     ),
                   ),
                 ),
               ),
+            ),
 
-              SizedBox(height: 20),
+            SizedBox(height: 20),
 
 
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
-                children: [
-                  ElevatedButton(
-                    // onPressed: _sigin,
-                    onPressed: () => {},
-                    child: Text('Entrar'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.purple,
-                      minimumSize: Size(215, 65), // Width set to infinity to occupy full width, height set to 60
-                      
-                      textStyle: TextStyle(fontSize: 18),
+              children: [
+                ElevatedButton(
+                  onPressed: _voltar,
+                  child: Text('Voltar', style: TextStyle(color: AppColors.black, fontSize: 18)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.purple[50],
+                    minimumSize: Size(215, 65), // Width set to infinity to occupy full width, height set to 60
+                    
 
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10), // Set the border radius here
-                      ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10), // Set the border radius here
                     ),
                   ),
+                ),
 
-                  ElevatedButton(
-                    // onPressed: _sigin,
-                    onPressed: () => {},
-                    child: Text('Entrar'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.purple,
-                      minimumSize: Size(215, 65), // Width set to infinity to occupy full width, height set to 60
-                      
-                      textStyle: TextStyle(fontSize: 18),
+                
+                ElevatedButton(
+                  onPressed: _escolher,
+                  child: Text('Escolher', style: TextStyle(color: Colors.white, fontSize: 18)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.darkPurple,
+                    minimumSize: Size(215, 65), // Width set to infinity to occupy full width, height set to 60
+                    
 
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10), // Set the border radius here
-                      ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10), // Set the border radius here
                     ),
                   ),
-                ],
-              )
+                ),
+              ],
+            )
 
 
 
