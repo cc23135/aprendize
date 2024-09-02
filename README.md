@@ -47,7 +47,7 @@ O **Aprendize** é um aplicativo projetado para otimizar a experiência de estud
   cd aprendize
 ```
 
-# Flutter
+### Flutter
 
 ```console
   cd flutter
@@ -59,7 +59,7 @@ O **Aprendize** é um aplicativo projetado para otimizar a experiência de estud
   flutter run
 ```
 
-# API Node
+### API Node
 ```console
   cd apiNode
 ```
@@ -75,7 +75,7 @@ O **Aprendize** é um aplicativo projetado para otimizar a experiência de estud
 Criar arquivo .env na raiz do ApiNode e inserir as chaves abaixo
 ```console
   PORT=6060
-  DATABASE_URL="sqlserver://<ENDEREÇO DO SERVIDOR>:1433;database=<NOME DO SEU DATABASE>;user=<NOME DO SEU USUÁRIO>;password=<SUA SENHA>;encrypt=true;trustServerCertificate=true;schema=CodeDrafts"
+  DATABASE_URL="sqlserver://<ENDEREÇO DO SERVIDOR>:1433;database=<NOME DO SEU DATABASE>;user=<NOME DO SEU USUÁRIO>;password=<SUA SENHA>;encrypt=true;trustServerCertificate=true;schema=Aprendize"
 ```
 
 ```console

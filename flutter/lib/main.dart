@@ -68,7 +68,6 @@ class _MyHomePageState extends State<MyHomePage> {
     final response = await http.get(Uri.parse(AppStateSingleton().ApiUrl + 'api/users')); // Altere para sua URL da API
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
-      print(data);
       if (data.isNotEmpty) {
         setState(() {
             AppStateSingleton().userProfileImageUrl = data[0]['linkFotoDePerfil'] ?? '';
