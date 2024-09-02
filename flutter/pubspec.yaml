@@ -12,6 +12,8 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
+  dio: ^5.0.0
+  html: ^0.15.4
 
   fl_chart: ^0.68.0
   syncfusion_flutter_charts: ^20.2.46
