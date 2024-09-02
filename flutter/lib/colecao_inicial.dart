@@ -3,6 +3,7 @@
 // substituir snackbar
 
 
+// import 'dart:ffi';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -47,7 +48,7 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
 
   void _onFocusChange() {
     setState(() {
-      _iconColor = _focusNode.hasFocus ? Colors.deepPurple[200]! : Colors.white54;
+      _iconColor = _focusNode.hasFocus ? AppColors.lightPurple! : Colors.white54;
     });
   }
 
@@ -64,8 +65,15 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
     if (_selectedCardIndex == null) {
       // Inform the user that no collection was selected
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Nenhuma coleção foi escolhida')),
+        SnackBar(
+          content: Text('Nenhuma coleção foi escolhida', style: TextStyle(color: Colors.white),),
+
+          backgroundColor: AppColors.darkPurple,
+          duration: Duration(milliseconds: 1500), // Duração de exibição da SnackBar
+        ),
       );
+
+
     } else {
       bool resposta = true; // Simulate the response from the database
 
@@ -74,9 +82,17 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
           MaterialPageRoute(builder: (context) => MyHomePage()),
         );
       } else {
-        // Handle database error
+        // lidar com banco de dados
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao acessar o banco de dados')),
+          SnackBar(
+            content: Text('Erro ao acessar o banco de dados, tente novamente', 
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.red,
+          
+          duration: Duration(milliseconds: 1500), // Duração de exibição da SnackBar
+            
+          ),
         );
       }
     }
@@ -110,13 +126,13 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
               MouseRegion(
                 onEnter: (_) {
                   setState(() {
-                    if (_iconColor != Colors.deepPurple[200]!)
+                    if (_iconColor != AppColors.lightPurple!)
                       _iconColor = Colors.white70; // Default color when hovered
                   });
                 },
                 onExit: (_) {
                   setState(() {
-                    if (_iconColor != Colors.deepPurple[200]!)
+                    if (_iconColor != AppColors.lightPurple!)
                       _iconColor = Colors.white54; // Default color when not hovered
                   });
                 },
@@ -181,7 +197,7 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
                                 ),
                                 border: Border.all(
                                   color: _selectedCardIndex == index
-                                      ? Colors.deepPurple[100]!
+                                      ? AppColors.lightPurple!
                                       : (_hoveredIndexCard == index ? Colors.white70 : Colors.white54),
                                   width: 1.5,
                                 ),

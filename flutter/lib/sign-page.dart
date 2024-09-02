@@ -1,7 +1,13 @@
-// quando digita já retira o aviso pedindo pra consertar
+// senha com mais de um dígito, pelo menos uma letra maiúscula, caracter especial e 5 dígitos
+// > necessita de um sp no banco de dados
+
+// usuário com dígitos mínimos
+// > SP
+
 // borda do input muda de cor se errado?
 
 // criar resposta quando BD retorna false
+// corrigir foto
 
 import 'dart:math';
 
@@ -25,10 +31,22 @@ class _SignInPageState extends State<SignInPage> {
   
   double _tamUsername = 0;
   double _tamSenha = 0;
+  double _tamReqSenha = 0;
   double _tamConfirmarSenha = 0;
 
 
   String _caminhoDaImagem = "";
+
+
+  bool _senhaValida(String senha) {
+    return true;
+    // todo
+    bool hasUppercase = senha.contains(RegExp(r'[A-Z]'));
+    bool hasDigits = senha.contains(RegExp(r'[0-9]'));
+    bool hasSpecialCharacters = senha.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
+
+    return senha.length > 4 && hasUppercase && hasDigits && hasSpecialCharacters;
+  }
 
 
   void _sigin() {
@@ -64,6 +82,13 @@ class _SignInPageState extends State<SignInPage> {
         _tamSenha = 0;
       });
 
+      if (!_senhaValida(_passwordController.text)){
+        _tamReqSenha = 15;
+        loginCorreto = false;
+      } else
+        _tamReqSenha = 0;
+        
+
       if (_passwordController.text != _confirmPasswordController.text){
         _tamConfirmarSenha = 15;
         loginCorreto = false;
@@ -83,8 +108,10 @@ class _SignInPageState extends State<SignInPage> {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => colecaoInicialPage()),
         );
-      } else
+      } else{
+        // nome igual, senha inválida, problema com a imagem, outro erro 
         print("Tratar banco de dados");
+      }
     }
 
   }
@@ -95,28 +122,57 @@ class _SignInPageState extends State<SignInPage> {
     );
   }
 
-  
-void _alterarFoto() async {
-  final ImagePicker _picker = ImagePicker();
+    
+  void _alterarFoto() async {
+    final ImagePicker _picker = ImagePicker();
 
-  // Pick an image from the gallery
-  final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    // Pick an image from the gallery
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
 
-  if (image != null) {
-    setState(() {
-      _caminhoDaImagem = image.path;
-    });
-
-  } else {
-      // Handle the case when the user cancels the picker
+    if (image != null) {
       setState(() {
-      _caminhoDaImagem = "";
+        _caminhoDaImagem = image.path;
+        print(_caminhoDaImagem);
       });
-      print('No image selected.');
+    } else {
+        // Handle the case when the user cancels the picker
+        setState(() {
+        _caminhoDaImagem = "";
+        });
+        print('No image selected.');
 
-    // COLOCAR AVISO GRÁFICO
+      // COLOCAR AVISO GRÁFICO
+    }
   }
-}
+
+  void _onUserNameChange(String text){
+    if (text == "")
+      setState(() {
+        _tamUsername = 15; 
+      });
+    else
+      setState(() {
+        _tamUsername = 0; 
+      });
+  }
+
+  void _onPasswordChange(String text){
+    if (text == "")
+      setState(() {
+        _tamSenha = 15; 
+      });
+      
+    else
+      setState(() {
+        _tamSenha = 0; 
+      });
+  }
+
+  void _onPasswordConfirmChange(String text){
+    setState(() {
+      _tamConfirmarSenha = 0;
+    });
+  }
 
 
 // width responsivo
@@ -217,6 +273,7 @@ void _alterarFoto() async {
 
               TextField(
                 controller: _usernameController,
+                onChanged: _onUserNameChange,
                 style: TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   labelText: 'Nome de Usuário',
@@ -234,6 +291,7 @@ void _alterarFoto() async {
               SizedBox(height: 10),
               TextField(
                 controller: _passwordController,
+                onChanged: _onPasswordChange,
                 obscureText: true,
                 style: TextStyle(color: Colors.white),
                 decoration: InputDecoration(
@@ -242,16 +300,28 @@ void _alterarFoto() async {
                   border: OutlineInputBorder(),
                 ),
               ),
-              
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text("Informe a senha", style: TextStyle(fontSize: _tamSenha, fontStyle: FontStyle.italic, color: const Color.fromARGB(255, 189, 54, 44))),
+
+              Column(
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: 
+                    Text("Informe a senha", style: TextStyle(fontSize: _tamSenha, fontStyle: FontStyle.italic, color: const Color.fromARGB(255, 189, 54, 44))),
+                  ),
+
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: 
+                    Text("A senha deve conter mais de 4 dígitos, uma letra maiúscula, um número e um caracter especial(ex.: !@#)", style: TextStyle(fontSize: _tamReqSenha, fontStyle: FontStyle.italic, color: const Color.fromARGB(255, 189, 54, 44))),
+                  )
+                ],
               ),
 
               SizedBox(height: 10),
 
               TextField(
                 controller: _confirmPasswordController,
+                onChanged: _onPasswordConfirmChange,
                 obscureText: true,
                 style: TextStyle(color: Colors.white),
                 decoration: InputDecoration(
