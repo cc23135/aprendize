@@ -1,5 +1,6 @@
 node_modules
-# Keep environment variables out of version control
+prisma/
 .env
 .vercel
 codedrafts-401521-9a4d49f88703.json
+.prisma
