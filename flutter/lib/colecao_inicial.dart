@@ -48,7 +48,7 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
 
   void _onFocusChange() {
     setState(() {
-      _iconColor = _focusNode.hasFocus ? AppColors.lightPurple! : Colors.white54;
+      _iconColor = _focusNode.hasFocus ? AppColors.lightPurple : Colors.white54;
     });
   }
 
@@ -65,7 +65,7 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
     if (_selectedCardIndex == null) {
       // Inform the user that no collection was selected
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Nenhuma coleção foi escolhida', style: TextStyle(color: Colors.white),),
 
           backgroundColor: AppColors.darkPurple,
@@ -84,7 +84,7 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
       } else {
         // lidar com banco de dados
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Erro ao acessar o banco de dados, tente novamente', 
             style: TextStyle(color: Colors.white),
           ),
@@ -111,47 +111,47 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
       body: Align(
         alignment: Alignment.topCenter,
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(34.0),
+          padding: const EdgeInsets.all(34.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               Image.asset('assets/images/logoAprendize.png', height: 70),
-              SizedBox(height: 40),
-              Align(
+              const SizedBox(height: 40),
+              const Align(
                 alignment: Alignment.centerLeft,
                 child: Text("Pesquise uma coleção inicial", style: TextStyle(fontSize: 20)),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               MouseRegion(
                 onEnter: (_) {
                   setState(() {
-                    if (_iconColor != AppColors.lightPurple!)
+                    if (_iconColor != AppColors.lightPurple)
                       _iconColor = Colors.white70; // Default color when hovered
                   });
                 },
                 onExit: (_) {
                   setState(() {
-                    if (_iconColor != AppColors.lightPurple!)
+                    if (_iconColor != AppColors.lightPurple)
                       _iconColor = Colors.white54; // Default color when not hovered
                   });
                 },
                 child: TextField(
                   controller: _pesquisaColecaoController,
                   focusNode: _focusNode,
-                  style: TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
-                    border: OutlineInputBorder(),
+                    border: const OutlineInputBorder(),
                     prefixIcon: Icon(
                       Icons.search,
                       color: _iconColor,
                     ),
                     hintText: 'Search',
-                    hintStyle: TextStyle(color: Colors.white54),
+                    hintStyle: const TextStyle(color: Colors.white54),
                   ),
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Container(
                 height: 380,
                 width: double.infinity,
@@ -188,7 +188,7 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
                               width: double.infinity,
                               decoration: BoxDecoration(
                                 image: DecorationImage(
-                                  image: AssetImage('assets/images/mona.png'),
+                                  image: const AssetImage('assets/images/mona.png'),
                                   fit: BoxFit.cover,
                                   colorFilter: ColorFilter.mode(
                                     Colors.black.withOpacity(0.5),
@@ -197,7 +197,7 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
                                 ),
                                 border: Border.all(
                                   color: _selectedCardIndex == index
-                                      ? AppColors.lightPurple!
+                                      ? AppColors.lightPurple
                                       : (_hoveredIndexCard == index ? Colors.white70 : Colors.white54),
                                   width: 1.5,
                                 ),
@@ -213,11 +213,11 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
                                     children: [
                                       Text(
                                         _filteredCollections[index],
-                                        style: TextStyle(color: Colors.white, fontSize: 20),
+                                        style: const TextStyle(color: Colors.white, fontSize: 20),
                                       ),
                                       Text(
                                         "$index estudante(s)",
-                                        style: TextStyle(color: Colors.white),
+                                        style: const TextStyle(color: Colors.white),
                                       ),
                                     ],
                                   ),
@@ -231,17 +231,17 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
                   ),
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Row(
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   ElevatedButton(
                     onPressed: _voltar,
-                    child: Text('Voltar', style: TextStyle(color: AppColors.black, fontSize: 18)),
+                    child: const Text('Voltar', style: TextStyle(color: AppColors.black, fontSize: 18)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.purple[50],
-                      minimumSize: Size(215, 65),
+                      minimumSize: const Size(215, 65),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -249,10 +249,10 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
                   ),
                   ElevatedButton(
                     onPressed: _escolher,
-                    child: Text('Escolher', style: TextStyle(color: Colors.white, fontSize: 18)),
+                    child: const Text('Escolher', style: TextStyle(color: Colors.white, fontSize: 18)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.darkPurple,
-                      minimumSize: Size(215, 65),
+                      minimumSize: const Size(215, 65),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),

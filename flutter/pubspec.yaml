@@ -14,7 +14,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   dio: ^5.0.0
   html: ^0.15.4
-
+  shared_preferences: ^2.0.15 
   fl_chart: ^0.68.0
   syncfusion_flutter_charts: ^20.2.46
   http: ^1.2.2

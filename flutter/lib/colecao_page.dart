@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'members_page.dart'; // Importe a nova página
-import 'pate_pago_page.dart';
+import 'bate_pago_page.dart';
 import 'materia_page.dart';
 
 class ChatDetailsPage extends StatelessWidget {

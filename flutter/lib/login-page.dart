@@ -3,12 +3,9 @@
 
 // criar resposta quando BD retorna false
 
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'main.dart';
-import 'colors.dart';
-import 'package:image_picker/image_picker.dart';
 
 import 'sign-page.dart';
 
@@ -94,23 +91,23 @@ class _LoginPageState extends State<LoginPage> {
         child: SingleChildScrollView(
 
           // define largura
-          padding: EdgeInsets.all(26.0),
+          padding: const EdgeInsets.all(26.0),
           
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.start,
             
             children: <Widget>[
-              SizedBox(height: 50),
+              const SizedBox(height: 50),
 
               Image.asset('assets/images/logoAprendize.png', height: 130), 
 
-              SizedBox(height: 65),
+              const SizedBox(height: 65),
 
               TextField(
                 controller: _usernameController,
-                style: TextStyle(color: Colors.white),
-                decoration: InputDecoration(
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
                   labelText: 'Nome de Usuário',
                   labelStyle: TextStyle(color: Colors.white),
                   border: OutlineInputBorder(),
@@ -122,13 +119,13 @@ class _LoginPageState extends State<LoginPage> {
                 child: Text("Informe o username", style: TextStyle(fontSize: _tamUsername, fontStyle: FontStyle.italic, color: const Color.fromARGB(255, 189, 54, 44))),
               ),
 
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
 
               TextField(
                 controller: _passwordController,
                 obscureText: true,
-                style: TextStyle(color: Colors.white),
-                decoration: InputDecoration(
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
                   labelText: 'Senha',
                   labelStyle: TextStyle(color: Colors.white),
                   border: OutlineInputBorder(),
@@ -140,14 +137,14 @@ class _LoginPageState extends State<LoginPage> {
                 child: Text("Informe a senha", style: TextStyle(fontSize: _tamSenha, fontStyle: FontStyle.italic, color: const Color.fromARGB(255, 189, 54, 44))),
               ),
 
-              SizedBox(height: 20,),
+              const SizedBox(height: 20,),
 
               
               MouseRegion(
                 cursor: SystemMouseCursors.click, // Change the cursor to a pointer when hovering
                 child: GestureDetector(
                   onTap: _navegarParaSigin,
-                  child: Text(
+                  child: const Text(
                     'Não possui conta? Cadastre-se',
                     style: TextStyle(
                       color: Colors.white,
@@ -157,17 +154,17 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
 
-              SizedBox(height: 70),
+              const SizedBox(height: 70),
 
 
               ElevatedButton(
                 onPressed: _login,
-                child: Text('Login'),
+                child: const Text('Login'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.purple,
-                   minimumSize: Size(180, 55), // Width set to infinity to occupy full width, height set to 60
+                   minimumSize: const Size(180, 55), // Width set to infinity to occupy full width, height set to 60
                    
-                   textStyle: TextStyle(fontSize: 18),
+                   textStyle: const TextStyle(fontSize: 18),
 
                    shape: RoundedRectangleBorder(
                      borderRadius: BorderRadius.circular(10), // Set the border radius here

@@ -9,11 +9,9 @@
 // criar resposta quando BD retorna false
 // corrigir foto
 
-import 'dart:math';
 
 import 'package:aprendize/login-page.dart';
 import 'package:flutter/material.dart';
-import 'main.dart';
 import 'colors.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:aprendize/colecao_inicial.dart';
