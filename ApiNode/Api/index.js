@@ -137,6 +137,50 @@ app.get('/api/statistics', async (req, res) => {
 });
 
 
+app.get('/api/getNotifications', async (req, res) => {
+  try {
+    const userId = req.query.userId; // Pega o ID do usuário da query string
+    if (!userId) {
+      return res.status(400).json({ error: 'User ID is required' });
+    }
+    
+    const notifications = await prisma.notificacao.findMany({
+      where: { idUsuario: parseInt(userId, 10) } // Filtra as notificações pelo ID do usuário
+    });
+    
+    console.log(notifications)
+    res.json(notifications);
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao buscar notificações' });
+  }
+});
+
+
+app.get('/api/haveNewNotification', async (req, res) => {
+  try {
+    const userId = req.query.userId; 
+    if (!userId) {
+      return res.status(400).json({ error: 'User ID is required' });
+    }
+    
+    const hasNewNotification = await prisma.notificacao.findFirst({
+      where: {
+        idUsuario: parseInt(userId, 10),
+        lida: false,
+      },
+    });
+    
+    res.json({ hasNewNotification: !!hasNewNotification });
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    res.status(500).json({ error: 'Erro ao buscar notificações' });
+  }
+});
+
+
+
+
+
 app.listen(port, () => {
   console.log('Servidor rodando na porta ' + port);
 });
