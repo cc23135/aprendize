@@ -14,7 +14,7 @@ import 'package:http/http.dart' as http;
 import 'AppStateSingleton.dart';
 
 void main() {
-  AppStateSingleton().ApiUrl = "http://localhost:6060/"; 
+  AppStateSingleton().ApiUrl = "https://localhost:6060/"; 
   runApp(MyApp()); 
 }
 
@@ -25,11 +25,11 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: AppColors.black,
-        appBarTheme: AppBarTheme(
+        appBarTheme: const AppBarTheme(
           backgroundColor: AppColors.lightBlackForFooter,
           elevation: 1,
         ),
-        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
           backgroundColor: AppColors.black,
           selectedItemColor: AppColors.lightPurple,
           unselectedItemColor: AppColors.white,
@@ -65,19 +65,18 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _fetchUserProfileImage() async {
-    final response = await http.get(Uri.parse(AppStateSingleton().ApiUrl + 'api/users')); // Altere para sua URL da API
+    final response = await http.get(Uri.parse('${AppStateSingleton().ApiUrl}api/users')); // Altere para sua URL da API
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
       if (data.isNotEmpty) {
         setState(() {
-            AppStateSingleton().userProfileImageUrl = data[0]['linkFotoDePerfil'] ?? '';
+          AppStateSingleton().userProfileImageUrl = data[0]['linkFotoDePerfil'] ?? '';
         });
       }
     } else {
       print('Failed to load profile image');
     }
-  
-}
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -91,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(kToolbarHeight),
+        preferredSize: const Size.fromHeight(kToolbarHeight),
         child: Container(
           decoration: BoxDecoration(
             boxShadow: [
@@ -99,7 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 color: AppColors.white.withOpacity(0.2),
                 spreadRadius: 0,
                 blurRadius: 4,
-                offset: Offset(0, 1),
+                offset: const Offset(0, 1),
               ),
             ],
           ),
@@ -108,7 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 IconButton(
-                  icon: Icon(Icons.notifications),
+                  icon: const Icon(Icons.notifications),
                   color: _showNotifications ? AppColors.lightPurple : AppColors.white,
                   onPressed: () {
                     setState(() {
@@ -128,7 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     radius: 16,
                     backgroundImage: AppStateSingleton().userProfileImageUrl.isNotEmpty
                         ? NetworkImage(AppStateSingleton().userProfileImageUrl)
-                        : AssetImage('assets/images/mona.png') as ImageProvider, // Imagem padrão se a URL estiver vazia
+                        : const AssetImage('assets/images/mona.png') as ImageProvider, // Imagem padrão se a URL estiver vazia
                     backgroundColor: Colors.transparent,
                     child: Container(
                       decoration: BoxDecoration(
@@ -161,7 +160,7 @@ class _MyHomePageState extends State<MyHomePage> {
               color: AppColors.white.withOpacity(0.2),
               spreadRadius: 0,
               blurRadius: 4,
-              offset: Offset(0, 0),
+              offset: const Offset(0, 0),
             ),
           ],
         ),

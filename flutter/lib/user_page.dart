@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -89,22 +88,25 @@ class _UserPageState extends State<UserPage> {
             Stack(
               alignment: Alignment.topRight,
               children: [
-                Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.white,
-                      width: 4.0,
+                GestureDetector(
+                  onTap: _pickImage,  // Ação ao clicar em qualquer parte da imagem
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white,
+                        width: 4.0,
+                      ),
                     ),
-                  ),
-                  child: CircleAvatar(
-                    radius: 50,
-                    backgroundImage: AppStateSingleton().userProfileImageUrl.isNotEmpty
-                        ? NetworkImage(AppStateSingleton().userProfileImageUrl)
-                        : AssetImage('assets/images/mona.png') as ImageProvider,
-                    backgroundColor: Colors.grey.shade800,
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundImage: AppStateSingleton().userProfileImageUrl.isNotEmpty
+                          ? NetworkImage(AppStateSingleton().userProfileImageUrl)
+                          : AssetImage('assets/images/mona.png') as ImageProvider,
+                      backgroundColor: Colors.grey.shade800,
+                    ),
                   ),
                 ),
                 Positioned(
@@ -124,6 +126,7 @@ class _UserPageState extends State<UserPage> {
                 ),
               ],
             ),
+
             SizedBox(height: 20),
             // Nome do usuário
             Text(

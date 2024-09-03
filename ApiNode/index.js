@@ -1,4 +1,4 @@
-require('dotenv').config({ path: '../.env' }); 
+require('dotenv').config(); 
 const express = require('express');
 const { PrismaClient } = require('@prisma/client');
 const cors = require('cors');
@@ -11,8 +11,9 @@ const path = require('path');
 const app = express(); 
 const prisma = new PrismaClient();
 
+
 const storage = new Storage({
-  keyFilename: path.join(__dirname, '..', 'codedrafts-401521-9a4d49f88703.json'), 
+  keyFilename: path.join(__dirname, 'codedrafts-401521-9a4d49f88703.json'), 
   projectId: 'codedrafts-401521',
 });
 const bucketName = 'imagesaprendize'; 
@@ -36,7 +37,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.send('Hello, World!');
+  res.send('Hello world');
 });
 
 app.post('/api/upload-image', upload.single('image'), async (req, res) => {
@@ -45,19 +46,13 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
       console.error('Nenhum arquivo enviado');
       return res.status(400).json({ error: 'Nenhum arquivo enviado' });
     }
-    console.log("Arquivo recebido:", req.file.originalname);
-
     // Otimiza a imagem com sharp
     const optimizedImageBuffer = await sharp(req.file.buffer)
       .resize(800)
       .jpeg({ quality: 80 })
       .toBuffer();
 
-    console.log("Imagem otimizada");
-
     const uniqueFileName = `${uuidv4()}-${req.file.originalname}`;
-    console.log('Nome único do arquivo:', uniqueFileName);
-    console.log('Project ID:', storage.projectId);
 
     const bucket = storage.bucket(bucketName);
     const blob = bucket.file(uniqueFileName);
@@ -72,7 +67,6 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
 
     blobStream.on('finish', () => {
       const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
-      console.log('URL pública do arquivo:', publicUrl);
       res.status(200).json({ message: 'Upload bem-sucedido', url: publicUrl });
     });
 
@@ -83,14 +77,14 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
   }
 });
 
-
-
 app.get('/api/users', async (req, res) => {
   try {
+    console.log("Chegou")
     const users = await prisma.usuario.findMany();
+    console.log(users)
     res.json(users);
   } catch (error) {
-    res.status(500).json({ error: 'Erro ao buscar usuários' });
+    res.status(500).json({ error: 'DATABASE_URL: ' });
   }
 });
 
@@ -178,11 +172,9 @@ app.get('/api/haveNewNotification', async (req, res) => {
 });
 
 
-
-
-
 app.listen(port, () => {
-  console.log('Servidor rodando na porta ' + port);
+  console.log(`Servidor rodando na porta ${port}`);
 });
 
 module.exports = app;
+
