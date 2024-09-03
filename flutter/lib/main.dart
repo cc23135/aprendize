@@ -14,7 +14,7 @@ import 'package:http/http.dart' as http;
 import 'AppStateSingleton.dart';
 
 void main() {
-  AppStateSingleton().ApiUrl = "https://localhost:6060/"; 
+  AppStateSingleton().ApiUrl = "http://localhost:6060/"; 
   runApp(MyApp()); 
 }
 

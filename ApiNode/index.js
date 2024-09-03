@@ -172,6 +172,41 @@ app.get('/api/haveNewNotification', async (req, res) => {
 });
 
 
+app.get('/api/login', async (req, res) => {
+  try {
+    const { nome, senha } = req.query;
+
+    console.log("Tentando logar como " + nome + "...")
+
+    if (!nome || !senha) {
+      return res.json({ success: false, message: 'Nome de usuário e senha são obrigatórios.' });
+    }
+
+    const user = await prisma.usuario.findFirst({
+      where: {
+        AND: [
+          { nome: nome },
+          { senha: senha }
+        ]
+      }
+    });
+
+    console.log(user)
+
+    if (user) {
+      return res.json({ success: true });
+    } else {
+      return res.json({ success: false, message: 'Nome de usuário ou senha inválidos.' });
+    }
+  } catch (error) {
+    console.error('Erro ao fazer login:', error);
+    return res.status(500).json({ success: false, message: 'Erro interno do servidor.' });
+  }
+});
+
+
+
+
 app.listen(port, () => {
   console.log(`Servidor rodando na porta ${port}`);
 });

@@ -23,11 +23,13 @@ class SignInPage extends StatefulWidget {
 
 class _SignInPageState extends State<SignInPage> {
   final _usernameController = TextEditingController();
+  final _nameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
   
   double _tamUsername = 0;
+  double _tamNome = 0;
   double _tamSenha = 0;
   double _tamReqSenha = 0;
   double _tamConfirmarSenha = 0;
@@ -63,6 +65,19 @@ class _SignInPageState extends State<SignInPage> {
     } else{
       setState(() {
         _tamUsername = 0; // Hide the username text
+      });
+    }
+
+
+    if (_nameController.text == ""){
+      setState(() {
+        _tamNome = 15; // Hide the username text
+      });
+
+      loginCorreto = false;
+    } else{
+      setState(() {
+        _tamNome = 0; // Hide the username text
       });
     }
     
@@ -151,6 +166,17 @@ class _SignInPageState extends State<SignInPage> {
     else
       setState(() {
         _tamUsername = 0; 
+      });
+  }
+
+  void _onNameChange(String text){
+    if (text == "")
+      setState(() {
+        _tamNome = 15; 
+      });
+    else
+      setState(() {
+        _tamNome = 0; 
       });
   }
 
@@ -280,10 +306,28 @@ class _SignInPageState extends State<SignInPage> {
                 ),
               ),
 
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text("Informe o seu Nome de Usuário", style: TextStyle(fontSize: _tamUsername, fontStyle: FontStyle.italic, color: const Color.fromARGB(255, 189, 54, 44))),
+              ),
+
+              SizedBox(height: 10),
+
+              TextField(
+                controller: _nameController,
+                onChanged: _onNameChange,
+                style: TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  labelText: 'Seu Nome',
+                  labelStyle: TextStyle(color: Colors.white),
+                  border: OutlineInputBorder(),
+                ),
+              ),
+
               
               Align(
                 alignment: Alignment.centerLeft,
-                child: Text("Informe o username", style: TextStyle(fontSize: _tamUsername, fontStyle: FontStyle.italic, color: const Color.fromARGB(255, 189, 54, 44))),
+                child: Text("Informe o seu nome", style: TextStyle(fontSize: _tamNome, fontStyle: FontStyle.italic, color: const Color.fromARGB(255, 189, 54, 44))),
               ),
 
               SizedBox(height: 10),
