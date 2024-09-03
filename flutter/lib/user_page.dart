@@ -1,9 +1,8 @@
-import 'package:dio/dio.dart';
+import 'package:aprendize/AppStateSingleton.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart'; // Para verificar a plataforma
-import 'package:flutter/foundation.dart' show kIsWeb; // Verificar se é web
-import 'AppStateSingleton.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:dio/dio.dart';
 
 class UserPage extends StatefulWidget {
   @override
@@ -11,42 +10,42 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserPageState extends State<UserPage> {
-  final Dio _dio = Dio(); // Instância do Dio
+  final Dio _dio = Dio();
+  bool _isLoading = false;
 
   Future<void> _pickImage() async {
-    final XFile? image = await ImagePicker().pickImage(source: ImageSource.gallery);
-
+    final XFile? image =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     if (image != null) {
-      if (kIsWeb) {
-        // Web
-        final bytes = await image.readAsBytes(); // Lê os bytes da imagem
-        final formData = FormData.fromMap({
-          'image': MultipartFile.fromBytes(bytes, filename: image.name),
-        });
-        await _uploadImageWeb(formData);
-      } else {
-        // Mobile
-        final imageFile = image.readAsBytes(); // Para mobile
-        final formData = FormData.fromMap({
-          'image': MultipartFile.fromBytes(await imageFile, filename: image.name),
-        });
-        await _uploadImageMobile(formData);
-      }
+      _toggleLoadingState(true);
+      final formData = await _prepareFormData(image);
+      await _uploadImage(formData);
+      _toggleLoadingState(false);
     }
   }
 
-  Future<void> _uploadImageWeb(FormData formData) async {
+  Future<FormData> _prepareFormData(XFile image) async {
+    if (kIsWeb) {
+      final bytes = await image.readAsBytes();
+      return FormData.fromMap({
+        'image': MultipartFile.fromBytes(bytes, filename: image.name),
+      });
+    } else {
+      return FormData.fromMap({
+        'image': await MultipartFile.fromFile(image.path, filename: image.name),
+      });
+    }
+  }
+
+  Future<void> _uploadImage(FormData formData) async {
     try {
       final response = await _dio.post(
-        'http://localhost:6060/api/upload-image',
+        '${AppStateSingleton().ApiUrl}api/upload-image',
         data: formData,
       );
-
       if (response.statusCode == 200) {
-        print('Upload bem-sucedido: ${response.data}');
-        setState(() {
-          AppStateSingleton().userProfileImageUrl = response.data['url']; // Atualize a URL conforme necessário
-        });
+        AppStateSingleton().userProfileImageUrlNotifier.value =
+            response.data['url'];
       } else {
         print('Falha ao enviar a imagem. Status code: ${response.statusCode}');
       }
@@ -55,24 +54,17 @@ class _UserPageState extends State<UserPage> {
     }
   }
 
-  Future<void> _uploadImageMobile(FormData formData) async {
-    try {
-      final response = await _dio.post(
-        'http://localhost:6060/api/upload-image',
-        data: formData,
-      );
+  void _toggleLoadingState(bool state) {
+    setState(() {
+      _isLoading = state;
+    });
+  }
 
-      if (response.statusCode == 200) {
-        print('Upload bem-sucedido: ${response.data}');
-        setState(() {
-          AppStateSingleton().userProfileImageUrl = response.data['url']; // Atualize a URL conforme necessário
-        });
-      } else {
-        print('Falha ao enviar a imagem. Status code: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Erro ao enviar a imagem: $e');
-    }
+  void _toggleTheme() async {
+    final currentThemeMode = AppStateSingleton().themeModeNotifier.value;
+    final newThemeMode =
+        currentThemeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+    await AppStateSingleton().setThemeMode(newThemeMode);
   }
 
   @override
@@ -89,7 +81,7 @@ class _UserPageState extends State<UserPage> {
               alignment: Alignment.topRight,
               children: [
                 GestureDetector(
-                  onTap: _pickImage,  // Ação ao clicar em qualquer parte da imagem
+                  onTap: _pickImage,
                   child: Container(
                     width: 100,
                     height: 100,
@@ -100,12 +92,26 @@ class _UserPageState extends State<UserPage> {
                         width: 4.0,
                       ),
                     ),
-                    child: CircleAvatar(
-                      radius: 50,
-                      backgroundImage: AppStateSingleton().userProfileImageUrl.isNotEmpty
-                          ? NetworkImage(AppStateSingleton().userProfileImageUrl)
-                          : AssetImage('assets/images/mona.png') as ImageProvider,
-                      backgroundColor: Colors.grey.shade800,
+                    child: ValueListenableBuilder<String>(
+                      valueListenable:
+                          AppStateSingleton().userProfileImageUrlNotifier,
+                      builder: (context, imageUrl, child) {
+                        return CircleAvatar(
+                          radius: 50,
+                          backgroundImage: _isLoading
+                              ? null
+                              : (imageUrl.isNotEmpty
+                                      ? NetworkImage(imageUrl)
+                                      : AssetImage('assets/images/mona.png'))
+                                  as ImageProvider,
+                          backgroundColor: Colors.grey.shade800,
+                          child: _isLoading
+                              ? Center(
+                                  child: CircularProgressIndicator(
+                                      color: Colors.white))
+                              : null,
+                        );
+                      },
                     ),
                   ),
                 ),
@@ -126,9 +132,7 @@ class _UserPageState extends State<UserPage> {
                 ),
               ],
             ),
-
             SizedBox(height: 20),
-            // Nome do usuário
             Text(
               'Nobara Kugisaki',
               style: TextStyle(
@@ -146,7 +150,6 @@ class _UserPageState extends State<UserPage> {
               ),
             ),
             SizedBox(height: 30),
-            // Container com cards
             Expanded(
               child: Container(
                 padding: EdgeInsets.all(8),
@@ -200,7 +203,6 @@ class _UserPageState extends State<UserPage> {
               ),
             ),
             SizedBox(height: 20),
-            // Botão de logout
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.purple,
@@ -213,10 +215,13 @@ class _UserPageState extends State<UserPage> {
               child: Text('Sair', style: TextStyle(fontSize: 18)),
             ),
             SizedBox(height: 10),
-            Icon(
-              Icons.lightbulb_outline,
-              color: Colors.white,
-              size: 30,
+            IconButton(
+              icon: Icon(
+                Icons.lightbulb_outline,
+                color: Colors.white,
+                size: 30,
+              ),
+              onPressed: _toggleTheme, // Alterna entre temas ao clicar
             ),
           ],
         ),

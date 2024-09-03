@@ -13,29 +13,54 @@ import 'package:http/http.dart' as http;
 
 import 'AppStateSingleton.dart';
 
-void main() {
-  AppStateSingleton().ApiUrl = "https://localhost:6060/"; 
-  runApp(MyApp()); 
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await AppStateSingleton().loadThemeMode();
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: AppColors.black,
-        appBarTheme: const AppBarTheme(
-          backgroundColor: AppColors.lightBlackForFooter,
-          elevation: 1,
-        ),
-        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-          backgroundColor: AppColors.black,
-          selectedItemColor: AppColors.lightPurple,
-          unselectedItemColor: AppColors.white,
-        ),
-      ),
-      home: User.isLoggedIn ? MyHomePage() : LoginPage(),
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: AppStateSingleton().themeModeNotifier,
+      builder: (context, themeMode, child) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          themeMode: themeMode,
+          theme: ThemeData.light().copyWith(
+            scaffoldBackgroundColor: AppColors.white,
+            appBarTheme: AppBarTheme(
+              backgroundColor: AppColors.lightBlackForFooter, // Cor do fundo do AppBar no tema claro
+              elevation: 1,
+              iconTheme: IconThemeData(color: AppColors.black), // Cor dos ícones no AppBar
+              titleTextStyle: TextStyle(color: AppColors.black), // Cor do texto do AppBar
+            ),
+            bottomNavigationBarTheme: BottomNavigationBarThemeData(
+              backgroundColor: AppColors.white, // Cor do fundo do BottomNavigationBar
+              selectedItemColor: AppColors.lightPurple, // Cor do item selecionado
+              unselectedItemColor: AppColors.black, // Cor dos itens não selecionados
+              showUnselectedLabels: true,
+            ),
+          ),
+          darkTheme: ThemeData.dark().copyWith(
+            scaffoldBackgroundColor: AppColors.black, // Cor de fundo da tela no tema escuro
+            appBarTheme: AppBarTheme(
+              backgroundColor: AppColors.black, // Cor do fundo do AppBar no tema escuro
+              elevation: 1,
+              iconTheme: IconThemeData(color: AppColors.white), // Cor dos ícones no AppBar
+              titleTextStyle: TextStyle(color: AppColors.white), // Cor do texto do AppBar
+            ),
+            bottomNavigationBarTheme: BottomNavigationBarThemeData(
+              backgroundColor: AppColors.black, // Cor do fundo do BottomNavigationBar
+              selectedItemColor: AppColors.lightPurple, // Cor do item selecionado
+              unselectedItemColor: AppColors.white, // Cor dos itens não selecionados
+              showUnselectedLabels: true,
+            ),
+          ),
+          home: User.isLoggedIn ? MyHomePage() : LoginPage(),
+        );
+      },
     );
   }
 }
@@ -65,12 +90,14 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _fetchUserProfileImage() async {
-    final response = await http.get(Uri.parse('${AppStateSingleton().ApiUrl}api/users')); // Altere para sua URL da API
+    final response = await http.get(Uri.parse(
+        '${AppStateSingleton().ApiUrl}api/users')); // Altere para sua URL da API
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
       if (data.isNotEmpty) {
         setState(() {
-          AppStateSingleton().userProfileImageUrl = data[0]['linkFotoDePerfil'] ?? '';
+          AppStateSingleton().userProfileImageUrlNotifier.value =
+              data[0]['linkFotoDePerfil'] ?? '';
         });
       }
     } else {
@@ -95,7 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
           decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(
-                color: AppColors.white.withOpacity(0.2),
+                color: Theme.of(context).appBarTheme.backgroundColor!.withOpacity(0.2),
                 spreadRadius: 0,
                 blurRadius: 4,
                 offset: const Offset(0, 1),
@@ -108,7 +135,9 @@ class _MyHomePageState extends State<MyHomePage> {
               children: <Widget>[
                 IconButton(
                   icon: const Icon(Icons.notifications),
-                  color: _showNotifications ? AppColors.lightPurple : AppColors.white,
+                  color: _showNotifications
+                      ? Theme.of(context).appBarTheme.iconTheme!.color
+                      : Colors.transparent,
                   onPressed: () {
                     setState(() {
                       _showNotifications = true;
@@ -123,23 +152,32 @@ class _MyHomePageState extends State<MyHomePage> {
                       _showNotifications = false;
                     });
                   },
-                  child: CircleAvatar(
-                    radius: 16,
-                    backgroundImage: AppStateSingleton().userProfileImageUrl.isNotEmpty
-                        ? NetworkImage(AppStateSingleton().userProfileImageUrl)
-                        : const AssetImage('assets/images/mona.png') as ImageProvider, // Imagem padrão se a URL estiver vazia
-                    backgroundColor: Colors.transparent,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: _showUserPage ? AppColors.lightPurple : Colors.transparent,
-                          width: 2,
+                  child: ValueListenableBuilder<String>(
+                    valueListenable:
+                        AppStateSingleton().userProfileImageUrlNotifier,
+                    builder: (context, profileUrl, child) {
+                      return CircleAvatar(
+                        radius: 16,
+                        backgroundImage: profileUrl.isNotEmpty
+                            ? NetworkImage(profileUrl)
+                            : const AssetImage('assets/images/mona.png')
+                                as ImageProvider,
+                        backgroundColor: Colors.transparent,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: _showUserPage
+                                  ? AppColors.lightPurple
+                                  : Colors.transparent,
+                              width: 2,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -157,7 +195,7 @@ class _MyHomePageState extends State<MyHomePage> {
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: AppColors.white.withOpacity(0.2),
+              color: Theme.of(context).bottomNavigationBarTheme.backgroundColor!.withOpacity(0.2),
               spreadRadius: 0,
               blurRadius: 4,
               offset: const Offset(0, 0),
@@ -165,7 +203,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
         child: BottomNavigationBar(
-          backgroundColor: AppColors.black,
+          backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
               icon: Icon(Icons.home),
@@ -189,8 +227,8 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ],
           currentIndex: _selectedIndex,
-          selectedItemColor: AppColors.lightPurple,
-          unselectedItemColor: AppColors.white,
+          selectedItemColor: Theme.of(context).bottomNavigationBarTheme.selectedItemColor,
+          unselectedItemColor: Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
           onTap: _onItemTapped,
         ),
       ),

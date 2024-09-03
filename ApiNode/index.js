@@ -79,9 +79,7 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
 
 app.get('/api/users', async (req, res) => {
   try {
-    console.log("Chegou")
     const users = await prisma.usuario.findMany();
-    console.log(users)
     res.json(users);
   } catch (error) {
     res.status(500).json({ error: 'DATABASE_URL: ' });
@@ -89,7 +87,6 @@ app.get('/api/users', async (req, res) => {
 });
 
 app.get('/api/statistics', async (req, res) => {
-  console.log("Statistics")
   try {
     // Total de estudos e tarefas
     const totalEstudos = await prisma.estudo.count();
