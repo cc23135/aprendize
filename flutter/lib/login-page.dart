@@ -28,72 +28,72 @@ class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false; // Variável para gerenciar o estado de carregamento
 
   // Função para realizar o login
-  Future<void> _login() async {
-    final nome = _usernameController.text;
-    final senha = _passwordController.text;
+  // Future<void> _login() async {
+  //   final nome = _usernameController.text;
+  //   final senha = _passwordController.text;
 
-    if (nome.isEmpty || senha.isEmpty) {
-      setState(() {
-        _tamUsername = nome.isEmpty ? 15 : 0;
-        _tamSenha = senha.isEmpty ? 15 : 0;
-      });
-      return;
-    }
+  //   if (nome.isEmpty || senha.isEmpty) {
+  //     setState(() {
+  //       _tamUsername = nome.isEmpty ? 15 : 0;
+  //       _tamSenha = senha.isEmpty ? 15 : 0;
+  //     });
+  //     return;
+  //   }
 
-    setState(() {
-      _isLoading = true; // Inicia o carregamento
-    });
+  //   setState(() {
+  //     _isLoading = true; // Inicia o carregamento
+  //   });
 
-    try {
-      final response = await http.get(
-        Uri.parse('http://localhost:6060/api/login?nome=$nome&senha=$senha'),
-      );
+  //   try {
+  //     final response = await http.get(
+  //       Uri.parse('http://localhost:6060/api/login?nome=$nome&senha=$senha'),
+  //     );
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+  //     if (response.statusCode == 200) {
+  //       final data = jsonDecode(response.body);
 
-        if (data['success']) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => MyHomePage()),
-          );
-        } else {
-          // Tratar falha no login
-          setState(() {
-            _tamUsername = 0;
-            _tamSenha = 0;
-            _showSnackBar('Nome de usuário ou senha inválidos');
-          });
-        }
-      } else {
-        // Tratar erro de comunicação com a API
-        _showSnackBar('Erro ao conectar com o servidor');
-      }
-    } catch (e) {
-      // Tratar exceções
-      _showSnackBar('Erro ao conectar com o servidor');
-    } finally {
-      setState(() {
-        _isLoading = false; // Termina o carregamento
-      });
-    }
+  //       if (data['success']) {
+  //         Navigator.of(context).pushReplacement(
+  //           MaterialPageRoute(builder: (context) => MyHomePage()),
+  //         );
+  //       } else {
+  //         // Tratar falha no login
+  //         setState(() {
+  //           _tamUsername = 0;
+  //           _tamSenha = 0;
+  //           _showSnackBar('Nome de usuário ou senha inválidos');
+  //         });
+  //       }
+  //     } else {
+  //       // Tratar erro de comunicação com a API
+  //       _showSnackBar('Erro ao conectar com o servidor');
+  //     }
+  //   } catch (e) {
+  //     // Tratar exceções
+  //     _showSnackBar('Erro ao conectar com o servidor');
+  //   } finally {
+  //     setState(() {
+  //       _isLoading = false; // Termina o carregamento
+  //     });
+  //   }
 
-    if (loginCorreto){
-      // estabelece conexão com o banco de dados e pergunta se as informações estão corretas
-      bool resposta = true;
-
-
+  //   if (loginCorreto){
+  //     // estabelece conexão com o banco de dados e pergunta se as informações estão corretas
+  //     bool resposta = true;
 
 
-      if (resposta){
-        // define informações do usuário e sua senha
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => MyHomePage()),
-        );
-      } else
-        print("Tratar banco de dados");
-    }
 
-  }
+
+  //     if (resposta){
+  //       // define informações do usuário e sua senha
+  //       Navigator.of(context).pushReplacement(
+  //         MaterialPageRoute(builder: (context) => MyHomePage()),
+  //       );
+  //     } else
+  //       print("Tratar banco de dados");
+  //   }
+
+  // }
 
 
 
@@ -227,7 +227,8 @@ void _showErrorSnackBar(String message) {
                 )
               else
                 ElevatedButton(
-                  onPressed: _login,
+                  // onPressed: _login,
+                  onPressed: () => {},
                   child: const Text('Login'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.darkPurple,
