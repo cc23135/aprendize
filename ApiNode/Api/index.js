@@ -85,6 +85,46 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
 
 
 
+// signup
+// envia nome, senha e depois coloca a coleção inicial
+
+// 'https://i.pinimg.com/736x/ba/5a/70/ba5a7064b4b1f9b260df25901008e21c.jpg'
+app.post("/signup", async(req, res) =>{
+  try{
+     await prisma.$queryRaw
+    `
+    INSERT INTO Aprendize.Usuario (nome, senha, linkFotoDePerfil)
+    VALUES 
+    ('${req.body.username}', '${req.body.password}', ${req.body.imagePath});
+
+
+    -- INSERT INTO Aprendize.UsuarioColecao (idUsuario, idColecao, cargo)            TODO
+    -- VALUES 
+    -- (1, 1, '2'), -- Jo�o � Administrador da cole��o de Matem�tica B�sica
+    -- (2, 2, '1'); -- Maria � Moderadora da cole��o de Python
+    `;
+
+    res.json({resposta: "Sucesso"})
+  } catch(error){
+    if (error.message.includes("UNIQUE em username e e-mail")){
+      res.json({resposta: "Unique"})
+    } else{
+      res.json({resposta: "Erro"})
+    }
+  }
+})
+
+
+// verifica se o username informado existe, 
+// se existir verifica se a senha informada é congruente
+// login
+
+
+// para signup, buscar se já existe um usuário com o nome informado
+// procurar usuário
+
+
+
 app.get('/api/users', async (req, res) => {
   try {
     const users = await prisma.usuario.findMany();

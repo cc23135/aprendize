@@ -6,8 +6,11 @@
 
 // borda do input muda de cor se errado?
 
+// TODO:
+
 // criar resposta quando BD retorna false
 // corrigir foto
+
 
 import 'dart:math';
 
@@ -17,6 +20,15 @@ import 'main.dart';
 import 'colors.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:aprendize/colecao_inicial.dart';
+import 'package:flutter/foundation.dart' show kIsWeb; // Verificar se é web
+
+import 'dart:typed_data';
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:flutter/foundation.dart'; // Para verificar a plataforma
+import 'package:flutter/foundation.dart' show kIsWeb; // Verificar se é web
+import 'AppStateSingleton.dart';
 
 class SignInPage extends StatefulWidget {
   @override
@@ -123,27 +135,99 @@ class _SignInPageState extends State<SignInPage> {
   }
 
     
-  void _alterarFoto() async {
-    final ImagePicker _picker = ImagePicker();
+  // void _alterarFoto() async {
+  //   final ImagePicker _picker = ImagePicker();
 
-    // Pick an image from the gallery
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+  //   // Pick an image from the gallery
+  //   final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
 
-    if (image != null) {
-      setState(() {
-        _caminhoDaImagem = image.path;
-        print(_caminhoDaImagem);
-      });
-    } else {
-        // Handle the case when the user cancels the picker
-        setState(() {
-        _caminhoDaImagem = "";
-        });
-        print('No image selected.');
+  //   if (image != null) {
+  //     setState(() {
+  //       _caminhoDaImagem = image.path;
+  //       print(_caminhoDaImagem);
+  //     });
+  //   } else {
+  //       // Handle the case when the user cancels the picker
+  //       setState(() {
+  //       _caminhoDaImagem = "";
+  //       });
+  //       print('No image selected.');
 
-      // COLOCAR AVISO GRÁFICO
-    }
-  }
+  //     // COLOCAR AVISO GRÁFICO
+  //   }
+  // }
+
+
+  final Dio _dio = Dio(); // Instância do Dio
+
+
+// TODO caminho da imagem é apenas salvo agora
+
+
+  Future<void> _pickImage() async {}
+
+  // Future<void> _pickImage() async {
+  //   final XFile? image = await ImagePicker().pickImage(source: ImageSource.gallery);
+
+  //   if (image != null) {
+  //     if (kIsWeb) {
+  //       // Web
+  //       final bytes = await image.readAsBytes(); // Lê os bytes da imagem
+  //       final formData = FormData.fromMap({
+  //         'image': MultipartFile.fromBytes(bytes, filename: image.name),
+  //       });
+  //       await _uploadImageWeb(formData);
+  //     } else {
+  //       // Mobile
+  //       final imageFile = image.readAsBytes(); // Para mobile
+  //       final formData = FormData.fromMap({
+  //         'image': MultipartFile.fromBytes(await imageFile, filename: image.name),
+  //       });
+  //       await _uploadImageMobile(formData);
+  //     }
+  //   }
+  // }
+
+  // Future<void> _uploadImageWeb(FormData formData) async {
+  //   try {
+  //     final response = await _dio.post(
+  //       'http://localhost:6060/api/upload-image',
+  //       data: formData,
+  //     );
+
+  //     if (response.statusCode == 200) {
+  //       print('Upload bem-sucedido: ${response.data}');
+  //       setState(() {
+  //         AppStateSingleton().userProfileImageUrl = response.data['url']; // Atualize a URL conforme necessário
+  //       });
+  //     } else {
+  //       print('Falha ao enviar a imagem. Status code: ${response.statusCode}');
+  //     }
+  //   } catch (e) {
+  //     print('Erro ao enviar a imagem: $e');
+  //   }
+  // }
+
+  // Future<void> _uploadImageMobile(FormData formData) async {
+  //   try {
+  //     final response = await _dio.post(
+  //       'http://localhost:6060/api/upload-image',
+  //       data: formData,
+  //     );
+
+  //     if (response.statusCode == 200) {
+  //       print('Upload bem-sucedido: ${response.data}');
+  //       setState(() {
+  //         AppStateSingleton().userProfileImageUrl = response.data['url']; // Atualize a URL conforme necessário
+  //       });
+  //     } else {
+  //       print('Falha ao enviar a imagem. Status code: ${response.statusCode}');
+  //     }
+  //   } catch (e) {
+  //     print('Erro ao enviar a imagem: $e');
+  //   }
+  // }
+
 
   void _onUserNameChange(String text){
     if (text == "")
@@ -226,7 +310,9 @@ class _SignInPageState extends State<SignInPage> {
                           // Image with fallback
                           Image.asset(
                             // _caminhoDaImagem
+                            
                             'assets/images/mona.png', // Path to your image
+
                             height: 130.0, // Fixed height of 130px
                             width: 130.0, // Fixed width of 130px
                             fit: BoxFit.cover, // Scale the image to cover the entire space while maintaining aspect ratio
@@ -260,7 +346,7 @@ class _SignInPageState extends State<SignInPage> {
 
                         child: IconButton(
                           icon: Icon(Icons.edit, color: AppColors.white), // Icon for the button
-                          onPressed: _alterarFoto,
+                          onPressed: _pickImage,
                           padding: EdgeInsets.all(8.0), // Padding around the icon
                         ),
                       ),

@@ -1,10 +1,11 @@
-// quando digita já retira o aviso pedindo pra consertar
 // borda do input muda de cor se errado?
 
 // criar resposta quando BD retorna false
 
 import 'dart:math';
 
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'main.dart';
 import 'colors.dart';
@@ -27,7 +28,7 @@ class _LoginPageState extends State<LoginPage> {
 
   // void _showSnackBar(String message) {
 
-  void _login() {
+  Future<void> _login() async {
     // Aqui você pode adicionar lógica real de autenticação.
     // Por enquanto, vamos simular o sucesso do login e redirecionar.
 
@@ -63,6 +64,9 @@ class _LoginPageState extends State<LoginPage> {
       // estabelece conexão com o banco de dados e pergunta se as informações estão corretas
       bool resposta = true;
 
+
+
+
       if (resposta){
         // define informações do usuário e sua senha
         Navigator.of(context).pushReplacement(
@@ -73,6 +77,67 @@ class _LoginPageState extends State<LoginPage> {
     }
 
   }
+
+
+
+  
+
+Future<void> _loginNoBD() async {
+  final username = _usernameController.text;
+  final password = _passwordController.text;
+
+  if (username.isNotEmpty && password.isNotEmpty) {
+    final dio = Dio(); // Create an instance of Dio
+
+    try {
+      final response = await dio.post(
+        kIsWeb ? 'http://localhost:6060/api/login' : 'http://localhost:6060/api/login',
+        data: {
+          'username': username,
+          'password': password,
+        },
+        options: Options(
+          headers: {'Content-Type': 'application/json'},
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = response.data;
+        bool loginSuccess = responseData['success'];
+
+        if (loginSuccess) {
+          // Navigate to the home page
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => MyHomePage()),
+          );
+        } else {
+          // Show error message
+          _showErrorSnackBar('Invalid username or password');
+        }
+      } else {
+        // Show error message for server error
+        _showErrorSnackBar('Server error, please try again later');
+      }
+    } catch (e) {
+      // Handle any errors that occur during the request
+      _showErrorSnackBar('An error occurred: $e');
+    }
+  } else {
+    // Handle empty username or password
+    _showErrorSnackBar('Username and password cannot be empty');
+  }
+}
+
+void _showErrorSnackBar(String message) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(message),
+      backgroundColor: Colors.red,
+    ),
+  );
+}
+
+
 
 
   void _navegarParaSigin(){
