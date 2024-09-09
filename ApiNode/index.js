@@ -1,4 +1,4 @@
-require('dotenv').config({ path: '../.env' }); 
+require('dotenv').config(); 
 const express = require('express');
 const { PrismaClient } = require('@prisma/client');
 const cors = require('cors');
@@ -11,8 +11,9 @@ const path = require('path');
 const app = express(); 
 const prisma = new PrismaClient();
 
+
 const storage = new Storage({
-  keyFilename: path.join(__dirname, '..', 'codedrafts-401521-9a4d49f88703.json'), 
+  keyFilename: path.join(__dirname, 'codedrafts-401521-9a4d49f88703.json'), 
   projectId: 'codedrafts-401521',
 });
 const bucketName = 'imagesaprendize'; 
@@ -36,7 +37,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.send('Hello, World!');
+  res.send('Hello world');
 });
 
 app.post('/api/upload-image', upload.single('image'), async (req, res) => {
@@ -45,19 +46,13 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
       console.error('Nenhum arquivo enviado');
       return res.status(400).json({ error: 'Nenhum arquivo enviado' });
     }
-    console.log("Arquivo recebido:", req.file.originalname);
-
     // Otimiza a imagem com sharp
     const optimizedImageBuffer = await sharp(req.file.buffer)
       .resize(800)
       .jpeg({ quality: 80 })
       .toBuffer();
 
-    console.log("Imagem otimizada");
-
     const uniqueFileName = `${uuidv4()}-${req.file.originalname}`;
-    console.log('Nome único do arquivo:', uniqueFileName);
-    console.log('Project ID:', storage.projectId);
 
     const bucket = storage.bucket(bucketName);
     const blob = bucket.file(uniqueFileName);
@@ -72,7 +67,6 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
 
     blobStream.on('finish', () => {
       const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
-      console.log('URL pública do arquivo:', publicUrl);
       res.status(200).json({ message: 'Upload bem-sucedido', url: publicUrl });
     });
 
@@ -83,59 +77,16 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
   }
 });
 
-
-
-// signup
-// envia nome, senha e depois coloca a coleção inicial
-
-// 'https://i.pinimg.com/736x/ba/5a/70/ba5a7064b4b1f9b260df25901008e21c.jpg'
-app.post("/signup", async(req, res) =>{
-  try{
-     await prisma.$queryRaw
-    `
-    INSERT INTO Aprendize.Usuario (nome, senha, linkFotoDePerfil)
-    VALUES 
-    ('${req.body.username}', '${req.body.password}', ${req.body.imagePath});
-
-
-    -- INSERT INTO Aprendize.UsuarioColecao (idUsuario, idColecao, cargo)            TODO
-    -- VALUES 
-    -- (1, 1, '2'), -- Jo�o � Administrador da cole��o de Matem�tica B�sica
-    -- (2, 2, '1'); -- Maria � Moderadora da cole��o de Python
-    `;
-
-    res.json({resposta: "Sucesso"})
-  } catch(error){
-    if (error.message.includes("UNIQUE em username e e-mail")){
-      res.json({resposta: "Unique"})
-    } else{
-      res.json({resposta: "Erro"})
-    }
-  }
-})
-
-
-// verifica se o username informado existe, 
-// se existir verifica se a senha informada é congruente
-// login
-
-
-// para signup, buscar se já existe um usuário com o nome informado
-// procurar usuário
-
-
-
 app.get('/api/users', async (req, res) => {
   try {
     const users = await prisma.usuario.findMany();
     res.json(users);
   } catch (error) {
-    res.status(500).json({ error: 'Erro ao buscar usuários' });
+    res.status(500).json({ error: 'DATABASE_URL: ' });
   }
 });
 
 app.get('/api/statistics', async (req, res) => {
-  console.log("Statistics")
   try {
     // Total de estudos e tarefas
     const totalEstudos = await prisma.estudo.count();
@@ -177,8 +128,85 @@ app.get('/api/statistics', async (req, res) => {
 });
 
 
+app.get('/api/getNotifications', async (req, res) => {
+  try {
+    const userId = req.query.userId; // Pega o ID do usuário da query string
+    if (!userId) {
+      return res.status(400).json({ error: 'User ID is required' });
+    }
+    
+    const notifications = await prisma.notificacao.findMany({
+      where: { idUsuario: parseInt(userId, 10) } // Filtra as notificações pelo ID do usuário
+    });
+    
+    console.log(notifications)
+    res.json(notifications);
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao buscar notificações' });
+  }
+});
+
+
+app.get('/api/haveNewNotification', async (req, res) => {
+  try {
+    const userId = req.query.userId; 
+    if (!userId) {
+      return res.status(400).json({ error: 'User ID is required' });
+    }
+    
+    const hasNewNotification = await prisma.notificacao.findFirst({
+      where: {
+        idUsuario: parseInt(userId, 10),
+        lida: false,
+      },
+    });
+    
+    res.json({ hasNewNotification: !!hasNewNotification });
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    res.status(500).json({ error: 'Erro ao buscar notificações' });
+  }
+});
+
+
+app.get('/api/login', async (req, res) => {
+  try {
+    const { nome, senha } = req.query;
+
+    console.log("Tentando logar como " + nome + "...")
+
+    if (!nome || !senha) {
+      return res.json({ success: false, message: 'Nome de usuário e senha são obrigatórios.' });
+    }
+
+    const user = await prisma.usuario.findFirst({
+      where: {
+        AND: [
+          { nome: nome },
+          { senha: senha }
+        ]
+      }
+    });
+
+    console.log(user)
+
+    if (user) {
+      return res.json({ success: true });
+    } else {
+      return res.json({ success: false, message: 'Nome de usuário ou senha inválidos.' });
+    }
+  } catch (error) {
+    console.error('Erro ao fazer login:', error);
+    return res.status(500).json({ success: false, message: 'Erro interno do servidor.' });
+  }
+});
+
+
+
+
 app.listen(port, () => {
-  console.log('Servidor rodando na porta ' + port);
+  console.log(`Servidor rodando na porta ${port}`);
 });
 
 module.exports = app;
+
