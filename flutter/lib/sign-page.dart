@@ -205,7 +205,7 @@ class _SignInPageState extends State<SignInPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: AppColors.black,
       body: Align(
         alignment: Alignment.topCenter,
 
@@ -300,7 +300,7 @@ class _SignInPageState extends State<SignInPage> {
                 onChanged: _onUserNameChange,
                 style: TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                  labelText: 'Nome de Usuário',
+                  labelText: 'Username',
                   labelStyle: TextStyle(color: Colors.white),
                   border: OutlineInputBorder(),
                 ),
@@ -311,7 +311,7 @@ class _SignInPageState extends State<SignInPage> {
                 child: Text("Informe o seu Nome de Usuário", style: TextStyle(fontSize: _tamUsername, fontStyle: FontStyle.italic, color: const Color.fromARGB(255, 189, 54, 44))),
               ),
 
-              SizedBox(height: 10),
+              SizedBox(height: 20),
 
               TextField(
                 controller: _nameController,
@@ -330,7 +330,7 @@ class _SignInPageState extends State<SignInPage> {
                 child: Text("Informe o seu nome", style: TextStyle(fontSize: _tamNome, fontStyle: FontStyle.italic, color: const Color.fromARGB(255, 189, 54, 44))),
               ),
 
-              SizedBox(height: 10),
+              SizedBox(height: 20),
               TextField(
                 controller: _passwordController,
                 onChanged: _onPasswordChange,
@@ -359,7 +359,7 @@ class _SignInPageState extends State<SignInPage> {
                 ],
               ),
 
-              SizedBox(height: 10),
+              SizedBox(height: 20),
 
               TextField(
                 controller: _confirmPasswordController,
@@ -401,7 +401,7 @@ class _SignInPageState extends State<SignInPage> {
                 onPressed: _sigin,
                 child: Text('Entrar'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.purple,
+                  backgroundColor: AppColors.darkPurple,
                    minimumSize: Size(180, 55), // Width set to infinity to occupy full width, height set to 60
                    
                    textStyle: TextStyle(fontSize: 18),

@@ -106,7 +106,7 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: AppColors.black,
       body: Align(
         alignment: Alignment.topCenter,
         child: SingleChildScrollView(

@@ -108,7 +108,7 @@ class _LoginPageState extends State<LoginPage> {
                 controller: _usernameController,
                 style: TextStyle(color: Colors.white), // Texto preto
                 decoration: InputDecoration(
-                  labelText: 'Nome de Usuário',
+                  labelText: 'Username',
                   labelStyle: TextStyle(color: AppColors.white),
                   border: OutlineInputBorder(),
                   errorText: _tamUsername > 0 ? "Informe o username" : null,
@@ -116,7 +116,7 @@ class _LoginPageState extends State<LoginPage> {
                   filled: true,
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 20),
               TextField(
                 controller: _passwordController,
                 obscureText: true,
