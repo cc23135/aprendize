@@ -1,11 +1,3 @@
-// borda do input muda de cor se errado?
-
-// criar resposta quando BD retorna false
-
-import 'dart:math';
-
-import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert'; // Para converter a resposta em JSON
@@ -28,136 +20,70 @@ class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false; // Variável para gerenciar o estado de carregamento
 
   // Função para realizar o login
-  // Future<void> _login() async {
-  //   final nome = _usernameController.text;
-  //   final senha = _passwordController.text;
+  Future<void> _login() async {
+    final nome = _usernameController.text;
+    final senha = _passwordController.text;
 
-  //   if (nome.isEmpty || senha.isEmpty) {
-  //     setState(() {
-  //       _tamUsername = nome.isEmpty ? 15 : 0;
-  //       _tamSenha = senha.isEmpty ? 15 : 0;
-  //     });
-  //     return;
-  //   }
+    if (nome.isEmpty || senha.isEmpty) {
+      setState(() {
+        _tamUsername = nome.isEmpty ? 15 : 0;
+        _tamSenha = senha.isEmpty ? 15 : 0;
+      });
+      return;
+    }
 
-  //   setState(() {
-  //     _isLoading = true; // Inicia o carregamento
-  //   });
-
-  //   try {
-  //     final response = await http.get(
-  //       Uri.parse('http://localhost:6060/api/login?nome=$nome&senha=$senha'),
-  //     );
-
-  //     if (response.statusCode == 200) {
-  //       final data = jsonDecode(response.body);
-
-  //       if (data['success']) {
-  //         Navigator.of(context).pushReplacement(
-  //           MaterialPageRoute(builder: (context) => MyHomePage()),
-  //         );
-  //       } else {
-  //         // Tratar falha no login
-  //         setState(() {
-  //           _tamUsername = 0;
-  //           _tamSenha = 0;
-  //           _showSnackBar('Nome de usuário ou senha inválidos');
-  //         });
-  //       }
-  //     } else {
-  //       // Tratar erro de comunicação com a API
-  //       _showSnackBar('Erro ao conectar com o servidor');
-  //     }
-  //   } catch (e) {
-  //     // Tratar exceções
-  //     _showSnackBar('Erro ao conectar com o servidor');
-  //   } finally {
-  //     setState(() {
-  //       _isLoading = false; // Termina o carregamento
-  //     });
-  //   }
-
-  //   if (loginCorreto){
-  //     // estabelece conexão com o banco de dados e pergunta se as informações estão corretas
-  //     bool resposta = true;
-
-
-
-
-  //     if (resposta){
-  //       // define informações do usuário e sua senha
-  //       Navigator.of(context).pushReplacement(
-  //         MaterialPageRoute(builder: (context) => MyHomePage()),
-  //       );
-  //     } else
-  //       print("Tratar banco de dados");
-  //   }
-
-  // }
-
-
-
-  
-
-Future<void> _loginNoBD() async {
-  final username = _usernameController.text;
-  final password = _passwordController.text;
-
-  if (username.isNotEmpty && password.isNotEmpty) {
-    final dio = Dio(); // Create an instance of Dio
+    setState(() {
+      _isLoading = true; // Inicia o carregamento
+    });
 
     try {
-      final response = await dio.post(
-        kIsWeb ? 'http://localhost:6060/api/login' : 'http://localhost:6060/api/login',
-        data: {
-          'username': username,
-          'password': password,
-        },
-        options: Options(
-          headers: {'Content-Type': 'application/json'},
-        ),
+      final response = await http.get(
+        Uri.parse('http://localhost:6060/api/login?nome=$nome&senha=$senha'),
       );
 
       if (response.statusCode == 200) {
-        final responseData = response.data;
-        bool loginSuccess = responseData['success'];
+        final data = jsonDecode(response.body);
 
-        if (loginSuccess) {
-          // Navigate to the home page
+        if (data['success']) {
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => MyHomePage()),
           );
         } else {
-          // Show error message
-          _showErrorSnackBar('Invalid username or password');
+          // Tratar falha no login
+          setState(() {
+            _tamUsername = 0;
+            _tamSenha = 0;
+            _showSnackBar('Nome de usuário ou senha inválidos');
+          });
         }
       } else {
-        // Show error message for server error
-        _showErrorSnackBar('Server error, please try again later');
+        // Tratar erro de comunicação com a API
+        _showSnackBar('Erro ao conectar com o servidor');
       }
     } catch (e) {
-      // Handle any errors that occur during the request
-      _showErrorSnackBar('An error occurred: $e');
+      // Tratar exceções
+      _showSnackBar('Erro ao conectar com o servidor');
+    } finally {
+      setState(() {
+        _isLoading = false; // Termina o carregamento
+      });
     }
-  } else {
-    // Handle empty username or password
-    _showErrorSnackBar('Username and password cannot be empty');
   }
-}
 
-void _showErrorSnackBar(String message) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(message),
-      backgroundColor: Colors.red,
-    ),
-  );
-}
+  // Função para mostrar mensagens de erro
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: TextStyle(color: AppColors.white), // Texto branco
+        ),
+        backgroundColor: AppColors.darkPurple,
+      ),
+    );
+  }
 
-
-
-
-  void _navegarParaSigin(){
+  void _navegarParaSigin() {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (context) => SignInPage()),
     );
@@ -227,8 +153,7 @@ void _showErrorSnackBar(String message) {
                 )
               else
                 ElevatedButton(
-                  // onPressed: _login,
-                  onPressed: () => {},
+                  onPressed: _login,
                   child: const Text('Login'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.darkPurple,
