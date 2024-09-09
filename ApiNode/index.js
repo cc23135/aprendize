@@ -86,6 +86,7 @@ app.get('/api/users', async (req, res) => {
   }
 });
 
+
 app.get('/api/statistics', async (req, res) => {
   try {
     // Total de estudos e tarefas
@@ -145,6 +146,27 @@ app.get('/api/getNotifications', async (req, res) => {
     res.status(500).json({ error: 'Erro ao buscar notificações' });
   }
 });
+
+
+app.get('/api/existeUsuario', async (req,res) => {
+  try {
+    const username = req.query.username; 
+
+    const user = await prisma.usuario.findMany({
+      where: { username: username } 
+    });
+
+    if(user != null){
+      res.json({ success: true });
+    }else{
+      res.json({success: false});
+    }
+   
+  } catch (error) {
+    console.error('Error :', error);
+    res.status(500).json({ error: 'Erro' });
+  }
+})
 
 
 app.get('/api/haveNewNotification', async (req, res) => {
