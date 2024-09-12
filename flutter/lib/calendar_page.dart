@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:intl/intl.dart'; // Adicione esta importação
 import 'create_study_day_page.dart'; // Importe a CreateStudyDayPage
 
 class CalendarPage extends StatefulWidget {
@@ -36,6 +37,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 _focusedDay = focusedDay; // Atualiza o dia focalizado
               });
             },
+            locale: 'pt_BR', // Adicione esta linha para definir o locale como português
             calendarStyle: CalendarStyle(
               todayDecoration: BoxDecoration(
                 color: Colors.orange,

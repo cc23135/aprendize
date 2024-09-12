@@ -224,6 +224,150 @@ app.get('/api/login', async (req, res) => {
 });
 
 
+app.post('/api/signUp', async (req, res) => {
+  const { username, nome, senha, linkFotoDePerfil, idColecaoInicial } = req.body;
+  console.log({ username, nome, senha, linkFotoDePerfil, idColecaoInicial })
+
+  if (!username || !nome || !senha) {
+    return res.status(400).json({ error: 'Todos campos necessários.' });
+  }
+
+  try {
+    // Inserindo o novo usuário
+    await prisma.$executeRaw`
+      INSERT INTO Usuario (nome, username, senha, linkFotoDePerfil)
+      VALUES (${nome}, ${username}, ${senha}, ${linkFotoDePerfil});
+      SELECT SCOPE_IDENTITY() AS idUsuario;
+    `;
+  
+    // Obtendo o ID do novo usuário
+    const [newUserResult] = await prisma.$queryRaw`
+      SELECT SCOPE_IDENTITY() AS idUsuario
+    `;
+    
+    const newUserId = newUserResult?.idUsuario;
+  
+    if (!newUserId) {
+      throw new Error('Erro ao obter o ID do novo usuário');
+    }
+  
+    if (idColecaoInicial) {
+      await prisma.$executeRaw`
+        INSERT INTO UsuarioColecao (idUsuario, idColecao, cargo)
+        VALUES (${newUserId}, ${idColecaoInicial}, '1')
+      `;
+    }
+  
+    console.log("Criado!");
+    res.status(201).json({
+      message: 'Usuário criado com sucesso!',
+      user: { idUsuario: newUserId, nome, username, senha, linkFotoDePerfil },
+    });
+  } catch (error) {
+    console.error('Error creating user:', error);
+    res.status(500).json({ error: 'Erro ao criar usuário.' });
+  }
+
+});
+
+
+
+
+
+
+
+
+
+
+app.get('/api/rankingUsers', async (req, res) => {
+  try {
+    const { idColecao, comBaseEmTempo } = req.query;
+    console.log({ idColecao, comBaseEmTempo })
+
+    if (!idColecao) {
+      return res.status(400).json({ error: 'idColecao é obrigatório' });
+    }
+
+    const idColecaoInt = parseInt(idColecao, 10);
+    if (isNaN(idColecaoInt)) {
+      return res.status(400).json({ error: 'idColecao deve ser um número válido' });
+    }
+
+    // Obter todos os estudos relacionados à coleção e agrupar por usuário
+    const estudos = await prisma.estudo.findMany({
+      where: {
+        Topico: {
+          Materia: {
+            Colecao: {
+              idColecao: idColecaoInt,
+            },
+          },
+        },
+      },
+      select: {
+        idUsuario: true,
+        qtoTempo: true,
+        qtosExercicios: true,
+      },
+    });
+
+    // Agregar dados por usuário
+    const rankings = estudos.reduce((acc, estudo) => {
+      if (!acc[estudo.idUsuario]) {
+        acc[estudo.idUsuario] = { qtoTempo: 0, qtosExercicios: 0 };
+      }
+      acc[estudo.idUsuario].qtoTempo += estudo.qtoTempo || 0;
+      acc[estudo.idUsuario].qtosExercicios += estudo.qtosExercicios || 0;
+      return acc;
+    }, {});
+
+    // Ordenar usuários
+    const sortedRankings = Object.entries(rankings).map(([idUsuario, { qtoTempo, qtosExercicios }]) => ({
+      idUsuario: parseInt(idUsuario, 10),
+      qtoTempo,
+      qtosExercicios,
+    }));
+
+    if (comBaseEmTempo === 'true') {
+      sortedRankings.sort((a, b) => b.qtoTempo - a.qtoTempo);
+    } else {
+      sortedRankings.sort((a, b) => b.qtosExercicios - a.qtosExercicios);
+    }
+
+    // Obter informações do usuário
+    const userIds = sortedRankings.map(r => r.idUsuario);
+    const users = await prisma.usuario.findMany({
+      where: {
+        idUsuario: {
+          in: userIds,
+        },
+      },
+    });
+
+    // Mapear informações do usuário
+    const userMap = new Map(users.map(user => [user.idUsuario, user]));
+    const result = sortedRankings.map(ranking => ({
+      ...ranking,
+      user: userMap.get(ranking.idUsuario),
+    }));
+
+    console.log(result)
+
+    res.json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+
+
+
+
+
+
+
+
 
 
 app.listen(port, () => {

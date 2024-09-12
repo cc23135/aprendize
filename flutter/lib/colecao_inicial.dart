@@ -7,10 +7,14 @@
 
 // import 'dart:ffi';
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'main.dart';
 import 'colors.dart';
 import 'sign-page.dart';
+import 'AppStateSingleton.dart';
+import 'package:http/http.dart' as http;
 
 class colecaoInicialPage extends StatefulWidget {
   final String username;
@@ -44,6 +48,7 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
   List<String> _collections = List.generate(20, (index) => 'Coleção $index');
   List<String> _filteredCollections = [];
 
+
   @override
   void initState() {
     super.initState();
@@ -76,46 +81,80 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
     });
   }
 
-  void _escolher() {
-    if (_selectedCardIndex == null) {
-      // Inform the user that no collection was selected
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Nenhuma coleção foi escolhida', style: TextStyle(color: Colors.white),),
 
-          backgroundColor: AppColors.darkPurple,
-          duration: const Duration(milliseconds: 1500), // Duração de exibição da SnackBar
-        ),
+void _escolher() async {
+  if (_selectedCardIndex == null) {
+    _showSnackbar('Nenhuma coleção foi escolhida', AppColors.darkPurple);
+  } else {
+    bool signUpSuccess = await _signUpUser(
+      name: widget.name,
+      username: widget.username,
+      password: widget.password,
+      imageUrl: widget.urlImagem,
+      collectionId: _selectedCardIndex,
+    );
+    if (signUpSuccess) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => MyHomePage()),
       );
-
-
     } else {
-
-      if (_cadastroNaAPI(widget.name, widget.username, widget.password, widget.urlImagem, _selectedCardIndex)) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => MyHomePage()),
-        );
-      } else {
-        // lidar com banco de dados
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Erro ao acessar o banco de dados, tente novamente', 
-            style: TextStyle(color: Colors.white),
-          ),
-          backgroundColor: Colors.red,
-          
-          duration: Duration(milliseconds: 1500), // Duração de exibição da SnackBar
-            
-          ),
-        );
-      }
+      _showSnackbar('Erro ao acessar o banco de dados ou criar o user, tente novamente', Colors.red);
     }
   }
+}
 
-  bool _cadastroNaAPI(name, username, password, urlImagem, cardID){
-    // card ID ainda não é válido, passar id 0
-    return true;
+void _showSnackbar(String message, Color backgroundColor) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(
+        message,
+        style: TextStyle(color: Colors.white),
+      ),
+      backgroundColor: backgroundColor,
+      duration: Duration(milliseconds: 1500),
+    ),
+  );
+}
+
+  Future<bool> _signUpUser({
+    required String name,
+    required String username,
+    required String password,
+    required String imageUrl,
+    int? collectionId,
+  }) async {
+  final uri = Uri.parse('${AppStateSingleton().ApiUrl}api/signUp');
+
+  try {
+
+    final response = await http.post(
+      uri,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode({
+        'nome': name,
+        'username': username,
+        'senha': password,
+        'linkFotoDePerfil': imageUrl,
+        if (collectionId != null) 'idColecaoInicial': collectionId.toString(),
+      }),
+    );
+
+    if (response.statusCode == 201) {
+      return true;
+    } else {
+      print('Failed to sign up: ${response.body}');
+      return false;
+    }
+  } catch (e) {
+    print('Error signing up user: $e');
+    return false;
   }
+}
+
+
+
 
   void _voltar() {
     Navigator.of(context).pushReplacement(
