@@ -7,7 +7,7 @@ class ChatDetailsPage extends StatelessWidget {
   final String title;
   final int students;
 
-  ChatDetailsPage({required this.title, required this.students});
+  const ChatDetailsPage({required this.title, required this.students});
 
   @override
   Widget build(BuildContext context) {
@@ -26,15 +26,15 @@ class ChatDetailsPage extends StatelessWidget {
                 height: 100,
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Center(
               child: Column(
                 children: [
                   Text(
                     '$title - $students membros',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   ElevatedButton(
                     onPressed: () {
                       Navigator.push(
@@ -44,27 +44,27 @@ class ChatDetailsPage extends StatelessWidget {
                         ),
                       );
                     },
-                    child: Text('Ver Membros'),
+                    child: const Text('Ver Membros'),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Center(
               child: ElevatedButton(
                 onPressed: () {
                   Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => PatePagoPage(title: "Unicamp", students: 134,),
+                          builder: (context) => const BatePagoPage(title: "Unicamp", students: 134,),
                         ),
                       );
                 },
-                child: Text('Chat/Entrar'),
+                child: const Text('Chat/Entrar'),
               ),
             ),
-            SizedBox(height: 20),
-            Text(
+            const SizedBox(height: 20),
+            const Text(
               'Estatísticas',
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
@@ -75,8 +75,8 @@ class ChatDetailsPage extends StatelessWidget {
                 _buildStatisticCard('Horas de Estudo', '4.382'),
               ],
             ),
-            SizedBox(height: 20),
-            Text(
+            const SizedBox(height: 20),
+            const Text(
               'Matérias',
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
@@ -102,13 +102,13 @@ class ChatDetailsPage extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              child: Text('Sair do grupo'),
+              child: const Text('Sair do grupo'),
             ),
           ],
         ),
@@ -126,9 +126,9 @@ class ChatDetailsPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: TextStyle(fontSize: 16)),
-            Spacer(),
-            Text(value, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            Text(title, style: const TextStyle(fontSize: 16)),
+            const Spacer(),
+            Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
@@ -138,7 +138,7 @@ class ChatDetailsPage extends StatelessWidget {
   Widget _buildMateriaCard(String title, String subtitle, VoidCallback onTap) {
     return Card(
       elevation: 4,
-      margin: EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(bottom: 10),
       child: ListTile(
         title: Text(title),
         subtitle: Text(subtitle),

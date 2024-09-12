@@ -76,7 +76,7 @@ class _UserPageState extends State<UserPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            SizedBox(height: 50),
+            const SizedBox(height: 50),
             Stack(
               alignment: Alignment.topRight,
               children: [
@@ -102,11 +102,11 @@ class _UserPageState extends State<UserPage> {
                               ? null
                               : (imageUrl.isNotEmpty
                                       ? NetworkImage(imageUrl)
-                                      : AssetImage('assets/images/mona.png'))
+                                      : const AssetImage('assets/images/mona.png'))
                                   as ImageProvider,
                           backgroundColor: Colors.grey.shade800,
                           child: _isLoading
-                              ? Center(
+                              ? const Center(
                                   child: CircularProgressIndicator(
                                       color: Colors.white))
                               : null,
@@ -119,7 +119,7 @@ class _UserPageState extends State<UserPage> {
                   right: 0,
                   child: GestureDetector(
                     onTap: _pickImage,
-                    child: CircleAvatar(
+                    child: const CircleAvatar(
                       radius: 15,
                       backgroundColor: Colors.white,
                       child: Icon(
@@ -132,8 +132,8 @@ class _UserPageState extends State<UserPage> {
                 ),
               ],
             ),
-            SizedBox(height: 20),
-            Text(
+            const SizedBox(height: 20),
+            const Text(
               'Nobara Kugisaki',
               style: TextStyle(
                 fontSize: 24,
@@ -141,27 +141,27 @@ class _UserPageState extends State<UserPage> {
                 color: Colors.white,
               ),
             ),
-            SizedBox(height: 5),
-            Text(
+            const SizedBox(height: 5),
+            const Text(
               'Total de horas estudadas: 184',
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.white70,
               ),
             ),
-            SizedBox(height: 30),
+            const SizedBox(height: 30),
             Expanded(
               child: Container(
-                padding: EdgeInsets.all(8),
+                padding: const EdgeInsets.all(8),
                 child: ListView(
                   children: <Widget>[
                     Card(
                       color: Colors.deepPurpleAccent,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
-                        side: BorderSide(color: Colors.white, width: 1),
+                        side: const BorderSide(color: Colors.white, width: 1),
                       ),
-                      child: ListTile(
+                      child: const ListTile(
                         title: Text(
                           'Unicamp - COMVEST',
                           style: TextStyle(
@@ -180,9 +180,9 @@ class _UserPageState extends State<UserPage> {
                       color: Colors.deepPurpleAccent,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
-                        side: BorderSide(color: Colors.white, width: 1),
+                        side: const BorderSide(color: Colors.white, width: 1),
                       ),
-                      child: ListTile(
+                      child: const ListTile(
                         title: Text(
                           'ITA',
                           style: TextStyle(
@@ -202,21 +202,21 @@ class _UserPageState extends State<UserPage> {
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.purple,
-                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
               ),
               onPressed: () {},
-              child: Text('Sair', style: TextStyle(fontSize: 18)),
+              child: const Text('Sair', style: TextStyle(fontSize: 18)),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             IconButton(
-              icon: Icon(
+              icon: const Icon(
                 Icons.lightbulb_outline,
                 color: Colors.white,
                 size: 30,

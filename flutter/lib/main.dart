@@ -30,13 +30,13 @@ class MyApp extends StatelessWidget {
           themeMode: themeMode,
           theme: ThemeData.light().copyWith(
             scaffoldBackgroundColor: AppColors.white,
-            appBarTheme: AppBarTheme(
+            appBarTheme: const AppBarTheme(
               backgroundColor: AppColors.lightBlackForFooter, // Cor do fundo do AppBar no tema claro
               elevation: 1,
               iconTheme: IconThemeData(color: AppColors.black), // Cor dos ícones no AppBar
               titleTextStyle: TextStyle(color: AppColors.black), // Cor do texto do AppBar
             ),
-            bottomNavigationBarTheme: BottomNavigationBarThemeData(
+            bottomNavigationBarTheme: const BottomNavigationBarThemeData(
               backgroundColor: AppColors.white, // Cor do fundo do BottomNavigationBar
               selectedItemColor: AppColors.lightPurple, // Cor do item selecionado
               unselectedItemColor: AppColors.black, // Cor dos itens não selecionados
@@ -45,13 +45,13 @@ class MyApp extends StatelessWidget {
           ),
           darkTheme: ThemeData.dark().copyWith(
             scaffoldBackgroundColor: AppColors.black, // Cor de fundo da tela no tema escuro
-            appBarTheme: AppBarTheme(
+            appBarTheme: const AppBarTheme(
               backgroundColor: AppColors.black, // Cor do fundo do AppBar no tema escuro
               elevation: 1,
               iconTheme: IconThemeData(color: AppColors.white), // Cor dos ícones no AppBar
               titleTextStyle: TextStyle(color: AppColors.white), // Cor do texto do AppBar
             ),
-            bottomNavigationBarTheme: BottomNavigationBarThemeData(
+            bottomNavigationBarTheme: const BottomNavigationBarThemeData(
               backgroundColor: AppColors.black, // Cor do fundo do BottomNavigationBar
               selectedItemColor: AppColors.lightPurple, // Cor do item selecionado
               unselectedItemColor: AppColors.white, // Cor dos itens não selecionados

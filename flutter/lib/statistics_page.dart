@@ -58,20 +58,20 @@ class _StatisticsPageState extends State<StatisticsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Estatísticas'),
+        title: const Text('Estatísticas'),
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : Padding(
-              padding: EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
                   Container(
                     height: 300,
                     child: LineChart(
                       LineChartData(
-                        gridData: FlGridData(show: false),
-                        titlesData: FlTitlesData(show: true),
+                        gridData: const FlGridData(show: false),
+                        titlesData: const FlTitlesData(show: true),
                         borderData: FlBorderData(
                           show: true,
                           border: Border.all(
@@ -84,7 +84,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                             spots: spots,
                             isCurved: true,
                             color: Colors.blue,
-                            dotData: FlDotData(show: false),
+                            dotData: const FlDotData(show: false),
                             belowBarData: BarAreaData(show: false),
                           ),
                         ],
@@ -95,10 +95,10 @@ class _StatisticsPageState extends State<StatisticsPage> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Text(
                     AppStateSingleton().statisticsJson, // Exibe o JSON como uma string
-                    style: TextStyle(fontSize: 16, fontFamily: 'monospace'),
+                    style: const TextStyle(fontSize: 16, fontFamily: 'monospace'),
                   ),
                 ],
               ),

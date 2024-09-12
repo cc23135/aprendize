@@ -40,7 +40,7 @@ class _ChatsPageState extends State<ChatsPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Text(
+                  const Text(
                     'Suas Coleções',
                     style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                   ),
@@ -51,47 +51,47 @@ class _ChatsPageState extends State<ChatsPage> {
                         MaterialPageRoute(builder: (context) => CriarColecaoPage()), // Navegação para PomodoroPage
                       );
                     },
-                    child: Icon(Icons.add),
+                    child: const Icon(Icons.add),
                   ),
                 ],
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               // Lista de cards de chats (Não filtrados)
               // Lista de cards de chats (Não filtrados)
               ListView.builder(
                 shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(), // Remove a rolagem da lista
+                physics: const NeverScrollableScrollPhysics(), // Remove a rolagem da lista
                 itemCount: _chats.length,
                 itemBuilder: (context, index) {
                   final chat = _chats[index];
                   return Card(
                     elevation: 5,
-                    margin: EdgeInsets.only(bottom: 10),
+                    margin: const EdgeInsets.only(bottom: 10),
                     child: ListTile(
-                      contentPadding: EdgeInsets.all(16),
+                      contentPadding: const EdgeInsets.all(16),
                       title: Text(chat.title),
                       subtitle: Text('${chat.students} estudantes'),
                       trailing: chat.newMessages > 0
                           ? Stack(
                               children: <Widget>[
-                                Icon(Icons.message, color: Colors.grey),
+                                const Icon(Icons.message, color: Colors.grey),
                                 Positioned(
                                   right: 0,
                                   top: 0,
                                   child: Container(
-                                    padding: EdgeInsets.all(4),
-                                    decoration: BoxDecoration(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: const BoxDecoration(
                                       color: Colors.red,
                                       shape: BoxShape.circle,
                                     ),
-                                    constraints: BoxConstraints(
+                                    constraints: const BoxConstraints(
                                       maxWidth: 20,
                                       maxHeight: 20,
                                     ),
                                     child: Center(
                                       child: Text(
                                         '${chat.newMessages}',
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 12,
                                         ),
@@ -118,13 +118,13 @@ class _ChatsPageState extends State<ChatsPage> {
                 },
               ),
 
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               // Título para pesquisar chats
-              Text(
+              const Text(
                 'Pesquisar Chats',
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               // Campo de pesquisa
               TextField(
                 controller: _searchController,
@@ -136,45 +136,45 @@ class _ChatsPageState extends State<ChatsPage> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  prefixIcon: Icon(Icons.search),
+                  prefixIcon: const Icon(Icons.search),
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               // Lista de chats filtrados
               ListView.builder(
                 shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(), // Remove a rolagem da lista
+                physics: const NeverScrollableScrollPhysics(), // Remove a rolagem da lista
                 itemCount: _filteredChats.length,
                 itemBuilder: (context, index) {
                   final chat = _filteredChats[index];
                   return Card(
                     elevation: 5,
-                    margin: EdgeInsets.only(bottom: 10),
+                    margin: const EdgeInsets.only(bottom: 10),
                     child: ListTile(
-                      contentPadding: EdgeInsets.all(16),
+                      contentPadding: const EdgeInsets.all(16),
                       title: Text(chat.title),
                       subtitle: Text('${chat.students} estudantes'),
                       trailing: chat.newMessages > 0
                           ? Stack(
                               children: <Widget>[
-                                Icon(Icons.message, color: Colors.grey),
+                                const Icon(Icons.message, color: Colors.grey),
                                 Positioned(
                                   right: 0,
                                   top: 0,
                                   child: Container(
-                                    padding: EdgeInsets.all(4),
-                                    decoration: BoxDecoration(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: const BoxDecoration(
                                       color: Colors.red,
                                       shape: BoxShape.circle,
                                     ),
-                                    constraints: BoxConstraints(
+                                    constraints: const BoxConstraints(
                                       maxWidth: 20,
                                       maxHeight: 20,
                                     ),
                                     child: Center(
                                       child: Text(
                                         '${chat.newMessages}',
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 12,
                                         ),

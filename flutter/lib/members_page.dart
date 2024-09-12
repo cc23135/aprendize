@@ -5,7 +5,7 @@ class MembersPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Membros do Grupo'),
+        title: const Text('Membros do Grupo'),
       ),
       body: ListView(
         children: [
@@ -19,11 +19,11 @@ class MembersPage extends StatelessWidget {
 
   Widget _buildMemberCard(String name) {
     return Container(
-      padding: EdgeInsets.all(10),
+      padding: const EdgeInsets.all(10),
       color: Colors.grey,
-      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: ListTile(
-        leading: CircleAvatar(
+        leading: const CircleAvatar(
           backgroundImage: AssetImage('assets/images/mona.png'), // Adapte o caminho da imagem conforme necessário
         ),
         title: Text(name),
@@ -44,15 +44,15 @@ class MembersPage extends StatelessWidget {
           },
           itemBuilder: (BuildContext context) {
             return [
-              PopupMenuItem<String>(
+              const PopupMenuItem<String>(
                 value: 'Banir',
                 child: Text('Banir'),
               ),
-              PopupMenuItem<String>(
+              const PopupMenuItem<String>(
                 value: 'Promover',
                 child: Text('Promover a Administrador'),
               ),
-              PopupMenuItem<String>(
+              const PopupMenuItem<String>(
                 value: 'Cancelar',
                 child: Text('Cancelar'),
               ),

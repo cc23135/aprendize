@@ -43,9 +43,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : notifications.isEmpty
-              ? Center(
+              ? const Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
@@ -60,7 +60,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   ),
                 )
               : Padding(
-                  padding: EdgeInsets.all(20.0), // Ajuste o valor da margem aqui
+                  padding: const EdgeInsets.all(20.0), // Ajuste o valor da margem aqui
                   child: ListView.builder(
                     itemCount: notifications.length,
                     itemBuilder: (context, index) {
@@ -93,10 +93,10 @@ class NotificationWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.only(bottom: 8.0), // Margem entre os cards
+      margin: const EdgeInsets.only(bottom: 8.0), // Margem entre os cards
       elevation: 4,
       child: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -104,12 +104,12 @@ class NotificationWidget extends StatelessWidget {
               child: Text(
                 content,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 16),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
             IconButton(
-              icon: Icon(Icons.close),
+              icon: const Icon(Icons.close),
               onPressed: onDismiss,
             ),
           ],

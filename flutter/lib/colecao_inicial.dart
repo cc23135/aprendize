@@ -12,12 +12,12 @@ import 'main.dart';
 import 'colors.dart';
 import 'sign-page.dart';
 
-class colecaoInicialPage extends StatefulWidget {
+class ColecaoInicialPage extends StatefulWidget {
   @override
   _colecaoInicialPageState createState() => _colecaoInicialPageState();
 }
 
-class _colecaoInicialPageState extends State<colecaoInicialPage> {
+class _colecaoInicialPageState extends State<ColecaoInicialPage> {
 
   final _pesquisaColecaoController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
@@ -236,10 +236,10 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
               Row(
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                
                 children: [
                   ElevatedButton(
                     onPressed: _voltar,
-                    child: const Text('Voltar', style: TextStyle(color: AppColors.black, fontSize: 18)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.purple[50],
                       minimumSize: const Size(215, 65),
@@ -247,10 +247,10 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
+                    child: const Text('Voltar', style: TextStyle(color: AppColors.black, fontSize: 18)),
                   ),
                   ElevatedButton(
                     onPressed: _escolher,
-                    child: const Text('Escolher', style: TextStyle(color: Colors.white, fontSize: 18)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.darkPurple,
                       minimumSize: const Size(215, 65),
@@ -258,6 +258,7 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
+                    child: const Text('Escolher', style: TextStyle(color: Colors.white, fontSize: 18)),
                   ),
                 ],
               )

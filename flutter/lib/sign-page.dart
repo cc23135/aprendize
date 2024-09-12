@@ -98,16 +98,16 @@ class _SignInPageState extends State<SignInPage> {
       if (!_senhaValida(_passwordController.text)){
         _tamReqSenha = 15;
         loginCorreto = false;
-      } else
+      } else {
         _tamReqSenha = 0;
-        
+      }
 
       if (_passwordController.text != _confirmPasswordController.text){
         _tamConfirmarSenha = 15;
         loginCorreto = false;
-      } else
+      } else {
         _tamConfirmarSenha = 0;
-
+      }
     }
 
 
@@ -119,7 +119,7 @@ class _SignInPageState extends State<SignInPage> {
       if (resposta){
         // define informações do usuário e sua senha
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => colecaoInicialPage()),
+          MaterialPageRoute(builder: (context) => ColecaoInicialPage()),
         );
       } else{
         // nome igual, senha inválida, problema com a imagem, outro erro 
@@ -159,37 +159,39 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   void _onUserNameChange(String text){
-    if (text == "")
+    if (text == "") {
       setState(() {
         _tamUsername = 15; 
       });
-    else
+    } else {
       setState(() {
         _tamUsername = 0; 
       });
+    }
   }
 
   void _onNameChange(String text){
-    if (text == "")
+    if (text == "") {
       setState(() {
         _tamNome = 15; 
       });
-    else
+    } else {
       setState(() {
         _tamNome = 0; 
       });
+    }
   }
 
   void _onPasswordChange(String text){
-    if (text == "")
+    if (text == "") {
       setState(() {
         _tamSenha = 15; 
       });
-      
-    else
+    } else {
       setState(() {
         _tamSenha = 0; 
       });
+    }
   }
 
   void _onPasswordConfirmChange(String text){
@@ -212,7 +214,7 @@ class _SignInPageState extends State<SignInPage> {
         child: SingleChildScrollView(
 
           // define largura
-          padding: EdgeInsets.all(26.0),
+          padding: const EdgeInsets.all(26.0),
           
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -221,7 +223,7 @@ class _SignInPageState extends State<SignInPage> {
             children: <Widget>[
               Image.asset('assets/images/logoAprendize.png', height: 70), 
 
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
 
 
               // container da foto
@@ -283,9 +285,9 @@ class _SignInPageState extends State<SignInPage> {
                         ),
 
                         child: IconButton(
-                          icon: Icon(Icons.edit, color: AppColors.white), // Icon for the button
+                          icon: const Icon(Icons.edit, color: AppColors.white), // Icon for the button
                           onPressed: _alterarFoto,
-                          padding: EdgeInsets.all(8.0), // Padding around the icon
+                          padding: const EdgeInsets.all(8.0), // Padding around the icon
                         ),
                       ),
                     ),
@@ -293,13 +295,13 @@ class _SignInPageState extends State<SignInPage> {
                 )
               ),
 
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
 
               TextField(
                 controller: _usernameController,
                 onChanged: _onUserNameChange,
-                style: TextStyle(color: Colors.white),
-                decoration: InputDecoration(
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
                   labelText: 'Username',
                   labelStyle: TextStyle(color: Colors.white),
                   border: OutlineInputBorder(),
@@ -311,13 +313,13 @@ class _SignInPageState extends State<SignInPage> {
                 child: Text("Informe o seu Nome de Usuário", style: TextStyle(fontSize: _tamUsername, fontStyle: FontStyle.italic, color: const Color.fromARGB(255, 189, 54, 44))),
               ),
 
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
 
               TextField(
                 controller: _nameController,
                 onChanged: _onNameChange,
-                style: TextStyle(color: Colors.white),
-                decoration: InputDecoration(
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
                   labelText: 'Seu Nome',
                   labelStyle: TextStyle(color: Colors.white),
                   border: OutlineInputBorder(),
@@ -330,13 +332,13 @@ class _SignInPageState extends State<SignInPage> {
                 child: Text("Informe o seu nome", style: TextStyle(fontSize: _tamNome, fontStyle: FontStyle.italic, color: const Color.fromARGB(255, 189, 54, 44))),
               ),
 
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               TextField(
                 controller: _passwordController,
                 onChanged: _onPasswordChange,
                 obscureText: true,
-                style: TextStyle(color: Colors.white),
-                decoration: InputDecoration(
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
                   labelText: 'Senha',
                   labelStyle: TextStyle(color: Colors.white),
                   border: OutlineInputBorder(),
@@ -359,14 +361,14 @@ class _SignInPageState extends State<SignInPage> {
                 ],
               ),
 
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
 
               TextField(
                 controller: _confirmPasswordController,
                 onChanged: _onPasswordConfirmChange,
                 obscureText: true,
-                style: TextStyle(color: Colors.white),
-                decoration: InputDecoration(
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
                   labelText: 'Confirmar Senha',
                   labelStyle: TextStyle(color: Colors.white),
                   border: OutlineInputBorder(),
@@ -379,13 +381,13 @@ class _SignInPageState extends State<SignInPage> {
               ),
 
 
-              SizedBox(height: 20,),
+              const SizedBox(height: 20,),
 
               MouseRegion(
                 cursor: SystemMouseCursors.click, // Change the cursor to a pointer when hovering
                 child: GestureDetector(
                   onTap: _navegarParaLogin,
-                  child: Text(
+                  child: const Text(
                     'Já possui uma conta? Faça o login',
                     style: TextStyle(
                       color: Colors.white,
@@ -395,21 +397,22 @@ class _SignInPageState extends State<SignInPage> {
                 ),
               ),
 
-              SizedBox(height: 60),
+              const SizedBox(height: 60),
 
               ElevatedButton(
                 onPressed: _sigin,
-                child: Text('Entrar'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.darkPurple,
-                   minimumSize: Size(180, 55), // Width set to infinity to occupy full width, height set to 60
+                  
+                   minimumSize: const Size(180, 55), // Width set to infinity to occupy full width, height set to 60
                    
-                   textStyle: TextStyle(fontSize: 18),
+                   textStyle: const TextStyle(fontSize: 18),
 
                    shape: RoundedRectangleBorder(
                      borderRadius: BorderRadius.circular(10), // Set the border radius here
                    ),
                 ),
+                child: const Text('Entrar', style: TextStyle(color: Colors.white,)),
               ),
 
 

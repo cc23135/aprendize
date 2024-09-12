@@ -32,7 +32,7 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
     return Scaffold(
       backgroundColor: AppColors.black,
       appBar: AppBar(
-        title: Text('Criar Coleção', style: TextStyle(color: AppColors.white)),
+        title: const Text('Criar Coleção', style: TextStyle(color: AppColors.white)),
         backgroundColor: AppColors.lightBlackForFooter,
       ),
       body: SingleChildScrollView(
@@ -51,53 +51,53 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
                 child: Container(
                   height: 150,
                   width: double.infinity,
-                  child: Icon(Icons.add_a_photo, color: AppColors.white),
+                  child: const Icon(Icons.add_a_photo, color: AppColors.white),
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
             // Campo para o nome da coleção
             TextField(
               controller: _nomeController,
-              style: TextStyle(color: AppColors.white),
+              style: const TextStyle(color: AppColors.white),
               decoration: InputDecoration(
                 labelText: 'Nome Coleção',
-                labelStyle: TextStyle(color: AppColors.white),
+                labelStyle: const TextStyle(color: AppColors.white),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(color: AppColors.white),
+                  borderSide: const BorderSide(color: AppColors.white),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(color: AppColors.white),
+                  borderSide: const BorderSide(color: AppColors.white),
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
             // Campo para a descrição da coleção
             TextField(
               controller: _descricaoController,
               maxLines: 3,
-              style: TextStyle(color: AppColors.white),
+              style: const TextStyle(color: AppColors.white),
               decoration: InputDecoration(
                 labelText: 'Descrição',
-                labelStyle: TextStyle(color: AppColors.white),
+                labelStyle: const TextStyle(color: AppColors.white),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(color: AppColors.white),
+                  borderSide: const BorderSide(color: AppColors.white),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(color: AppColors.white),
+                  borderSide: const BorderSide(color: AppColors.white),
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
             // Título das matérias
-            Text(
+            const Text(
               'Matérias',
               style: TextStyle(
                 fontSize: 22,
@@ -105,7 +105,7 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
                 color: AppColors.white,
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
 
             // Lista de matérias e subtópicos
             Column(
@@ -130,17 +130,17 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
                                 _materias[index].titulo = value;
                               });
                             },
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: AppColors.white,
                               fontWeight: FontWeight.bold,
                             ),
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               hintText: 'Título da Matéria',
                               hintStyle: TextStyle(color: AppColors.white),
                               border: InputBorder.none,
                             ),
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
 
                           // Lista de subtópicos da matéria
                           Column(
@@ -157,7 +157,7 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
                                           value;
                                     });
                                   },
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: AppColors.lightPurple,
                                   ),
                                   decoration: InputDecoration(
@@ -172,7 +172,7 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                           color: AppColors.lightPurple),
                                     ),
                                   ),
@@ -180,15 +180,15 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
                               );
                             }).toList(),
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
 
                           // Botão para adicionar subtópico
                           Align(
                             alignment: Alignment.centerLeft,
                             child: TextButton.icon(
                               onPressed: () => _adicionarSubtitulo(index),
-                              icon: Icon(Icons.add, color: AppColors.white),
-                              label: Text('Adicionar Subtítulo', style: TextStyle(color: AppColors.white)),
+                              icon: const Icon(Icons.add, color: AppColors.white),
+                              label: const Text('Adicionar Subtítulo', style: TextStyle(color: AppColors.white)),
                               style: TextButton.styleFrom(
                                 backgroundColor: AppColors.lightBlackForFooter,
                                 shape: RoundedRectangleBorder(
@@ -210,8 +210,8 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
               alignment: Alignment.centerLeft,
               child: TextButton.icon(
                 onPressed: _adicionarMateria,
-                icon: Icon(Icons.add, color: AppColors.white),
-                label: Text('Adicionar Matéria', style: TextStyle(color: AppColors.white)),
+                icon: const Icon(Icons.add, color: AppColors.white),
+                label: const Text('Adicionar Matéria', style: TextStyle(color: AppColors.white)),
                 style: TextButton.styleFrom(
                   backgroundColor: AppColors.lightBlackForFooter,
                   shape: RoundedRectangleBorder(
@@ -220,7 +220,7 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
             // Botão para criar a coleção
             Center(
@@ -231,12 +231,12 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.lightPurple,
                   padding:
-                      EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
+                      const EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                child: Text(
+                child: const Text(
                   'Criar Coleção',
                   style: TextStyle(color: AppColors.white, fontSize: 18),
                 ),

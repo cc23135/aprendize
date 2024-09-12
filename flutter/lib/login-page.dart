@@ -76,7 +76,7 @@ class _LoginPageState extends State<LoginPage> {
       SnackBar(
         content: Text(
           message,
-          style: TextStyle(color: AppColors.white), // Texto branco
+          style: const TextStyle(color: AppColors.white), // Texto branco
         ),
         backgroundColor: AppColors.darkPurple,
       ),
@@ -106,11 +106,11 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 65),
               TextField(
                 controller: _usernameController,
-                style: TextStyle(color: Colors.white), // Texto preto
+                style: const TextStyle(color: Colors.white), // Texto preto
                 decoration: InputDecoration(
                   labelText: 'Username',
-                  labelStyle: TextStyle(color: AppColors.white),
-                  border: OutlineInputBorder(),
+                  labelStyle: const TextStyle(color: AppColors.white),
+                  border: const OutlineInputBorder(),
                   errorText: _tamUsername > 0 ? "Informe o username" : null,
                   fillColor: AppColors.black,
                   filled: true,
@@ -120,11 +120,11 @@ class _LoginPageState extends State<LoginPage> {
               TextField(
                 controller: _passwordController,
                 obscureText: true,
-                style: TextStyle(color: Colors.white), // Texto preto
+                style: const TextStyle(color: Colors.white), // Texto preto
                 decoration: InputDecoration(
                   labelText: 'Senha',
-                  labelStyle: TextStyle(color: AppColors.white),
-                  border: OutlineInputBorder(),
+                  labelStyle: const TextStyle(color: AppColors.white),
+                  border: const OutlineInputBorder(),
                   errorText: _tamSenha > 0 ? "Informe a senha" : null,
                   fillColor: AppColors.black,
                   filled: true,
@@ -146,7 +146,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 70),
               if (_isLoading)
-                Center(
+                const Center(
                   child: CircularProgressIndicator(
                     color: AppColors.lightPurple,
                   ),
@@ -154,7 +154,6 @@ class _LoginPageState extends State<LoginPage> {
               else
                 ElevatedButton(
                   onPressed: _login,
-                  child: const Text('Login'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.darkPurple,
                     minimumSize: const Size(180, 55),
@@ -163,6 +162,7 @@ class _LoginPageState extends State<LoginPage> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
+                  child: const Text('Login', style: TextStyle(color: Colors.white),),
                 ),
             ],
           ),

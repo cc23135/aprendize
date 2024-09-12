@@ -15,7 +15,7 @@ class _PomodoroPageState extends State<PomodoroPage> {
   void _startTimer() {
     setState(() {
       _isRunning = true;
-      _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
         if (_remainingSeconds > 0) {
           setState(() {
             _remainingSeconds--;
@@ -50,9 +50,9 @@ class _PomodoroPageState extends State<PomodoroPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Pomodoro'),
+        title: const Text('Pomodoro'),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context); // Volta para a página anterior
           },
@@ -62,11 +62,11 @@ class _PomodoroPageState extends State<PomodoroPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
+            const Text(
               'Pomodoro Timer',
               style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 40),
+            const SizedBox(height: 40),
 
             // Representação circular do tempo decorrido
             SizedBox(
@@ -76,17 +76,17 @@ class _PomodoroPageState extends State<PomodoroPage> {
                 value: _isRunning ? (_totalSeconds - _remainingSeconds) / _totalSeconds : 0,
                 strokeWidth: 10,
                 backgroundColor: Colors.grey[300],
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
               ),
             ),
-            SizedBox(height: 30), // Espaço de 30 pixels entre o indicador e o contador
+            const SizedBox(height: 30), // Espaço de 30 pixels entre o indicador e o contador
 
             // Contador de tempo
             Text(
               '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}',
-              style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             
             // Botões de controle do timer
             Row(
@@ -94,17 +94,17 @@ class _PomodoroPageState extends State<PomodoroPage> {
               children: <Widget>[
                 ElevatedButton(
                   onPressed: _isRunning ? null : _startTimer,
-                  child: Text('Start'),
+                  child: const Text('Start'),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 ElevatedButton(
                   onPressed: !_isRunning ? null : _stopTimer,
-                  child: Text('Stop'),
+                  child: const Text('Stop'),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 ElevatedButton(
                   onPressed: _resetTimer,
-                  child: Text('Reset'),
+                  child: const Text('Reset'),
                 ),
               ],
             ),

@@ -30,50 +30,50 @@ class RankingPage extends StatelessWidget {
                   onPressed: () {
                     // Ação para o botão 1
                   },
-                  child: Text('Botão 1'),
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
+                  child: const Text('Botão 1'),
                 ),
                 ElevatedButton(
                   onPressed: () {
                     // Ação para o botão 2
                   },
-                  child: Text('Botão 2'),
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
+                  child: const Text('Botão 2'),
                 ),
                 ElevatedButton(
                   onPressed: () {
                     // Ação para o botão 3
                   },
-                  child: Text('Botão 3'),
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
+                  child: const Text('Botão 3'),
                 ),
               ],
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             // Texto do rank do main user
             Text(
               'Você está no rank #$mainUserRank',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             // Título do Ranking
-            Text(
+            const Text(
               'Ranking dos Usuários',
               style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             // Lista de rankings com borda
             Expanded(
               child: Container(
@@ -86,8 +86,8 @@ class RankingPage extends StatelessWidget {
                   itemBuilder: (context, index) {
                     final user = rankings[index];
                     return ListTile(
-                      contentPadding: EdgeInsets.all(16),
-                      leading: CircleAvatar(
+                      contentPadding: const EdgeInsets.all(16),
+                      leading: const CircleAvatar(
                         backgroundImage: AssetImage('assets/images/mona.png'), // Imagem de perfil
                       ),
                       title: Text(user.name),
@@ -97,13 +97,13 @@ class RankingPage extends StatelessWidget {
                               width: 30,
                               height: 30,
                               alignment: Alignment.center,
-                              decoration: BoxDecoration(
+                              decoration: const BoxDecoration(
                                 color: Colors.blue,
                                 shape: BoxShape.circle,
                               ),
                               child: Text(
                                 '${user.position}',
-                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                               ),
                             )
                           : Text('${user.position}'),
@@ -114,20 +114,20 @@ class RankingPage extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             // Ícones na parte inferior
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 IconButton(
-                  icon: Icon(Icons.access_time, size: 30, color: Colors.blue),
+                  icon: const Icon(Icons.access_time, size: 30, color: Colors.blue),
                   onPressed: () {
                     // Ação ao clicar no ícone de relógio
                   },
                 ),
-                SizedBox(width: 30),
+                const SizedBox(width: 30),
                 IconButton(
-                  icon: Icon(Icons.fitness_center, size: 30, color: Colors.blue),
+                  icon: const Icon(Icons.fitness_center, size: 30, color: Colors.blue),
                   onPressed: () {
                     // Ação ao clicar no ícone de exercícios
                   },

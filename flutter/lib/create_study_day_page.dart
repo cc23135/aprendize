@@ -27,9 +27,9 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Dia 34 de Dezembro, Quarta-feira'),
+        title: const Text('Dia 34 de Dezembro, Quarta-feira'),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -41,13 +41,13 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
             padding: const EdgeInsets.all(16.0),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                Text(
+                const Text(
                   'Selecionar Matérias',
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 TextField(
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Pesquisar',
                     border: OutlineInputBorder(),
                     suffixIcon: Icon(Icons.search),
@@ -58,14 +58,14 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                     });
                   },
                 ),
-                SizedBox(height: 20),
-                Text(
+                const SizedBox(height: 20),
+                const Text(
                   'Matérias Disponíveis',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 ListView(
                   shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(), // Disable scrolling within this list
+                  physics: const NeverScrollableScrollPhysics(), // Disable scrolling within this list
                   children: filteredSubjects.map((subject) {
                     final isSelected = _selectedSubjects.any((data) => data.subject == subject);
                     return ListTile(
@@ -86,12 +86,12 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                     );
                   }).toList(),
                 ),
-                SizedBox(height: 20),
-                Text(
+                const SizedBox(height: 20),
+                const Text(
                   'Matérias Selecionadas',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
               ]),
             ),
           ),
@@ -102,7 +102,7 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                   final subjectData = _selectedSubjects[index];
                   return Card(
                     elevation: 4,
-                    margin: EdgeInsets.only(bottom: 10),
+                    margin: const EdgeInsets.only(bottom: 10),
                     child: Stack(
                       children: [
                         Positioned.fill(
@@ -124,13 +124,13 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                             children: [
                               Text(
                                 subjectData.subject,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                 ),
                               ),
-                              SizedBox(height: 10),
+                              const SizedBox(height: 10),
                               Row(
                                 children: [
                                   SizedBox(
@@ -140,7 +140,7 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                                         labelText: 'Exercícios',
                                         fillColor: Colors.black.withOpacity(0.9),
                                         filled: true,
-                                        border: OutlineInputBorder(),
+                                        border: const OutlineInputBorder(),
                                       ),
                                       keyboardType: TextInputType.number,
                                       inputFormatters: [
@@ -153,7 +153,7 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                                       },
                                     ),
                                   ),
-                                  SizedBox(width: 10),
+                                  const SizedBox(width: 10),
                                   SizedBox(
                                     width: 150, // Adjust the width as needed
                                     child: TextField(
@@ -161,7 +161,7 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                                         labelText: 'Tempo (min)',
                                         fillColor: Colors.black.withOpacity(0.9),
                                         filled: true,
-                                        border: OutlineInputBorder(),
+                                        border: const OutlineInputBorder(),
                                       ),
                                       keyboardType: TextInputType.number,
                                       inputFormatters: [
@@ -188,7 +188,7 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
               childCount: _selectedSubjects.length,
             ),
           ),
-          SliverToBoxAdapter(
+          const SliverToBoxAdapter(
             child: SizedBox(height: 20),
           ),
           SliverToBoxAdapter(
@@ -199,11 +199,11 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                   // Implementar a lógica para criar o dia de estudo aqui
                   print('Criar Dia de Estudo com as matérias selecionadas: $_selectedSubjects');
                 },
-                child: Text('Criar'),
+                child: const Text('Criar'),
               ),
             ),
           ),
-          SliverToBoxAdapter(
+          const SliverToBoxAdapter(
             child: SizedBox(height: 20),
           ),
         ],
