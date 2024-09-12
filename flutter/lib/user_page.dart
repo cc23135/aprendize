@@ -212,42 +212,42 @@ class _UserPageState extends State<UserPage> {
                           color: AppColors.darkPurple,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
-                            side: BorderSide(color: AppColors.white, width: 1),
+                            side: BorderSide(color: Colors.white, width: 1),
                           ),
                           child: ListTile(
                             title: Text(
                               'Unicamp - COMVEST',
                               style: TextStyle(
-                                color: AppColors.white,
+                                color: Colors.white,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             subtitle: Text(
                               '1.234 Estudantes',
-                              style: TextStyle(color: AppColors.white.withOpacity(0.7)),
+                              style: TextStyle(color: Colors.white.withOpacity(0.7)),
                             ),
-                            trailing: Icon(Icons.group, color: AppColors.white),
+                            trailing: Icon(Icons.group, color: Colors.white),
                           ),
                         ),
                         Card(
                           color: AppColors.darkPurple,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
-                            side: BorderSide(color: AppColors.white, width: 1),
+                            side: BorderSide(color: Colors.white, width: 1),
                           ),
                           child: ListTile(
                             title: Text(
                               'ITA',
                               style: TextStyle(
-                                color: AppColors.white,
+                                color: Colors.white,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             subtitle: Text(
                               '1.234 Estudantes',
-                              style: TextStyle(color: AppColors.white.withOpacity(0.7)),
+                              style: TextStyle(color: Colors.white.withOpacity(0.7)),
                             ),
-                            trailing: Icon(Icons.group, color: AppColors.white),
+                            trailing: Icon(Icons.group, color: Colors.white),
                           ),
                         ),
                       ],
@@ -264,7 +264,7 @@ class _UserPageState extends State<UserPage> {
                     ),
                   ),
                   onPressed: () {},
-                  child: const Text('Sair', style: TextStyle(fontSize: 18)),
+                  child: const Text('Sair', style: TextStyle(fontSize: 18, color: Colors.white)),
                 ),
                 const SizedBox(height: 10),
                 IconButton(
