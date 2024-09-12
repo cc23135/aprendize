@@ -66,11 +66,11 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
     if (_selectedCardIndex == null) {
       // Inform the user that no collection was selected
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Nenhuma coleção foi escolhida', style: TextStyle(color: Colors.white),),
+        SnackBar(
+          content: const Text('Nenhuma coleção foi escolhida', style: TextStyle(color: Colors.white),),
 
           backgroundColor: AppColors.darkPurple,
-          duration: Duration(milliseconds: 1500), // Duração de exibição da SnackBar
+          duration: const Duration(milliseconds: 1500), // Duração de exibição da SnackBar
         ),
       );
 
@@ -239,7 +239,7 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
                 children: [
                   ElevatedButton(
                     onPressed: _voltar,
-                    child: const Text('Voltar', style: TextStyle(color: AppColors.black, fontSize: 18)),
+                    child: Text('Voltar', style: TextStyle(color: AppColors.black, fontSize: 18)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.purple[50],
                       minimumSize: const Size(215, 65),

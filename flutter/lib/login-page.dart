@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert'; // Para converter a resposta em JSON
+import 'AppStateSingleton.dart';
 
 import 'main.dart';
 import 'sign-page.dart';
@@ -38,7 +39,7 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://localhost:6060/api/login?nome=$nome&senha=$senha'),
+        Uri.parse('${AppStateSingleton().ApiUrl}api/login?nome=$nome&senha=$senha'),
       );
 
       if (response.statusCode == 200) {
@@ -106,7 +107,7 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 65),
               TextField(
                 controller: _usernameController,
-                style: TextStyle(color: Colors.white), // Texto preto
+                style: TextStyle(color: AppColors.white), // Texto preto
                 decoration: InputDecoration(
                   labelText: 'Username',
                   labelStyle: TextStyle(color: AppColors.white),
@@ -120,7 +121,7 @@ class _LoginPageState extends State<LoginPage> {
               TextField(
                 controller: _passwordController,
                 obscureText: true,
-                style: TextStyle(color: Colors.white), // Texto preto
+                style: TextStyle(color: AppColors.white), // Texto preto
                 decoration: InputDecoration(
                   labelText: 'Senha',
                   labelStyle: TextStyle(color: AppColors.white),
@@ -135,7 +136,7 @@ class _LoginPageState extends State<LoginPage> {
                 cursor: SystemMouseCursors.click,
                 child: GestureDetector(
                   onTap: _navegarParaSigin,
-                  child: const Text(
+                  child: Text(
                     'Não possui conta? Cadastre-se',
                     style: TextStyle(
                       color: AppColors.white,
