@@ -33,6 +33,7 @@ class _SignInPageState extends State<SignInPage> {
   double _tamSenha = 0;
   double _tamReqSenha = 0;
   double _tamConfirmarSenha = 0;
+  double _tamUsernameDuplicado = 0;
 
 
   String _caminhoDaImagem = "";
@@ -48,6 +49,10 @@ class _SignInPageState extends State<SignInPage> {
     return senha.length > 4 && hasUppercase && hasDigits && hasSpecialCharacters;
   }
 
+  bool _existeUsuario(username){
+    //puxa API
+    return true;
+  }
 
   void _sigin() {
     // Aqui você pode adicionar lógica real de autenticação.
@@ -58,7 +63,7 @@ class _SignInPageState extends State<SignInPage> {
     
     if (_usernameController.text == ""){
       setState(() {
-        _tamUsername = 15; // Hide the username text
+        _tamUsername = 15;
       });
 
       loginCorreto = false;
@@ -66,6 +71,17 @@ class _SignInPageState extends State<SignInPage> {
       setState(() {
         _tamUsername = 0; // Hide the username text
       });
+
+      if (_existeUsuario(_usernameController.text)){
+        loginCorreto = false;
+
+        setState(() {
+          _tamUsernameDuplicado = 15;
+        });
+      } else{
+        _tamUsernameDuplicado = 0;
+      }
+
     }
 
 
@@ -113,18 +129,22 @@ class _SignInPageState extends State<SignInPage> {
 
     if (loginCorreto){
       
-      // estabelece conexão com o banco de dados e pergunta se as informações estão corretas
-      bool resposta = true;
+      // estabelece conexão com o banco de dados e pergunta se as informações estão corretas, fazer isso depois
+      // bool resposta = true;
 
-      if (resposta){
-        // define informações do usuário e sua senha
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => colecaoInicialPage()),
+          MaterialPageRoute(builder: (context) => colecaoInicialPage(username: _usernameController.text, name: _nameController.text, password: _passwordController.text, urlImagem: '',)),
         );
-      } else{
-        // nome igual, senha inválida, problema com a imagem, outro erro 
-        print("Tratar banco de dados");
-      }
+
+      // if (resposta){
+      //   // define informações do usuário e sua senha
+      //   Navigator.of(context).pushReplacement(
+      //     MaterialPageRoute(builder: (context) => colecaoInicialPage()),
+      //   );
+      // } else{
+      //   // nome igual, senha inválida, problema com a imagem, outro erro 
+      //   print("Tratar banco de dados");
+      // }
     }
 
   }
@@ -309,6 +329,11 @@ class _SignInPageState extends State<SignInPage> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text("Informe o seu Nome de Usuário", style: TextStyle(fontSize: _tamUsername, fontStyle: FontStyle.italic, color: const Color.fromARGB(255, 189, 54, 44))),
+              ),
+
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text("Esse nome de usuário já existe", style: TextStyle(fontSize: _tamUsernameDuplicado, fontStyle: FontStyle.italic, color: const Color.fromARGB(255, 189, 54, 44))),
               ),
 
               SizedBox(height: 20),

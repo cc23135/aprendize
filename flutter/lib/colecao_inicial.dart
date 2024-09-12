@@ -13,6 +13,20 @@ import 'colors.dart';
 import 'sign-page.dart';
 
 class colecaoInicialPage extends StatefulWidget {
+  final String username;
+  final String name;
+  final String password;
+  final String urlImagem;
+
+  // Add a constructor to accept the required parameters
+  const colecaoInicialPage({
+    Key? key,
+    required this.username,
+    required this.name,
+    required this.password,
+    required this.urlImagem,
+  }) : super(key: key);
+
   @override
   _colecaoInicialPageState createState() => _colecaoInicialPageState();
 }
@@ -76,9 +90,8 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
 
 
     } else {
-      bool resposta = true; // Simulate the response from the database
 
-      if (resposta) {
+      if (_cadastroNaAPI(widget.name, widget.username, widget.password, widget.urlImagem, _selectedCardIndex)) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => MyHomePage()),
         );
@@ -97,6 +110,11 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
         );
       }
     }
+  }
+
+  bool _cadastroNaAPI(name, username, password, urlImagem, cardID){
+    // card ID ainda não é válido, passar id 0
+    return true;
   }
 
   void _voltar() {
