@@ -224,6 +224,45 @@ app.get('/api/login', async (req, res) => {
 });
 
 
+app.post('/api/signUp', async (req, res) => {
+  const { username, nome, senha, linkFotoDePerfil, idColecaoInicial } = req.body;
+  console.log({ username, nome, senha, linkFotoDePerfil, idColecaoInicial })
+
+  if (!username || !nome || !senha) {
+    return res.status(400).json({ error: 'Todos campos necessários.' });
+  }
+
+  try {
+    const newUser = await prisma.usuario.create({
+      data: {
+        nome,
+        senha,
+        linkFotoDePerfil,
+      },
+    });
+
+    if (idColecaoInicial) {
+      await prisma.usuarioColecao.create({
+        data: {
+          idUsuario: newUser.idUsuario,
+          idColecao: idColecaoInicial,
+          cargo: '1',
+        },
+      });
+    }
+
+    console.log("Criado!")
+    res.status(201).json({
+      message: 'Usuário criado com sucesso!',
+      user: newUser,
+    });
+  } catch (error) {
+    console.error('Error creating user:', error);
+    res.status(500).json({ error: 'Erro ao criar usuário.' });
+  }
+});
+
+
 
 
 app.listen(port, () => {

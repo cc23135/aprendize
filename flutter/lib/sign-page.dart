@@ -51,7 +51,7 @@ class _SignInPageState extends State<SignInPage> {
 
   bool _existeUsuario(username){
     //puxa API
-    return true;
+    return false; ///fazer
   }
 
   void _sigin() {
