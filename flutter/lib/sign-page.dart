@@ -51,7 +51,7 @@ class _SignInPageState extends State<SignInPage> {
 
   bool _existeUsuario(username){
     //puxa API
-    return true;
+    return false;
   }
 
   void _sigin() {
@@ -424,7 +424,7 @@ class _SignInPageState extends State<SignInPage> {
 
               ElevatedButton(
                 onPressed: _sigin,
-                child: Text('Entrar'),
+                child: Text('Entrar', style: TextStyle(color: AppColors.white),),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.darkPurple,
                    minimumSize: Size(180, 55), // Width set to infinity to occupy full width, height set to 60
