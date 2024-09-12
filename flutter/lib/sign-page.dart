@@ -22,6 +22,7 @@ class _SignInPageState extends State<SignInPage> {
   double _tamReqSenha = 0;
   double _tamConfirmarSenha = 0;
   bool _isLoading = false;
+  double _tamUsernameDuplicado = 0;
 
   // Instância do ImageService
   final ImageService _imageService = ImageService();
@@ -35,11 +36,14 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   bool _senhaValida(String senha) {
-    bool hasUppercase = senha.contains(RegExp(r'[A-Z]'));
     bool hasDigits = senha.contains(RegExp(r'[0-9]'));
-    bool hasSpecialCharacters = senha.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
 
-    return senha.length > 4 && hasUppercase && hasDigits && hasSpecialCharacters;
+    return senha.length > 4 && hasDigits;
+  }
+
+  bool _existeUsuario(String username){
+    //puxa API
+    return true;
   }
 
   void _sigin() {
@@ -47,13 +51,24 @@ class _SignInPageState extends State<SignInPage> {
 
     if (_usernameController.text.isEmpty) {
       setState(() {
-        _tamUsername = 15; // Mostrar mensagem de erro
+        _tamUsername = 15;
       });
       loginCorreto = false;
     } else {
       setState(() {
         _tamUsername = 0; // Esconder mensagem de erro
       });
+
+      if (_existeUsuario(_usernameController.text)){
+        loginCorreto = false;
+
+        setState(() {
+          _tamUsernameDuplicado = 15;
+        });
+      } else{
+        _tamUsernameDuplicado = 0;
+      }
+
     }
 
     if (_nameController.text.isEmpty) {
@@ -89,8 +104,27 @@ class _SignInPageState extends State<SignInPage> {
         _tamConfirmarSenha = 15; // Mostrar mensagem de erro
         loginCorreto = false;
       } else {
-        _tamConfirmarSenha = 0; // Esconder mensagem de erro
+        _tamConfirmarSenha = 0;
       }
+    }
+
+    if (loginCorreto){
+      // estabelece conexão com o banco de dados e pergunta se as informações estão corretas, fazer isso depois
+      // bool resposta = true;
+
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => colecaoInicialPage(username: _usernameController.text, name: _nameController.text, password: _passwordController.text, urlImagem: '',)),
+      );
+
+      // if (resposta){
+      //   // define informações do usuário e sua senha
+      //   Navigator.of(context).pushReplacement(
+      //     MaterialPageRoute(builder: (context) => colecaoInicialPage()),
+      //   );
+      // } else{
+      //   // nome igual, senha inválida, problema com a imagem, outro erro 
+      //   print("Tratar banco de dados");
+      // }
     }
 
     if (loginCorreto) {
@@ -99,7 +133,7 @@ class _SignInPageState extends State<SignInPage> {
 
       if (resposta) {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => colecaoInicialPage()),
+          MaterialPageRoute(builder: (context) =>  colecaoInicialPage(username: _usernameController.text, name: _nameController.text, password: _passwordController.text, urlImagem: '',)),
         );
       } else {
         print("Tratar banco de dados");
@@ -153,69 +187,63 @@ class _SignInPageState extends State<SignInPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             SizedBox(height: 50),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(100.0),
-                border: Border.all(
-                  width: 3.0,
+            Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.center,
+              children: [
+                GestureDetector(
+                  onTap: _pickImage,
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppColors.white,
+                        width: 4.0,
+                      ),
+                    ),
+                    child: ValueListenableBuilder<String>(
+                      valueListenable: AppStateSingleton().userProfileImageUrlNotifier,
+                      builder: (context, imageUrl, child) {
+                        return CircleAvatar(
+                          radius: 50,
+                          backgroundImage: _isLoading
+                              ? null
+                              : (imageUrl.isNotEmpty
+                                      ? NetworkImage(imageUrl)
+                                      : AssetImage('assets/images/mona.png'))
+                                  as ImageProvider,
+                          backgroundColor: AppColors.lightBlackForFooter,
+                          child: _isLoading
+                              ? Center(
+                                  child: CircularProgressIndicator(
+                                    color: AppColors.white,
+                                  ),
+                                )
+                              : null,
+                        );
+                      },
+                    ),
+                  ),
                 ),
-              ),
-              child: Stack(
-                alignment: Alignment.topRight,
-                children: [
-                  GestureDetector(
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: GestureDetector(
                     onTap: _pickImage,
-                    child: Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: AppColors.white,
-                          width: 4.0,
-                        ),
-                      ),
-                      child: ValueListenableBuilder<String>(
-                        valueListenable: AppStateSingleton().userProfileImageUrlNotifier,
-                        builder: (context, imageUrl, child) {
-                          return CircleAvatar(
-                            radius: 50,
-                            backgroundImage: _isLoading
-                                ? null
-                                : (imageUrl.isNotEmpty
-                                        ? NetworkImage(imageUrl)
-                                        : AssetImage('assets/images/mona.png'))
-                                    as ImageProvider,
-                            backgroundColor: AppColors.lightBlackForFooter,
-                            child: _isLoading
-                                ? Center(
-                                    child: CircularProgressIndicator(
-                                      color: AppColors.white,
-                                    ),
-                                  )
-                                : null,
-                          );
-                        },
+                    child: CircleAvatar(
+                      radius: 15,
+                      backgroundColor: AppColors.white,
+                      child: Icon(
+                        Icons.edit,
+                        size: 20,
+                        color: AppColors.darkPurple,
                       ),
                     ),
                   ),
-                  Positioned(
-                    right: 0,
-                    child: GestureDetector(
-                      onTap: _pickImage,
-                      child: CircleAvatar(
-                        radius: 15,
-                        backgroundColor: AppColors.white,
-                        child: Icon(
-                          Icons.edit,
-                          size: 25,
-                          color: AppColors.darkPurple,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
             SizedBox(height: 20),
             TextField(
@@ -271,29 +299,15 @@ class _SignInPageState extends State<SignInPage> {
                 border: OutlineInputBorder(),
               ),
             ),
-            Column(
-              children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "Informe a senha",
-                    style: TextStyle(
-                        fontSize: _tamSenha,
-                        fontStyle: FontStyle.italic,
-                        color: const Color.fromARGB(255, 189, 54, 44)),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "A senha deve conter mais de 4 caracteres, incluindo letras maiúsculas, números e caracteres especiais.",
-                    style: TextStyle(
-                        fontSize: _tamReqSenha,
-                        fontStyle: FontStyle.italic,
-                        color: const Color.fromARGB(255, 189, 54, 44)),
-                  ),
-                ),
-              ],
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "Informe sua Senha (min 5 caracteres e 1 número)",
+                style: TextStyle(
+                    fontSize: _tamReqSenha,
+                    fontStyle: FontStyle.italic,
+                    color: const Color.fromARGB(255, 189, 54, 44)),
+              ),
             ),
             SizedBox(height: 20),
             TextField(
@@ -302,7 +316,7 @@ class _SignInPageState extends State<SignInPage> {
               obscureText: true,
               style: TextStyle(color: Colors.white),
               decoration: InputDecoration(
-                labelText: 'Confirme a Senha',
+                labelText: 'Confirmar Senha',
                 labelStyle: TextStyle(color: Colors.white),
                 border: OutlineInputBorder(),
               ),
@@ -310,7 +324,7 @@ class _SignInPageState extends State<SignInPage> {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                "As senhas devem corresponder",
+                "Confirme sua Senha",
                 style: TextStyle(
                     fontSize: _tamConfirmarSenha,
                     fontStyle: FontStyle.italic,
