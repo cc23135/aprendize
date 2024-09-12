@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'; // Para verificar a plataforma
 import 'package:image_picker/image_picker.dart';
@@ -9,41 +8,16 @@ import 'package:aprendize/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:aprendize/AppStateSingleton.dart';
 
-class UserPage extends StatefulWidget {
-  @override
-  _UserPageState createState() => _UserPageState();
-}
-
-class _UserPageState extends State<UserPage> {
+class ImageService {
   final Dio _dio = Dio();
-  bool _isLoading = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _loadThemePreference(); // Carregar tema ao iniciar
-  }
-
-  Future<void> _loadThemePreference() async {
-    final prefs = await SharedPreferences.getInstance();
-    final isDarkMode = prefs.getBool('isDarkMode') ?? false;
-    AppStateSingleton().themeModeNotifier.value =
-        isDarkMode ? ThemeMode.dark : ThemeMode.light;
-  }
-
-  Future<void> _saveThemePreference(bool isDarkMode) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isDarkMode', isDarkMode);
-  }
-
-  Future<void> _pickImage() async {
+  Future<void> pickImage(Function(FormData) onImagePicked) async {
     final XFile? image = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (image != null) {
-      _toggleLoadingState(true);
       final formData = await _prepareFormData(image);
-      await _uploadImage(formData);
-      _toggleLoadingState(false);
+      onImagePicked(formData);
     }
+    print("chegou aqui");
   }
 
   Future<FormData> _prepareFormData(XFile image) async {
@@ -59,7 +33,7 @@ class _UserPageState extends State<UserPage> {
     }
   }
 
-  Future<void> _uploadImage(FormData formData) async {
+  Future<void> uploadImage(FormData formData) async {
     try {
       final url = '${AppStateSingleton().ApiUrl}api/upload-image';
       if (kIsWeb) {
@@ -87,6 +61,42 @@ class _UserPageState extends State<UserPage> {
     } catch (e) {
       print('Erro ao enviar a imagem: $e');
     }
+  }
+}
+
+class UserPage extends StatefulWidget {
+  @override
+  _UserPageState createState() => _UserPageState();
+}
+
+class _UserPageState extends State<UserPage> {
+  final ImageService _imageService = ImageService(); // Instância do serviço de imagem
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadThemePreference(); // Carregar tema ao iniciar
+  }
+
+  Future<void> _loadThemePreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isDarkMode = prefs.getBool('isDarkMode') ?? false;
+    AppStateSingleton().themeModeNotifier.value =
+        isDarkMode ? ThemeMode.dark : ThemeMode.light;
+  }
+
+  Future<void> _saveThemePreference(bool isDarkMode) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isDarkMode', isDarkMode);
+  }
+
+  Future<void> _pickImage() async {
+    _toggleLoadingState(true);
+    await _imageService.pickImage((formData) async {
+      await _imageService.uploadImage(formData);
+      _toggleLoadingState(false);
+    });
   }
 
   void _toggleLoadingState(bool state) {

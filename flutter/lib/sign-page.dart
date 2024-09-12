@@ -1,20 +1,9 @@
-// senha com mais de um dígito, pelo menos uma letra maiúscula, caracter especial e 5 dígitos
-// > necessita de um sp no banco de dados
-
-// usuário com dígitos mínimos
-// > SP
-
-// borda do input muda de cor se errado?
-
-// criar resposta quando BD retorna false
-// corrigir foto
-
-
-import 'package:aprendize/login-page.dart';
 import 'package:flutter/material.dart';
-import 'colors.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:aprendize/colecao_inicial.dart';
+import 'package:aprendize/login-page.dart';
+import 'colors.dart';
+import 'user_page.dart';
+import 'AppStateSingleton.dart';
 
 class SignInPage extends StatefulWidget {
   @override
@@ -27,20 +16,25 @@ class _SignInPageState extends State<SignInPage> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
-  
   double _tamUsername = 0;
   double _tamNome = 0;
   double _tamSenha = 0;
   double _tamReqSenha = 0;
   double _tamConfirmarSenha = 0;
+  bool _isLoading = false;
 
+  // Instância do ImageService
+  final ImageService _imageService = ImageService();
 
-  String _caminhoDaImagem = "";
-
+  Future<void> _pickImage() async {
+    _toggleLoadingState(true);
+    await _imageService.pickImage((formData) async {
+      await _imageService.uploadImage(formData);
+      _toggleLoadingState(false);
+    });
+  }
 
   bool _senhaValida(String senha) {
-    return true;
-    // todo
     bool hasUppercase = senha.contains(RegExp(r'[A-Z]'));
     bool hasDigits = senha.contains(RegExp(r'[0-9]'));
     bool hasSpecialCharacters = senha.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
@@ -48,373 +42,297 @@ class _SignInPageState extends State<SignInPage> {
     return senha.length > 4 && hasUppercase && hasDigits && hasSpecialCharacters;
   }
 
-
   void _sigin() {
-    // Aqui você pode adicionar lógica real de autenticação.
-    // Por enquanto, vamos simular o sucesso do login e redirecionar.
-
     bool loginCorreto = true;
 
-    
-    if (_usernameController.text == ""){
+    if (_usernameController.text.isEmpty) {
       setState(() {
-        _tamUsername = 15; // Hide the username text
+        _tamUsername = 15; // Mostrar mensagem de erro
       });
-
       loginCorreto = false;
-    } else{
+    } else {
       setState(() {
-        _tamUsername = 0; // Hide the username text
+        _tamUsername = 0; // Esconder mensagem de erro
       });
     }
 
-
-    if (_nameController.text == ""){
+    if (_nameController.text.isEmpty) {
       setState(() {
-        _tamNome = 15; // Hide the username text
+        _tamNome = 15; // Mostrar mensagem de erro
       });
-
       loginCorreto = false;
-    } else{
+    } else {
       setState(() {
-        _tamNome = 0; // Hide the username text
+        _tamNome = 0; // Esconder mensagem de erro
       });
     }
-    
 
-    if (_passwordController.text == ""){
+    if (_passwordController.text.isEmpty) {
       loginCorreto = false;
-
       setState(() {
-        _tamSenha = 15;
+        _tamSenha = 15; // Mostrar mensagem de erro
         _tamConfirmarSenha = 0;
       });
-
-    } else{
+    } else {
       setState(() {
-        _tamSenha = 0;
+        _tamSenha = 0; // Esconder mensagem de erro
       });
 
-      if (!_senhaValida(_passwordController.text)){
-        _tamReqSenha = 15;
+      if (!_senhaValida(_passwordController.text)) {
+        _tamReqSenha = 15; // Mostrar mensagem de erro
         loginCorreto = false;
-      } else
-        _tamReqSenha = 0;
-        
+      } else {
+        _tamReqSenha = 0; // Esconder mensagem de erro
+      }
 
-      if (_passwordController.text != _confirmPasswordController.text){
-        _tamConfirmarSenha = 15;
+      if (_passwordController.text != _confirmPasswordController.text) {
+        _tamConfirmarSenha = 15; // Mostrar mensagem de erro
         loginCorreto = false;
-      } else
-        _tamConfirmarSenha = 0;
-
-    }
-
-
-    if (loginCorreto){
-      
-      // estabelece conexão com o banco de dados e pergunta se as informações estão corretas
-      bool resposta = true;
-
-      if (resposta){
-        // define informações do usuário e sua senha
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => colecaoInicialPage()),
-        );
-      } else{
-        // nome igual, senha inválida, problema com a imagem, outro erro 
-        print("Tratar banco de dados");
+      } else {
+        _tamConfirmarSenha = 0; // Esconder mensagem de erro
       }
     }
 
+    if (loginCorreto) {
+      // Estabelece conexão com o banco de dados e pergunta se as informações estão corretas
+      bool resposta = true;
+
+      if (resposta) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => colecaoInicialPage()),
+        );
+      } else {
+        print("Tratar banco de dados");
+      }
+    }
   }
-  
-  void _navegarParaLogin(){
+
+  void _navegarParaLogin() {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (context) => LoginPage()),
     );
   }
 
-    
-  void _alterarFoto() async {
-    final ImagePicker _picker = ImagePicker();
-
-    // Pick an image from the gallery
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-
-    if (image != null) {
-      setState(() {
-        _caminhoDaImagem = image.path;
-        print(_caminhoDaImagem);
-      });
-    } else {
-        // Handle the case when the user cancels the picker
-        setState(() {
-        _caminhoDaImagem = "";
-        });
-        print('No image selected.');
-
-      // COLOCAR AVISO GRÁFICO
-    }
+  void _onUserNameChange(String text) {
+    setState(() {
+      _tamUsername = text.isEmpty ? 15 : 0;
+    });
   }
 
-  void _onUserNameChange(String text){
-    if (text == "")
-      setState(() {
-        _tamUsername = 15; 
-      });
-    else
-      setState(() {
-        _tamUsername = 0; 
-      });
+  void _onNameChange(String text) {
+    setState(() {
+      _tamNome = text.isEmpty ? 15 : 0;
+    });
   }
 
-  void _onNameChange(String text){
-    if (text == "")
-      setState(() {
-        _tamNome = 15; 
-      });
-    else
-      setState(() {
-        _tamNome = 0; 
-      });
+  void _onPasswordChange(String text) {
+    setState(() {
+      _tamSenha = text.isEmpty ? 15 : 0;
+    });
   }
 
-  void _onPasswordChange(String text){
-    if (text == "")
-      setState(() {
-        _tamSenha = 15; 
-      });
-      
-    else
-      setState(() {
-        _tamSenha = 0; 
-      });
-  }
-
-  void _onPasswordConfirmChange(String text){
+  void _onPasswordConfirmChange(String text) {
     setState(() {
       _tamConfirmarSenha = 0;
     });
   }
 
-
-// width responsivo
-
+  void _toggleLoadingState(bool isLoading) {
+    setState(() {
+      _isLoading = isLoading;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.black,
-      body: Align(
-        alignment: Alignment.topCenter,
-
-        child: SingleChildScrollView(
-
-          // define largura
-          padding: EdgeInsets.all(26.0),
-          
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            
-            children: <Widget>[
-              Image.asset('assets/images/logoAprendize.png', height: 70), 
-
-              SizedBox(height: 20),
-
-
-              // container da foto
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(100.0), // Match the border radius of ClipRRect
-                  border: Border.all(
-                    color: const Color.fromARGB(255, 79, 59, 255), // Border color
-                    width: 3.0, // Border width
-                  ),
-                ),
-
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(100.0), // Match the border radius of BoxDecoration
-                      child: Stack(
-                        children: [
-                          // Background color
-                          Container(
-                            color: Colors.grey[300], // Background color (fallback color)
-                            height: 130.0, // Fixed height of the image
-                            width: 130.0, // Fixed width of the image
-                          ),
-                          // Image with fallback
-                          Image.asset(
-                            // _caminhoDaImagem
-                            'assets/images/mona.png', // Path to your image
-                            height: 130.0, // Fixed height of 130px
-                            width: 130.0, // Fixed width of 130px
-                            fit: BoxFit.cover, // Scale the image to cover the entire space while maintaining aspect ratio
-                            errorBuilder: (context, error, stackTrace) {
-                              // Fallback in case of an error loading the image
-                              return Container(
-                                color: Colors.grey[300], // Background color for the error case
-                                height: 130.0, // Same size as the image
-                                width: 130.0, // Same size as the image
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Button in the top-right corner
-                    Positioned(
-                      right: -5, 
-                      top: -5, 
-                      child: Container(
-
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppColors.darkPurple, // Background color of the button
-                          border: Border.all(
-                            width: 2,
-                            color: const Color.fromARGB(255, 255, 255, 255),
-                          )
-                        ),
-
-                        child: IconButton(
-                          icon: Icon(Icons.edit, color: AppColors.white), // Icon for the button
-                          onPressed: _alterarFoto,
-                          padding: EdgeInsets.all(8.0), // Padding around the icon
-                        ),
-                      ),
-                    ),
-                  ],
-                )
-              ),
-
-              SizedBox(height: 20),
-
-              TextField(
-                controller: _usernameController,
-                onChanged: _onUserNameChange,
-                style: TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'Username',
-                  labelStyle: TextStyle(color: Colors.white),
-                  border: OutlineInputBorder(),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            SizedBox(height: 50),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(100.0),
+                border: Border.all(
+                  width: 3.0,
                 ),
               ),
-
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text("Informe o seu Nome de Usuário", style: TextStyle(fontSize: _tamUsername, fontStyle: FontStyle.italic, color: const Color.fromARGB(255, 189, 54, 44))),
-              ),
-
-              SizedBox(height: 20),
-
-              TextField(
-                controller: _nameController,
-                onChanged: _onNameChange,
-                style: TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'Seu Nome',
-                  labelStyle: TextStyle(color: Colors.white),
-                  border: OutlineInputBorder(),
-                ),
-              ),
-
-              
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text("Informe o seu nome", style: TextStyle(fontSize: _tamNome, fontStyle: FontStyle.italic, color: const Color.fromARGB(255, 189, 54, 44))),
-              ),
-
-              SizedBox(height: 20),
-              TextField(
-                controller: _passwordController,
-                onChanged: _onPasswordChange,
-                obscureText: true,
-                style: TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'Senha',
-                  labelStyle: TextStyle(color: Colors.white),
-                  border: OutlineInputBorder(),
-                ),
-              ),
-
-              Column(
+              child: Stack(
+                alignment: Alignment.topRight,
                 children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: 
-                    Text("Informe a senha", style: TextStyle(fontSize: _tamSenha, fontStyle: FontStyle.italic, color: const Color.fromARGB(255, 189, 54, 44))),
+                  GestureDetector(
+                    onTap: _pickImage,
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: AppColors.white,
+                          width: 4.0,
+                        ),
+                      ),
+                      child: ValueListenableBuilder<String>(
+                        valueListenable: AppStateSingleton().userProfileImageUrlNotifier,
+                        builder: (context, imageUrl, child) {
+                          return CircleAvatar(
+                            radius: 50,
+                            backgroundImage: _isLoading
+                                ? null
+                                : (imageUrl.isNotEmpty
+                                        ? NetworkImage(imageUrl)
+                                        : AssetImage('assets/images/mona.png'))
+                                    as ImageProvider,
+                            backgroundColor: AppColors.lightBlackForFooter,
+                            child: _isLoading
+                                ? Center(
+                                    child: CircularProgressIndicator(
+                                      color: AppColors.white,
+                                    ),
+                                  )
+                                : null,
+                          );
+                        },
+                      ),
+                    ),
                   ),
-
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: 
-                    Text("A senha deve conter mais de 4 dígitos, uma letra maiúscula, um número e um caracter especial(ex.: !@#)", style: TextStyle(fontSize: _tamReqSenha, fontStyle: FontStyle.italic, color: const Color.fromARGB(255, 189, 54, 44))),
-                  )
+                  Positioned(
+                    right: 0,
+                    child: GestureDetector(
+                      onTap: _pickImage,
+                      child: CircleAvatar(
+                        radius: 15,
+                        backgroundColor: AppColors.white,
+                        child: Icon(
+                          Icons.edit,
+                          size: 25,
+                          color: AppColors.darkPurple,
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
-
-              SizedBox(height: 20),
-
-              TextField(
-                controller: _confirmPasswordController,
-                onChanged: _onPasswordConfirmChange,
-                obscureText: true,
-                style: TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'Confirmar Senha',
-                  labelStyle: TextStyle(color: Colors.white),
-                  border: OutlineInputBorder(),
-                ),
+            ),
+            SizedBox(height: 20),
+            TextField(
+              controller: _usernameController,
+              onChanged: _onUserNameChange,
+              style: TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'Username',
+                labelStyle: TextStyle(color: Colors.white),
+                border: OutlineInputBorder(),
               ),
-                            
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text("As senhas não conferem", style: TextStyle(fontSize: _tamConfirmarSenha, fontStyle: FontStyle.italic, color: const Color.fromARGB(255, 189, 54, 44))),
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "Informe o seu Nome de Usuário",
+                style: TextStyle(
+                    fontSize: _tamUsername,
+                    fontStyle: FontStyle.italic,
+                    color: const Color.fromARGB(255, 189, 54, 44)),
               ),
-
-
-              SizedBox(height: 20,),
-
-              MouseRegion(
-                cursor: SystemMouseCursors.click, // Change the cursor to a pointer when hovering
-                child: GestureDetector(
-                  onTap: _navegarParaLogin,
+            ),
+            SizedBox(height: 20),
+            TextField(
+              controller: _nameController,
+              onChanged: _onNameChange,
+              style: TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'Seu Nome',
+                labelStyle: TextStyle(color: Colors.white),
+                border: OutlineInputBorder(),
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "Informe o seu nome",
+                style: TextStyle(
+                    fontSize: _tamNome,
+                    fontStyle: FontStyle.italic,
+                    color: const Color.fromARGB(255, 189, 54, 44)),
+              ),
+            ),
+            SizedBox(height: 20),
+            TextField(
+              controller: _passwordController,
+              onChanged: _onPasswordChange,
+              obscureText: true,
+              style: TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'Senha',
+                labelStyle: TextStyle(color: Colors.white),
+                border: OutlineInputBorder(),
+              ),
+            ),
+            Column(
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
                   child: Text(
-                    'Já possui uma conta? Faça o login',
+                    "Informe a senha",
                     style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                    ),
+                        fontSize: _tamSenha,
+                        fontStyle: FontStyle.italic,
+                        color: const Color.fromARGB(255, 189, 54, 44)),
                   ),
                 ),
-              ),
-
-              SizedBox(height: 60),
-
-              ElevatedButton(
-                onPressed: _sigin,
-                child: Text('Entrar'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.darkPurple,
-                   minimumSize: Size(180, 55), // Width set to infinity to occupy full width, height set to 60
-                   
-                   textStyle: TextStyle(fontSize: 18),
-
-                   shape: RoundedRectangleBorder(
-                     borderRadius: BorderRadius.circular(10), // Set the border radius here
-                   ),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "A senha deve conter mais de 4 caracteres, incluindo letras maiúsculas, números e caracteres especiais.",
+                    style: TextStyle(
+                        fontSize: _tamReqSenha,
+                        fontStyle: FontStyle.italic,
+                        color: const Color.fromARGB(255, 189, 54, 44)),
+                  ),
                 ),
+              ],
+            ),
+            SizedBox(height: 20),
+            TextField(
+              controller: _confirmPasswordController,
+              onChanged: _onPasswordConfirmChange,
+              obscureText: true,
+              style: TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'Confirme a Senha',
+                labelStyle: TextStyle(color: Colors.white),
+                border: OutlineInputBorder(),
               ),
-
-
-            ],
-          ),
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "As senhas devem corresponder",
+                style: TextStyle(
+                    fontSize: _tamConfirmarSenha,
+                    fontStyle: FontStyle.italic,
+                    color: const Color.fromARGB(255, 189, 54, 44)),
+              ),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _sigin,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.darkPurple,
+              ),
+              child: Text('Cadastrar'),
+            ),
+            TextButton(
+              onPressed: _navegarParaLogin,
+              child: Text(
+                'Já tem uma conta? Faça login',
+                style: TextStyle(color: AppColors.white),
+              ),
+            ),
+          ],
         ),
       ),
     );
