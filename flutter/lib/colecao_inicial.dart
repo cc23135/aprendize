@@ -176,9 +176,9 @@ void _showSnackbar(String message, Color backgroundColor) {
             children: <Widget>[
               Image.asset('assets/images/logoAprendize.png', height: 70),
               const SizedBox(height: 40),
-              const Align(
+              Align(
                 alignment: Alignment.centerLeft,
-                child: Text("Pesquise uma coleção inicial", style: TextStyle(fontSize: 20)),
+                child: Text("Pesquise uma coleção inicial", style: TextStyle(fontSize: 20, color: AppColors.white) ),
               ),
               const SizedBox(height: 10),
               MouseRegion(
@@ -249,8 +249,8 @@ void _showSnackbar(String message, Color backgroundColor) {
                                   image: const AssetImage('assets/images/mona.png'),
                                   fit: BoxFit.cover,
                                   colorFilter: ColorFilter.mode(
-                                    Colors.black.withOpacity(0.5),
-                                    BlendMode.darken,
+                                    AppColors.lightPurple.withOpacity(0.4),
+                                    BlendMode.color,
                                   ),
                                 ),
                                 border: Border.all(

@@ -1,6 +1,4 @@
-import 'package:aprendize/login-page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'home_page.dart';
 import 'statistics_page.dart';
 import 'ranking_page.dart';
@@ -8,6 +6,7 @@ import 'chats_page.dart';
 import 'calendar_page.dart';
 import 'notifications_page.dart';
 import 'user_page.dart';
+import 'login-page.dart';
 import 'colors.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -67,16 +66,6 @@ class MyApp extends StatelessWidget {
             brightness: Brightness.dark,
           ),
           themeMode: themeMode,
-          locale: Locale('pt', 'BR'), 
-          supportedLocales: [
-            const Locale('en', 'US'),
-            const Locale('pt', 'BR'),
-          ],
-          localizationsDelegates: [
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
           home: FutureBuilder<bool>(
             future: _checkLoginStatus(),
             builder: (context, snapshot) {
@@ -152,7 +141,7 @@ class _MyHomePageState extends State<MyHomePage> {
           decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(
-                color: theme.appBarTheme.backgroundColor?.withOpacity(0.2) ?? Colors.black.withOpacity(0.2),
+              color: AppColors.white.withOpacity(0.2),
                 spreadRadius: 0,
                 blurRadius: 4,
                 offset: const Offset(0, 1),
@@ -160,7 +149,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
           ),
           child: AppBar(
-            scrolledUnderElevation: 0.0,
+            surfaceTintColor: Colors.transparent,
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
