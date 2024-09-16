@@ -148,25 +148,32 @@ app.get('/api/getNotifications', async (req, res) => {
 });
 
 
-app.get('/api/existeUsuario', async (req,res) => {
+app.post('/api/existeUsuario', async (req, res) => {
   try {
-    const username = req.query.username; 
+    const { username } = req.body; 
+    console.log("Verificando " + username + "...")
+    if (!username) {
+      return res.status(400).json({ error: 'Username é necessário.' });
+    }
 
-    const user = await prisma.usuario.findMany({
-      where: { username: username } 
+    const user = await prisma.usuario.findUnique({
+      where: { username: username },
     });
 
-    if(user != null){
+    if (user) {
+      console.log("Existe usuario")
       res.json({ success: true });
-    }else{
-      res.json({success: false});
+    } else {
+      console.log("Nao existe usuario")
+      res.json({ success: false });
     }
    
   } catch (error) {
-    console.error('Error :', error);
-    res.status(500).json({ error: 'Erro' });
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Erro ao verificar usuário.' });
   }
-})
+});
+
 
 
 app.get('/api/haveNewNotification', async (req, res) => {
@@ -193,18 +200,18 @@ app.get('/api/haveNewNotification', async (req, res) => {
 
 app.get('/api/login', async (req, res) => {
   try {
-    const { nome, senha } = req.query;
+    const { username, senha } = req.query;
 
-    console.log("Tentando logar como " + nome + "...")
+    console.log("Tentando logar como " + username + "...")
 
-    if (!nome || !senha) {
+    if (!username || !senha) {
       return res.json({ success: false, message: 'Nome de usuário e senha são obrigatórios.' });
     }
 
     const user = await prisma.usuario.findFirst({
       where: {
         AND: [
-          { nome: nome },
+          { username: username },
           { senha: senha }
         ]
       }
@@ -226,48 +233,58 @@ app.get('/api/login', async (req, res) => {
 
 app.post('/api/signUp', async (req, res) => {
   const { username, nome, senha, linkFotoDePerfil, idColecaoInicial } = req.body;
-  console.log({ username, nome, senha, linkFotoDePerfil, idColecaoInicial })
+  console.log({ username, nome, senha, linkFotoDePerfil, idColecaoInicial });
 
   if (!username || !nome || !senha) {
     return res.status(400).json({ error: 'Todos campos necessários.' });
   }
 
+  const idColecaoInicialInt = idColecaoInicial ? parseInt(idColecaoInicial, 10) : null;
+
+  if (isNaN(idColecaoInicialInt) && idColecaoInicial !== undefined) {
+    return res.status(400).json({ error: 'idColecaoInicial deve ser um número válido.' });
+  }
+
   try {
-    // Inserindo o novo usuário
-    await prisma.$executeRaw`
-      INSERT INTO Usuario (nome, username, senha, linkFotoDePerfil)
-      VALUES (${nome}, ${username}, ${senha}, ${linkFotoDePerfil});
-      SELECT SCOPE_IDENTITY() AS idUsuario;
-    `;
-  
-    // Obtendo o ID do novo usuário
-    const [newUserResult] = await prisma.$queryRaw`
-      SELECT SCOPE_IDENTITY() AS idUsuario
-    `;
-    
-    const newUserId = newUserResult?.idUsuario;
-  
-    if (!newUserId) {
-      throw new Error('Erro ao obter o ID do novo usuário');
+    const existingUser = await prisma.usuario.findUnique({
+      where: { username },
+    });
+
+    if (existingUser) {
+      console.log("Já existe!")
+      return res.status(409).json({ error: 'Nome de usuário já está em uso.' });
     }
-  
-    if (idColecaoInicial) {
-      await prisma.$executeRaw`
-        INSERT INTO UsuarioColecao (idUsuario, idColecao, cargo)
-        VALUES (${newUserId}, ${idColecaoInicial}, '1')
-      `;
+
+    console.log("Usuario nao existe... Pode criar!")
+
+    const newUser = await prisma.usuario.create({
+      data: {
+        nome,
+        username,
+        senha,
+        linkFotoDePerfil,
+      },
+    });
+
+    if (idColecaoInicialInt) {
+      await prisma.usuarioColecao.create({
+        data: {
+          idUsuario: newUser.idUsuario,
+          idColecao: idColecaoInicialInt,
+          cargo: '1',
+        },
+      });
     }
-  
+
     console.log("Criado!");
     res.status(201).json({
       message: 'Usuário criado com sucesso!',
-      user: { idUsuario: newUserId, nome, username, senha, linkFotoDePerfil },
+      user: { idUsuario: newUser.idUsuario, nome, username, senha, linkFotoDePerfil },
     });
   } catch (error) {
     console.error('Error creating user:', error);
     res.status(500).json({ error: 'Erro ao criar usuário.' });
   }
-
 });
 
 
@@ -361,7 +378,30 @@ app.get('/api/rankingUsers', async (req, res) => {
 });
 
 
-
+app.get('/api/getColecoes', async (req, res) => {
+  try {
+    console.log("Obtendo colecoes....");
+    const colecoes = await prisma.colecao.findMany({
+      include: {
+        UsuarioColecao: {
+          select: {
+            idUsuarioColecao: true,
+          }
+        }
+      }
+    });
+    
+    const colecoesComEstudantes = colecoes.map(colecao => ({
+      ...colecao,
+      numEstudantes: colecao.UsuarioColecao.length 
+    }));
+    
+    res.json({ colecoes: colecoesComEstudantes });
+  } catch (error) {
+    console.error('Error fetching colecoes:', error);
+    res.status(500).json({ error: 'Erro ao buscar colecoes' });
+  }
+});
 
 
 

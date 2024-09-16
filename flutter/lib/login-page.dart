@@ -22,12 +22,12 @@ class _LoginPageState extends State<LoginPage> {
 
   // Função para realizar o login
   Future<void> _login() async {
-    final nome = _usernameController.text;
+    final username = _usernameController.text;
     final senha = _passwordController.text;
 
-    if (nome.isEmpty || senha.isEmpty) {
+    if (username.isEmpty || senha.isEmpty) {
       setState(() {
-        _tamUsername = nome.isEmpty ? 15 : 0;
+        _tamUsername = username.isEmpty ? 15 : 0;
         _tamSenha = senha.isEmpty ? 15 : 0;
       });
       return;
@@ -39,7 +39,7 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       final response = await http.get(
-        Uri.parse('${AppStateSingleton().ApiUrl}api/login?nome=$nome&senha=$senha'),
+        Uri.parse('${AppStateSingleton().ApiUrl}api/login?username=$username&senha=$senha'),
       );
 
       if (response.statusCode == 200) {
