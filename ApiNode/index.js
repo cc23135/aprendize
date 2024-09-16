@@ -200,18 +200,18 @@ app.get('/api/haveNewNotification', async (req, res) => {
 
 app.get('/api/login', async (req, res) => {
   try {
-    const { nome, senha } = req.query;
+    const { username, senha } = req.query;
 
-    console.log("Tentando logar como " + nome + "...")
+    console.log("Tentando logar como " + username + "...")
 
-    if (!nome || !senha) {
+    if (!username || !senha) {
       return res.json({ success: false, message: 'Nome de usuário e senha são obrigatórios.' });
     }
 
     const user = await prisma.usuario.findFirst({
       where: {
         AND: [
-          { nome: nome },
+          { username: username },
           { senha: senha }
         ]
       }
@@ -378,7 +378,30 @@ app.get('/api/rankingUsers', async (req, res) => {
 });
 
 
-
+app.get('/api/getColecoes', async (req, res) => {
+  try {
+    console.log("Obtendo colecoes....");
+    const colecoes = await prisma.colecao.findMany({
+      include: {
+        UsuarioColecao: {
+          select: {
+            idUsuarioColecao: true,
+          }
+        }
+      }
+    });
+    
+    const colecoesComEstudantes = colecoes.map(colecao => ({
+      ...colecao,
+      numEstudantes: colecao.UsuarioColecao.length 
+    }));
+    
+    res.json({ colecoes: colecoesComEstudantes });
+  } catch (error) {
+    console.error('Error fetching colecoes:', error);
+    res.status(500).json({ error: 'Erro ao buscar colecoes' });
+  }
+});
 
 
 

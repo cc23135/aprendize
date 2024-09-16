@@ -137,8 +137,10 @@ class _SignInPageState extends State<SignInPage> {
       // estabelece conexão com o banco de dados e pergunta se as informações estão corretas, fazer isso depois
       // bool resposta = true;
 
+      String urlImage = AppStateSingleton().userProfileImageUrlNotifier.value;
+
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => colecaoInicialPage(username: _usernameController.text, name: _nameController.text, password: _passwordController.text, urlImagem: '',)),
+        MaterialPageRoute(builder: (context) => colecaoInicialPage(username: _usernameController.text, name: _nameController.text, password: _passwordController.text, urlImagem: urlImage,)),
       );
 
       // if (resposta){
@@ -157,8 +159,10 @@ class _SignInPageState extends State<SignInPage> {
       bool resposta = true;
 
       if (resposta) {
+        String urlImage = AppStateSingleton().userProfileImageUrlNotifier.value;
+
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) =>  colecaoInicialPage(username: _usernameController.text, name: _nameController.text, password: _passwordController.text, urlImagem: '',)),
+          MaterialPageRoute(builder: (context) =>  colecaoInicialPage(username: _usernameController.text, name: _nameController.text, password: _passwordController.text, urlImagem: urlImage,)),
         );
       } else {
         print("Tratar banco de dados");
