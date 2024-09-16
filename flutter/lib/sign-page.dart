@@ -249,10 +249,10 @@ class _SignInPageState extends State<SignInPage> {
             TextField(
               controller: _usernameController,
               onChanged: _onUserNameChange,
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: AppColors.white),
               decoration: InputDecoration(
                 labelText: 'Username',
-                labelStyle: TextStyle(color: Colors.white),
+                labelStyle: TextStyle(color: AppColors.white),
                 border: OutlineInputBorder(),
               ),
             ),
@@ -270,10 +270,10 @@ class _SignInPageState extends State<SignInPage> {
             TextField(
               controller: _nameController,
               onChanged: _onNameChange,
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: AppColors.white),
               decoration: InputDecoration(
                 labelText: 'Seu Nome',
-                labelStyle: TextStyle(color: Colors.white),
+                labelStyle: TextStyle(color: AppColors.white),
                 border: OutlineInputBorder(),
               ),
             ),
@@ -292,10 +292,10 @@ class _SignInPageState extends State<SignInPage> {
               controller: _passwordController,
               onChanged: _onPasswordChange,
               obscureText: true,
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: AppColors.white),
               decoration: InputDecoration(
                 labelText: 'Senha',
-                labelStyle: TextStyle(color: Colors.white),
+                labelStyle: TextStyle(color: AppColors.white),
                 border: OutlineInputBorder(),
               ),
             ),
@@ -314,10 +314,10 @@ class _SignInPageState extends State<SignInPage> {
               controller: _confirmPasswordController,
               onChanged: _onPasswordConfirmChange,
               obscureText: true,
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: AppColors.white),
               decoration: InputDecoration(
                 labelText: 'Confirmar Senha',
-                labelStyle: TextStyle(color: Colors.white),
+                labelStyle: TextStyle(color: AppColors.white),
                 border: OutlineInputBorder(),
               ),
             ),
@@ -337,7 +337,7 @@ class _SignInPageState extends State<SignInPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.darkPurple,
               ),
-              child: Text('Cadastrar'),
+              child: Text('Cadastrar', style: TextStyle(color: Colors.white)),
             ),
             TextButton(
               onPressed: _navegarParaLogin,

@@ -7,12 +7,14 @@ import 'package:http/http.dart' as http; // Importa o http
 import 'package:aprendize/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:aprendize/AppStateSingleton.dart';
+import 'components.dart'; // Importa o CustomCard
 
 class ImageService {
   final Dio _dio = Dio();
 
   Future<void> pickImage(Function(FormData) onImagePicked) async {
-    final XFile? image = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final XFile? image =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     if (image != null) {
       final formData = await _prepareFormData(image);
       onImagePicked(formData);
@@ -42,12 +44,14 @@ class ImageService {
           AppStateSingleton().userProfileImageUrlNotifier.value =
               response.data['url'];
         } else {
-          print('Falha ao enviar a imagem. Status code: ${response.statusCode}');
+          print(
+              'Falha ao enviar a imagem. Status code: ${response.statusCode}');
         }
       } else {
         // Usar http para mobile
         final request = http.MultipartRequest('POST', Uri.parse(url))
-          ..files.add(await http.MultipartFile.fromPath('image', formData.fields.first.value));
+          ..files.add(await http.MultipartFile.fromPath(
+              'image', formData.fields.first.value));
         final streamedResponse = await request.send();
         final response = await http.Response.fromStream(streamedResponse);
         if (response.statusCode == 200) {
@@ -55,7 +59,8 @@ class ImageService {
           AppStateSingleton().userProfileImageUrlNotifier.value =
               responseData['url'];
         } else {
-          print('Falha ao enviar a imagem. Status code: ${response.statusCode}');
+          print(
+              'Falha ao enviar a imagem. Status code: ${response.statusCode}');
         }
       }
     } catch (e) {
@@ -70,7 +75,8 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserPageState extends State<UserPage> {
-  final ImageService _imageService = ImageService(); // Instância do serviço de imagem
+  final ImageService _imageService =
+      ImageService(); // Instância do serviço de imagem
   bool _isLoading = false;
 
   @override
@@ -106,9 +112,10 @@ class _UserPageState extends State<UserPage> {
   }
 
   void _toggleTheme() async {
-    final newThemeMode = AppStateSingleton().themeModeNotifier.value == ThemeMode.dark
-        ? ThemeMode.light
-        : ThemeMode.dark;
+    final newThemeMode =
+        AppStateSingleton().themeModeNotifier.value == ThemeMode.dark
+            ? ThemeMode.light
+            : ThemeMode.dark;
 
     AppStateSingleton().themeModeNotifier.value = newThemeMode;
     await _saveThemePreference(newThemeMode == ThemeMode.dark);
@@ -143,7 +150,8 @@ class _UserPageState extends State<UserPage> {
                           ),
                         ),
                         child: ValueListenableBuilder<String>(
-                          valueListenable: AppStateSingleton().userProfileImageUrlNotifier,
+                          valueListenable:
+                              AppStateSingleton().userProfileImageUrlNotifier,
                           builder: (context, imageUrl, child) {
                             return CircleAvatar(
                               radius: 50,
@@ -151,10 +159,12 @@ class _UserPageState extends State<UserPage> {
                                   ? null
                                   : (imageUrl.isNotEmpty
                                           ? NetworkImage(imageUrl)
-                                          : AssetImage('assets/images/mona.png'))
+                                          : AssetImage(
+                                              'assets/images/mona.png'))
                                       as ImageProvider,
                               backgroundColor: themeMode == ThemeMode.dark
-                                  ? AppColors.lightBlackForFooter // Cor para o modo escuro
+                                  ? AppColors
+                                      .lightBlackForFooter // Cor para o modo escuro
                                   : AppColors.white, // Cor para o modo claro
                               child: _isLoading
                                   ? Center(
@@ -175,11 +185,8 @@ class _UserPageState extends State<UserPage> {
                         child: CircleAvatar(
                           radius: 15,
                           backgroundColor: AppColors.white,
-                          child: Icon(
-                            Icons.edit,
-                            size: 25,
-                            color: AppColors.darkPurple
-                          ),
+                          child: Icon(Icons.edit,
+                              size: 25, color: AppColors.darkPurple),
                         ),
                       ),
                     ),
@@ -203,51 +210,45 @@ class _UserPageState extends State<UserPage> {
                   ),
                 ),
                 SizedBox(height: 30),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Grupos',
+                    style: TextStyle(
+                      color: AppColors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
                 Expanded(
                   child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                          color: AppColors.white, width: 2), // Borda branca
+                      borderRadius:
+                          BorderRadius.circular(10), // Borda arredondada
+                    ),
                     padding: EdgeInsets.all(8),
-                    child: ListView(
-                      children: <Widget>[
-                        Card(
-                          color: AppColors.darkPurple,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            side: BorderSide(color: Colors.white, width: 1),
-                          ),
-                          child: ListTile(
-                            title: Text(
-                              'Unicamp - COMVEST',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 10),
+                        Expanded(
+                          child: ListView(
+                            children: <Widget>[
+                              CardColecao(
+                                title: 'Unicamp - COMVEST',
+                                subtitle: '1.234 Estudantes',
+                                imageUrl: 'https://i.imgur.com/C0NWWoc.jpeg',
                               ),
-                            ),
-                            subtitle: Text(
-                              '1.234 Estudantes',
-                              style: TextStyle(color: Colors.white.withOpacity(0.7)),
-                            ),
-                            trailing: Icon(Icons.group, color: Colors.white),
-                          ),
-                        ),
-                        Card(
-                          color: AppColors.darkPurple,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            side: BorderSide(color: Colors.white, width: 1),
-                          ),
-                          child: ListTile(
-                            title: Text(
-                              'ITA',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                              SizedBox(height: 20),
+                              CardColecao(
+                                title: 'ITA',
+                                subtitle: '1.234 Estudantes',
+                                imageUrl: 'https://i.imgur.com/xclPVjF.png',
                               ),
-                            ),
-                            subtitle: Text(
-                              '1.234 Estudantes',
-                              style: TextStyle(color: Colors.white.withOpacity(0.7)),
-                            ),
-                            trailing: Icon(Icons.group, color: Colors.white),
+                            ],
                           ),
                         ),
                       ],
@@ -258,20 +259,29 @@ class _UserPageState extends State<UserPage> {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.darkPurple,
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
                   onPressed: () {},
-                  child: const Text('Sair', style: TextStyle(fontSize: 18, color: Colors.white)),
+                  child: const Text('Sair',
+                      style: TextStyle(fontSize: 18, color: Colors.white)),
                 ),
                 const SizedBox(height: 10),
                 IconButton(
-                  icon: Icon(
-                    Icons.lightbulb_outline,
-                    color: AppColors.white,
-                    size: 30,
+                  icon: Transform.rotate(
+                    angle: themeMode == ThemeMode.light
+                        ? 0
+                        : 3.14159, // 180 graus em radianos
+                    child: Icon(
+                      themeMode == ThemeMode.dark
+                          ? Icons.wb_sunny
+                          : Icons.mode_night,
+                      color: AppColors.white,
+                      size: 30,
+                    ),
                   ),
                   onPressed: _toggleTheme,
                 ),
