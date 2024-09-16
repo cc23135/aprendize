@@ -8,8 +8,10 @@ class AppStateSingleton {
 
   String ApiUrl = '';
   ValueNotifier<String> userProfileImageUrlNotifier = ValueNotifier<String>('');
-  String userName = '';
-  List<String> collections = [];
+  String username = '';
+  String nome = '';
+  String senha = '';
+  List<Map<String, dynamic>> collections = [];
   String statisticsJson = '';
 
   static bool isDarkMode = false;

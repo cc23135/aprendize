@@ -194,7 +194,7 @@ class _UserPageState extends State<UserPage> {
                 ),
                 SizedBox(height: 20),
                 Text(
-                  'Nobara Kugisaki',
+                  AppStateSingleton().nome, // Usar o nome do singleton
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -203,7 +203,7 @@ class _UserPageState extends State<UserPage> {
                 ),
                 SizedBox(height: 5),
                 Text(
-                  'Total de horas estudadas: 184',
+                  'Total de horas estudadas: 21', // Usar o valor do singleton
                   style: TextStyle(
                     fontSize: 16,
                     color: AppColors.white,
@@ -236,19 +236,22 @@ class _UserPageState extends State<UserPage> {
                         SizedBox(height: 10),
                         Expanded(
                           child: ListView(
-                            children: <Widget>[
-                              CardColecao(
-                                title: 'Unicamp - COMVEST',
-                                subtitle: '1.234 Estudantes',
-                                imageUrl: 'https://i.imgur.com/C0NWWoc.jpeg',
-                              ),
-                              SizedBox(height: 20),
-                              CardColecao(
-                                title: 'ITA',
-                                subtitle: '1.234 Estudantes',
-                                imageUrl: 'https://i.imgur.com/xclPVjF.png',
-                              ),
-                            ],
+                            children: AppStateSingleton()
+                                .collections
+                                .map((collection) => Padding(
+                                      padding: const EdgeInsets.only(
+                                          bottom:
+                                              20.0), // Adiciona um espaço de 20 pixels abaixo de cada item
+                                      child: CardColecao(
+                                        title: collection['nome'] ??
+                                            'Título não disponível',
+                                        subtitle: collection['descricao'] ??
+                                            'Descrição não disponível',
+                                        imageUrl:
+                                            collection['linkImagem'] ?? '',
+                                      ),
+                                    ))
+                                .toList(),
                           ),
                         ),
                       ],

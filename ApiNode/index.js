@@ -198,6 +198,7 @@ app.get('/api/haveNewNotification', async (req, res) => {
 });
 
 
+
 app.get('/api/login', async (req, res) => {
   try {
     const { username, senha } = req.query;
@@ -217,10 +218,19 @@ app.get('/api/login', async (req, res) => {
       }
     });
 
-    console.log(user)
+    const colecoes = await prisma.colecao.findMany({
+      where: {
+        idColecao: {
+          in: await prisma.usuarioColecao.findMany({
+            where: { idUsuario: user.idUsuario },
+            select: { idColecao: true }
+          }).then(results => results.map(result => result.idColecao))
+        }
+      }
+    });
 
     if (user) {
-      return res.json({ success: true });
+      return res.json({ success: true, user: user, colecoes: colecoes});
     } else {
       return res.json({ success: false, message: 'Nome de usuário ou senha inválidos.' });
     }
@@ -251,11 +261,11 @@ app.post('/api/signUp', async (req, res) => {
     });
 
     if (existingUser) {
-      console.log("Já existe!")
+      console.log("Já existe!");
       return res.status(409).json({ error: 'Nome de usuário já está em uso.' });
     }
 
-    console.log("Usuario nao existe... Pode criar!")
+    console.log("Usuario não existe... Pode criar!");
 
     const newUser = await prisma.usuario.create({
       data: {
@@ -266,6 +276,7 @@ app.post('/api/signUp', async (req, res) => {
       },
     });
 
+    let colecoes = [];
     if (idColecaoInicialInt) {
       await prisma.usuarioColecao.create({
         data: {
@@ -274,18 +285,24 @@ app.post('/api/signUp', async (req, res) => {
           cargo: '1',
         },
       });
+
+      colecoes = await prisma.colecao.findMany({
+        where: { idColecao: idColecaoInicialInt }
+      });
     }
 
     console.log("Criado!");
     res.status(201).json({
       message: 'Usuário criado com sucesso!',
       user: { idUsuario: newUser.idUsuario, nome, username, senha, linkFotoDePerfil },
+      colecoes, 
     });
   } catch (error) {
     console.error('Error creating user:', error);
     res.status(500).json({ error: 'Erro ao criar usuário.' });
   }
 });
+
 
 
 

@@ -115,22 +115,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
+    print('${AppStateSingleton().userProfileImageUrlNotifier}');
     super.initState();
-    _fetchUserProfileImage();
-  }
-
-  Future<void> _fetchUserProfileImage() async {
-    final response = await http.get(Uri.parse('${AppStateSingleton().ApiUrl}api/users'));
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      if (data.isNotEmpty) {
-        setState(() {
-          AppStateSingleton().userProfileImageUrlNotifier.value = data[0]['linkFotoDePerfil'] ?? '';
-        });
-      }
-    } else {
-      print('Failed to load profile image');
-    }
+    print('URL do perfil do usuário: ${AppStateSingleton().userProfileImageUrlNotifier.value}');
   }
 
   void _onItemTapped(int index) {
@@ -168,8 +155,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 IconButton(
                   icon: Icon(Icons.notifications),
                   color: theme.brightness == Brightness.light
-                      ? Colors.black // Preto para o tema claro
-                      : theme.iconTheme.color, // Cor padrão para o tema escuro
+                      ? Colors.black 
+                      : theme.iconTheme.color, 
                   onPressed: () {
                     setState(() {
                       _showNotifications = true;
