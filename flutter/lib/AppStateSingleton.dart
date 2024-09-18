@@ -1,4 +1,3 @@
-// lib/AppStateSingleton.dart
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -9,31 +8,25 @@ class AppStateSingleton {
 
   String ApiUrl = '';
   ValueNotifier<String> userProfileImageUrlNotifier = ValueNotifier<String>('');
-  String userName = '';
-  List<String> collections = [];
-  String statisticsJson = ''; // Adicione esta linha para armazenar o JSON
+  String username = '';
+  String nome = '';
+  String senha = '';
+  List<Map<String, dynamic>> collections = [];
+  String statisticsJson = '';
 
-  static const String _keyThemeMode = 'theme_mode';
-  ValueNotifier<ThemeMode> themeModeNotifier = ValueNotifier<ThemeMode>(ThemeMode.system);
-
-  Future<void> setThemeMode(ThemeMode themeMode) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_keyThemeMode, themeMode.toString());
-    themeModeNotifier.value = themeMode;
-  }
+  static bool isDarkMode = false;
+  final ValueNotifier<ThemeMode> themeModeNotifier = ValueNotifier<ThemeMode>(ThemeMode.light);
 
   Future<void> loadThemeMode() async {
-    final prefs = await SharedPreferences.getInstance();
-    final themeModeString = prefs.getString(_keyThemeMode);
-    switch (themeModeString) {
-      case 'ThemeMode.dark':
-        themeModeNotifier.value = ThemeMode.dark;
-        break;
-      case 'ThemeMode.light':
-        themeModeNotifier.value = ThemeMode.light;
-        break;
-      default:
-        themeModeNotifier.value = ThemeMode.system;
-    }
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    isDarkMode = prefs.getBool('isDarkMode') ?? false;
+    themeModeNotifier.value = isDarkMode ? ThemeMode.dark : ThemeMode.light;
+  }
+
+  Future<void> saveThemeMode(bool isDark) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('isDarkMode', isDark);
+    isDarkMode = isDark;
+    themeModeNotifier.value = isDark ? ThemeMode.dark : ThemeMode.light;
   }
 }

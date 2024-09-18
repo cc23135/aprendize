@@ -66,24 +66,22 @@ O **Aprendize** é um aplicativo projetado para otimizar a experiência de estud
 ```console
   npm install
 ```
-```console
-  npm install prisma --save-dev
-```
-```console
-  npm install @prisma/client
-```
 Criar arquivo .env na raiz do ApiNode e inserir as chaves abaixo
 ```console
   PORT=6060
   DATABASE_URL="sqlserver://<ENDEREÇO DO SERVIDOR>:1433;database=<NOME DO SEU DATABASE>;user=<NOME DO SEU USUÁRIO>;password=<SUA SENHA>;encrypt=true;trustServerCertificate=true;schema=Aprendize"
 ```
-
+```console
+  npx prisma init
+```
+Troque o provider por “sqlserver” no schema.prisma recém criado
 ```console
   npx prisma db pull
 ```
 ```console
   npx prisma generate
 ```
+Adicione o seu json da chave do bucket storage do google cloud
 
 E para executar entre na pasta api e insira
 ```console

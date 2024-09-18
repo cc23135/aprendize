@@ -1,4 +1,6 @@
+import 'package:aprendize/login-page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'home_page.dart';
 import 'statistics_page.dart';
 import 'ranking_page.dart';
@@ -6,20 +8,26 @@ import 'chats_page.dart';
 import 'calendar_page.dart';
 import 'notifications_page.dart';
 import 'user_page.dart';
-import 'login-page.dart';
 import 'colors.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
 import 'AppStateSingleton.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await AppStateSingleton().loadThemeMode();
+
+  final appState = AppStateSingleton();
+  appState.ApiUrl = "http://localhost:6060/";
+  await appState.loadThemeMode();
+
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  Future<bool> _checkLoginStatus() async {
+    return User.isLoggedIn;
+  }
+
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<ThemeMode>(
@@ -27,38 +35,60 @@ class MyApp extends StatelessWidget {
       builder: (context, themeMode, child) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
+          title: 'Aprendize',
+          theme: ThemeData(
+            primaryColor: AppColors.white,
+            appBarTheme: AppBarTheme(
+              backgroundColor: AppColors.black,
+              iconTheme: IconThemeData(color: AppColors.black),
+              elevation: 0,
+            ),
+            bottomNavigationBarTheme: BottomNavigationBarThemeData(
+              backgroundColor: AppColors.white,
+              selectedItemColor: AppColors.lightPurple,
+              unselectedItemColor: AppColors.white.withOpacity(0.6),
+            ),
+            iconTheme: IconThemeData(color: AppColors.black),
+            brightness: Brightness.light,
+          ),
+          darkTheme: ThemeData(
+            primaryColor: AppColors.black,
+            appBarTheme: AppBarTheme(
+              backgroundColor: AppColors.black,
+              iconTheme: IconThemeData(color: AppColors.white),
+              elevation: 0,
+            ),
+            bottomNavigationBarTheme: BottomNavigationBarThemeData(
+              backgroundColor: AppColors.black,
+              selectedItemColor: AppColors.lightPurple,
+              unselectedItemColor: AppColors.white.withOpacity(0.6),
+            ),
+            iconTheme: IconThemeData(color: AppColors.white),
+            brightness: Brightness.dark,
+          ),
           themeMode: themeMode,
-          theme: ThemeData.light().copyWith(
-            scaffoldBackgroundColor: AppColors.white,
-            appBarTheme: const AppBarTheme(
-              backgroundColor: AppColors.lightBlackForFooter, // Cor do fundo do AppBar no tema claro
-              elevation: 1,
-              iconTheme: IconThemeData(color: AppColors.black), // Cor dos ícones no AppBar
-              titleTextStyle: TextStyle(color: AppColors.black), // Cor do texto do AppBar
-            ),
-            bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-              backgroundColor: AppColors.white, // Cor do fundo do BottomNavigationBar
-              selectedItemColor: AppColors.lightPurple, // Cor do item selecionado
-              unselectedItemColor: AppColors.black, // Cor dos itens não selecionados
-              showUnselectedLabels: true,
-            ),
+          locale: Locale('pt', 'BR'), 
+          supportedLocales: [
+            const Locale('en', 'US'),
+            const Locale('pt', 'BR'),
+          ],
+          localizationsDelegates: [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          home: FutureBuilder<bool>(
+            future: _checkLoginStatus(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasData && snapshot.data == true) {
+                return MyHomePage();
+              } else {
+                return LoginPage();
+              }
+            },
           ),
-          darkTheme: ThemeData.dark().copyWith(
-            scaffoldBackgroundColor: AppColors.black, // Cor de fundo da tela no tema escuro
-            appBarTheme: const AppBarTheme(
-              backgroundColor: AppColors.black, // Cor do fundo do AppBar no tema escuro
-              elevation: 1,
-              iconTheme: IconThemeData(color: AppColors.white), // Cor dos ícones no AppBar
-              titleTextStyle: TextStyle(color: AppColors.white), // Cor do texto do AppBar
-            ),
-            bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-              backgroundColor: AppColors.black, // Cor do fundo do BottomNavigationBar
-              selectedItemColor: AppColors.lightPurple, // Cor do item selecionado
-              unselectedItemColor: AppColors.white, // Cor dos itens não selecionados
-              showUnselectedLabels: true,
-            ),
-          ),
-          home: User.isLoggedIn ? MyHomePage() : LoginPage(),
         );
       },
     );
@@ -85,24 +115,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
+    print('${AppStateSingleton().userProfileImageUrlNotifier}');
     super.initState();
-    _fetchUserProfileImage();
-  }
-
-  Future<void> _fetchUserProfileImage() async {
-    final response = await http.get(Uri.parse(
-        '${AppStateSingleton().ApiUrl}api/users')); // Altere para sua URL da API
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      if (data.isNotEmpty) {
-        setState(() {
-          AppStateSingleton().userProfileImageUrlNotifier.value =
-              data[0]['linkFotoDePerfil'] ?? '';
-        });
-      }
-    } else {
-      print('Failed to load profile image');
-    }
+    print('URL do perfil do usuário: ${AppStateSingleton().userProfileImageUrlNotifier.value}');
   }
 
   void _onItemTapped(int index) {
@@ -115,6 +130,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(kToolbarHeight),
@@ -122,7 +139,7 @@ class _MyHomePageState extends State<MyHomePage> {
           decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(
-                color: Theme.of(context).appBarTheme.backgroundColor!.withOpacity(0.2),
+              color: AppColors.white.withOpacity(0.4),
                 spreadRadius: 0,
                 blurRadius: 4,
                 offset: const Offset(0, 1),
@@ -130,14 +147,16 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
           ),
           child: AppBar(
+           surfaceTintColor: Colors.transparent,
+            scrolledUnderElevation: 0.0,
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 IconButton(
-                  icon: const Icon(Icons.notifications),
-                  color: _showNotifications
-                      ? Theme.of(context).appBarTheme.iconTheme!.color
-                      : Colors.transparent,
+                  icon: Icon(Icons.notifications),
+                  color: theme.brightness == Brightness.light
+                      ? Colors.black 
+                      : theme.iconTheme.color, 
                   onPressed: () {
                     setState(() {
                       _showNotifications = true;
@@ -153,15 +172,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     });
                   },
                   child: ValueListenableBuilder<String>(
-                    valueListenable:
-                        AppStateSingleton().userProfileImageUrlNotifier,
+                    valueListenable: AppStateSingleton().userProfileImageUrlNotifier,
                     builder: (context, profileUrl, child) {
                       return CircleAvatar(
                         radius: 16,
                         backgroundImage: profileUrl.isNotEmpty
                             ? NetworkImage(profileUrl)
-                            : const AssetImage('assets/images/mona.png')
-                                as ImageProvider,
+                            : const AssetImage('assets/images/mona.png') as ImageProvider,
                         backgroundColor: Colors.transparent,
                         child: Container(
                           decoration: BoxDecoration(
@@ -195,7 +212,7 @@ class _MyHomePageState extends State<MyHomePage> {
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context).bottomNavigationBarTheme.backgroundColor!.withOpacity(0.2),
+              color: Colors.black.withOpacity(0.8),
               spreadRadius: 0,
               blurRadius: 4,
               offset: const Offset(0, 0),
@@ -203,7 +220,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
         child: BottomNavigationBar(
-          backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+          backgroundColor: theme.bottomNavigationBarTheme.backgroundColor,
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
               icon: Icon(Icons.home),
@@ -227,8 +244,8 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ],
           currentIndex: _selectedIndex,
-          selectedItemColor: Theme.of(context).bottomNavigationBarTheme.selectedItemColor,
-          unselectedItemColor: Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
+          selectedItemColor: theme.bottomNavigationBarTheme.selectedItemColor,
+          unselectedItemColor: theme.bottomNavigationBarTheme.unselectedItemColor,
           onTap: _onItemTapped,
         ),
       ),
@@ -237,5 +254,5 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class User {
-  static bool isLoggedIn = false; // Simula a autenticação do usuário
+  static bool isLoggedIn = false; 
 }

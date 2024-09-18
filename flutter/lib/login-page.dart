@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert'; // Para converter a resposta em JSON
+import 'AppStateSingleton.dart';
 
 import 'main.dart';
 import 'sign-page.dart';
@@ -21,12 +22,12 @@ class _LoginPageState extends State<LoginPage> {
 
   // Função para realizar o login
   Future<void> _login() async {
-    final nome = _usernameController.text;
+    final username = _usernameController.text;
     final senha = _passwordController.text;
 
-    if (nome.isEmpty || senha.isEmpty) {
+    if (username.isEmpty || senha.isEmpty) {
       setState(() {
-        _tamUsername = nome.isEmpty ? 15 : 0;
+        _tamUsername = username.isEmpty ? 15 : 0;
         _tamSenha = senha.isEmpty ? 15 : 0;
       });
       return;
@@ -38,17 +39,28 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://localhost:6060/api/login?nome=$nome&senha=$senha'),
+        Uri.parse('${AppStateSingleton().ApiUrl}api/login?username=$username&senha=$senha'),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
-        if (data['success']) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => MyHomePage()),
-          );
-        } else {
+if (response.statusCode == 200) {
+  final data = jsonDecode(response.body);
+
+  if (data['success']) {
+    AppStateSingleton().username = data['user']['username'];
+    AppStateSingleton().nome = data['user']['nome']; 
+    AppStateSingleton().senha = data['user']['senha']; 
+    AppStateSingleton().userProfileImageUrlNotifier.value = data['user']['linkFotoDePerfil'];
+    AppStateSingleton().collections = List<Map<String, dynamic>>.from(data['colecoes']);
+    
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => MyHomePage()),
+    );
+  }
+} else {
           // Tratar falha no login
           setState(() {
             _tamUsername = 0;
@@ -106,7 +118,7 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 65),
               TextField(
                 controller: _usernameController,
-                style: const TextStyle(color: Colors.white), // Texto preto
+                style: TextStyle(color: AppColors.white), // Texto preto
                 decoration: InputDecoration(
                   labelText: 'Username',
                   labelStyle: const TextStyle(color: AppColors.white),
@@ -120,10 +132,10 @@ class _LoginPageState extends State<LoginPage> {
               TextField(
                 controller: _passwordController,
                 obscureText: true,
-                style: const TextStyle(color: Colors.white), // Texto preto
+                style: TextStyle(color: AppColors.white), // Texto preto
                 decoration: InputDecoration(
                   labelText: 'Senha',
-                  labelStyle: const TextStyle(color: AppColors.white),
+                  labelStyle: TextStyle(color: AppColors.white),
                   border: const OutlineInputBorder(),
                   errorText: _tamSenha > 0 ? "Informe a senha" : null,
                   fillColor: AppColors.black,
@@ -135,7 +147,7 @@ class _LoginPageState extends State<LoginPage> {
                 cursor: SystemMouseCursors.click,
                 child: GestureDetector(
                   onTap: _navegarParaSigin,
-                  child: const Text(
+                  child: Text(
                     'Não possui conta? Cadastre-se',
                     style: TextStyle(
                       color: AppColors.white,
@@ -146,7 +158,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 70),
               if (_isLoading)
-                const Center(
+                Center(
                   child: CircularProgressIndicator(
                     color: AppColors.lightPurple,
                   ),
@@ -162,7 +174,10 @@ class _LoginPageState extends State<LoginPage> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  child: const Text('Login', style: TextStyle(color: Colors.white),),
+                  child: const Text(
+                    'Login',
+                    style: TextStyle(color: Colors.white), 
+                  ),
                 ),
             ],
           ),

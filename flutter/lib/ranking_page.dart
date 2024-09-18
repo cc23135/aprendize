@@ -1,138 +1,144 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class RankingPage extends StatelessWidget {
+class RankingPage extends StatefulWidget {
+  @override
+  _RankingPageState createState() => _RankingPageState();
+}
+
+class _RankingPageState extends State<RankingPage> {
+  List<UserRanking> rankings = [];
+  bool isLoading = true;
+  bool comBaseEmTempo = true; // Define se é baseado em tempo ou não
+  int selectedColecao = 1; // Inicialmente seleciona o índice 1 (ou outro valor padrão)
+  
+  @override
+  void initState() {
+    super.initState();
+    _fetchRanking(); // Carregar o ranking inicialmente
+  }
+
+  Future<void> _fetchRanking() async {
+    setState(() {
+      isLoading = true;
+    });
+    
+    try {
+      final response = await http.get(Uri.parse(
+          'http://localhost:6060/api/rankingUsers?idColecao=$selectedColecao&comBaseEmTempo=$comBaseEmTempo'));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        setState(() {
+          rankings = data.map((item) => UserRanking.fromJson(item)).toList();
+          isLoading = false;
+        });
+      } else {
+        throw Exception('Failed to load rankings');
+      }
+    } catch (e) {
+      print('Error fetching rankings: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  void _onDropdownChanged(int? newValue) {
+    setState(() {
+      selectedColecao = newValue ?? 1;
+    });
+  }
+
+  void _onFilterChanged(bool value) {
+    setState(() {
+      comBaseEmTempo = value;
+      _fetchRanking(); // Atualiza o ranking com base na nova opção
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Dados fictícios para os usuários
-    final List<UserRanking> rankings = [
-      UserRanking(position: 1, name: 'Alice', points: 1500, isMainUser: true),
-      UserRanking(position: 2, name: 'Bob', points: 1300),
-      UserRanking(position: 3, name: 'Charlie', points: 1200),
-      UserRanking(position: 4, name: 'Diana', points: 1100),
-      UserRanking(position: 5, name: 'Eve', points: 1000),
-    ];
-
-    // Encontrar o rank do usuário principal
-    final mainUser = rankings.firstWhere((user) => user.isMainUser);
-    final mainUserRank = mainUser.position;
-
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            // Linha de botões
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                ElevatedButton(
-                  onPressed: () {
-                    // Ação para o botão 1
-                  },
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+            Container(
+              height: 60,
+              child: DropdownButtonFormField<int>(
+                value: selectedColecao,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Text('Botão 1'),
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    // Ação para o botão 2
-                  },
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                items: List.generate(
+                  20,
+                  (index) => DropdownMenuItem<int>(
+                    value: index + 1,
+                    child: Text('Opção ${index + 1}'),
                   ),
                   child: const Text('Botão 2'),
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    // Ação para o botão 3
-                  },
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text('Botão 3'),
-                ),
-              ],
+                onChanged: _onDropdownChanged,
+                isExpanded: true,
+              ),
             ),
-            const SizedBox(height: 20),
-            // Texto do rank do main user
+            SizedBox(height: 20),
             Text(
-              'Você está no rank #$mainUserRank',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue),
-            ),
-            const SizedBox(height: 20),
-            // Título do Ranking
-            const Text(
               'Ranking dos Usuários',
               style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 20),
-            // Lista de rankings com borda
+            SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                ElevatedButton(
+                  onPressed: () => _onFilterChanged(true),
+                  child: Text('Ordenar por Tempo'),
+                ),
+                SizedBox(width: 20),
+                ElevatedButton(
+                  onPressed: () => _onFilterChanged(false),
+                  child: Text('Ordenar por Exercícios'),
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey.shade300, width: 2),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: ListView.builder(
-                  itemCount: rankings.length,
-                  itemBuilder: (context, index) {
-                    final user = rankings[index];
-                    return ListTile(
-                      contentPadding: const EdgeInsets.all(16),
-                      leading: const CircleAvatar(
-                        backgroundImage: AssetImage('assets/images/mona.png'), // Imagem de perfil
+                child: isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : ListView.builder(
+                        itemCount: rankings.length,
+                        itemBuilder: (context, index) {
+                          final user = rankings[index];
+                          return Container(
+                            color: user.isMainUser
+                                ? Colors.blue.withOpacity(0.1)
+                                : null,
+                            child: ListTile(
+                              contentPadding: EdgeInsets.all(16),
+                              leading: CircleAvatar(
+                                backgroundImage: NetworkImage(user.profilePicture),
+                              ),
+                              title: Text(user.name),
+                              subtitle: Text('${user.points} pontos'),
+                              trailing: Text('#${user.position}'),
+                              isThreeLine: false,
+                            ),
+                          );
+                        },
                       ),
-                      title: Text(user.name),
-                      subtitle: Text('${user.points} pontos'),
-                      trailing: user.isMainUser
-                          ? Container(
-                              width: 30,
-                              height: 30,
-                              alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                color: Colors.blue,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Text(
-                                '${user.position}',
-                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                              ),
-                            )
-                          : Text('${user.position}'),
-                      tileColor: user.isMainUser ? Colors.blue.withOpacity(0.1) : null,
-                      isThreeLine: true,
-                    );
-                  },
-                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            // Ícones na parte inferior
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                IconButton(
-                  icon: const Icon(Icons.access_time, size: 30, color: Colors.blue),
-                  onPressed: () {
-                    // Ação ao clicar no ícone de relógio
-                  },
-                ),
-                const SizedBox(width: 30),
-                IconButton(
-                  icon: const Icon(Icons.fitness_center, size: 30, color: Colors.blue),
-                  onPressed: () {
-                    // Ação ao clicar no ícone de exercícios
-                  },
-                ),
-              ],
             ),
           ],
         ),
@@ -141,17 +147,39 @@ class RankingPage extends StatelessWidget {
   }
 }
 
-// Modelo para representar o ranking do usuário
 class UserRanking {
   UserRanking({
     required this.position,
     required this.name,
     required this.points,
+    required this.profilePicture,
     this.isMainUser = false,
   });
 
   final int position;
   final String name;
   final int points;
+  final String profilePicture;
   final bool isMainUser;
+
+  factory UserRanking.fromJson(Map<String, dynamic> json) {
+    // Convert qtoTempo para um valor numérico de pontos, se necessário
+    final qtoTempo = json['qtoTempo'] is String
+        ? _parseTempoToPoints(json['qtoTempo'])
+        : 0;
+
+    return UserRanking(
+      position: json['position'],
+      name: json['user']['nome'],
+      points: qtoTempo > 0 ? qtoTempo : json['qtosExercicios'],
+      profilePicture: json['user']['linkFotoDePerfil'],
+      isMainUser: json['idUsuario'] == 1, // Supondo que o usuário com ID 1 é o principal
+    );
+  }
+
+  static int _parseTempoToPoints(String tempo) {
+    // Lógica para converter a string de tempo em pontos
+    // Isso deve ser ajustado conforme a lógica de negócios real
+    return 0; // Ajuste isso conforme necessário
+  }
 }

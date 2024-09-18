@@ -148,25 +148,32 @@ app.get('/api/getNotifications', async (req, res) => {
 });
 
 
-app.get('/api/existeUsuario', async (req,res) => {
+app.post('/api/existeUsuario', async (req, res) => {
   try {
-    const username = req.query.username; 
+    const { username } = req.body; 
+    console.log("Verificando " + username + "...")
+    if (!username) {
+      return res.status(400).json({ error: 'Username é necessário.' });
+    }
 
-    const user = await prisma.usuario.findMany({
-      where: { username: username } 
+    const user = await prisma.usuario.findUnique({
+      where: { username: username },
     });
 
-    if(user != null){
+    if (user) {
+      console.log("Existe usuario")
       res.json({ success: true });
-    }else{
-      res.json({success: false});
+    } else {
+      console.log("Nao existe usuario")
+      res.json({ success: false });
     }
    
   } catch (error) {
-    console.error('Error :', error);
-    res.status(500).json({ error: 'Erro' });
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Erro ao verificar usuário.' });
   }
-})
+});
+
 
 
 app.get('/api/haveNewNotification', async (req, res) => {
@@ -191,29 +198,39 @@ app.get('/api/haveNewNotification', async (req, res) => {
 });
 
 
+
 app.get('/api/login', async (req, res) => {
   try {
-    const { nome, senha } = req.query;
+    const { username, senha } = req.query;
 
-    console.log("Tentando logar como " + nome + "...")
+    console.log("Tentando logar como " + username + "...")
 
-    if (!nome || !senha) {
+    if (!username || !senha) {
       return res.json({ success: false, message: 'Nome de usuário e senha são obrigatórios.' });
     }
 
     const user = await prisma.usuario.findFirst({
       where: {
         AND: [
-          { nome: nome },
+          { username: username },
           { senha: senha }
         ]
       }
     });
 
-    console.log(user)
+    const colecoes = await prisma.colecao.findMany({
+      where: {
+        idColecao: {
+          in: await prisma.usuarioColecao.findMany({
+            where: { idUsuario: user.idUsuario },
+            select: { idColecao: true }
+          }).then(results => results.map(result => result.idColecao))
+        }
+      }
+    });
 
     if (user) {
-      return res.json({ success: true });
+      return res.json({ success: true, user: user, colecoes: colecoes});
     } else {
       return res.json({ success: false, message: 'Nome de usuário ou senha inválidos.' });
     }
@@ -222,6 +239,190 @@ app.get('/api/login', async (req, res) => {
     return res.status(500).json({ success: false, message: 'Erro interno do servidor.' });
   }
 });
+
+
+app.post('/api/signUp', async (req, res) => {
+  const { username, nome, senha, linkFotoDePerfil, idColecaoInicial } = req.body;
+  console.log({ username, nome, senha, linkFotoDePerfil, idColecaoInicial });
+
+  if (!username || !nome || !senha) {
+    return res.status(400).json({ error: 'Todos campos necessários.' });
+  }
+
+  const idColecaoInicialInt = idColecaoInicial ? parseInt(idColecaoInicial, 10) : null;
+
+  if (isNaN(idColecaoInicialInt) && idColecaoInicial !== undefined) {
+    return res.status(400).json({ error: 'idColecaoInicial deve ser um número válido.' });
+  }
+
+  try {
+    const existingUser = await prisma.usuario.findUnique({
+      where: { username },
+    });
+
+    if (existingUser) {
+      console.log("Já existe!");
+      return res.status(409).json({ error: 'Nome de usuário já está em uso.' });
+    }
+
+    console.log("Usuario não existe... Pode criar!");
+
+    const newUser = await prisma.usuario.create({
+      data: {
+        nome,
+        username,
+        senha,
+        linkFotoDePerfil,
+      },
+    });
+
+    let colecoes = [];
+    if (idColecaoInicialInt) {
+      await prisma.usuarioColecao.create({
+        data: {
+          idUsuario: newUser.idUsuario,
+          idColecao: idColecaoInicialInt,
+          cargo: '1',
+        },
+      });
+
+      colecoes = await prisma.colecao.findMany({
+        where: { idColecao: idColecaoInicialInt }
+      });
+    }
+
+    console.log("Criado!");
+    res.status(201).json({
+      message: 'Usuário criado com sucesso!',
+      user: { idUsuario: newUser.idUsuario, nome, username, senha, linkFotoDePerfil },
+      colecoes, 
+    });
+  } catch (error) {
+    console.error('Error creating user:', error);
+    res.status(500).json({ error: 'Erro ao criar usuário.' });
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+app.get('/api/rankingUsers', async (req, res) => {
+  try {
+    const { idColecao, comBaseEmTempo } = req.query;
+    console.log({ idColecao, comBaseEmTempo })
+
+    if (!idColecao) {
+      return res.status(400).json({ error: 'idColecao é obrigatório' });
+    }
+
+    const idColecaoInt = parseInt(idColecao, 10);
+    if (isNaN(idColecaoInt)) {
+      return res.status(400).json({ error: 'idColecao deve ser um número válido' });
+    }
+
+    // Obter todos os estudos relacionados à coleção e agrupar por usuário
+    const estudos = await prisma.estudo.findMany({
+      where: {
+        Topico: {
+          Materia: {
+            Colecao: {
+              idColecao: idColecaoInt,
+            },
+          },
+        },
+      },
+      select: {
+        idUsuario: true,
+        qtoTempo: true,
+        qtosExercicios: true,
+      },
+    });
+
+    // Agregar dados por usuário
+    const rankings = estudos.reduce((acc, estudo) => {
+      if (!acc[estudo.idUsuario]) {
+        acc[estudo.idUsuario] = { qtoTempo: 0, qtosExercicios: 0 };
+      }
+      acc[estudo.idUsuario].qtoTempo += estudo.qtoTempo || 0;
+      acc[estudo.idUsuario].qtosExercicios += estudo.qtosExercicios || 0;
+      return acc;
+    }, {});
+
+    // Ordenar usuários
+    const sortedRankings = Object.entries(rankings).map(([idUsuario, { qtoTempo, qtosExercicios }]) => ({
+      idUsuario: parseInt(idUsuario, 10),
+      qtoTempo,
+      qtosExercicios,
+    }));
+
+    if (comBaseEmTempo === 'true') {
+      sortedRankings.sort((a, b) => b.qtoTempo - a.qtoTempo);
+    } else {
+      sortedRankings.sort((a, b) => b.qtosExercicios - a.qtosExercicios);
+    }
+
+    // Obter informações do usuário
+    const userIds = sortedRankings.map(r => r.idUsuario);
+    const users = await prisma.usuario.findMany({
+      where: {
+        idUsuario: {
+          in: userIds,
+        },
+      },
+    });
+
+    // Mapear informações do usuário
+    const userMap = new Map(users.map(user => [user.idUsuario, user]));
+    const result = sortedRankings.map(ranking => ({
+      ...ranking,
+      user: userMap.get(ranking.idUsuario),
+    }));
+
+    console.log(result)
+
+    res.json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+
+app.get('/api/getColecoes', async (req, res) => {
+  try {
+    console.log("Obtendo colecoes....");
+    const colecoes = await prisma.colecao.findMany({
+      include: {
+        UsuarioColecao: {
+          select: {
+            idUsuarioColecao: true,
+          }
+        }
+      }
+    });
+    
+    const colecoesComEstudantes = colecoes.map(colecao => ({
+      ...colecao,
+      numEstudantes: colecao.UsuarioColecao.length 
+    }));
+    
+    res.json({ colecoes: colecoesComEstudantes });
+  } catch (error) {
+    console.error('Error fetching colecoes:', error);
+    res.status(500).json({ error: 'Erro ao buscar colecoes' });
+  }
+});
+
+
+
+
 
 
 
