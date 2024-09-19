@@ -47,22 +47,18 @@ class _LoginPageState extends State<LoginPage> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
-if (response.statusCode == 200) {
-  final data = jsonDecode(response.body);
+        if (data['success']) {
+          AppStateSingleton().username = data['user']['username'];
+          AppStateSingleton().nome = data['user']['nome']; 
+          AppStateSingleton().senha = data['user']['senha']; 
+          AppStateSingleton().userProfileImageUrlNotifier.value = data['user']['linkFotoDePerfil'];
+          AppStateSingleton().collections = List<Map<String, dynamic>>.from(data['colecoes']);
+          
 
-  if (data['success']) {
-    AppStateSingleton().username = data['user']['username'];
-    AppStateSingleton().nome = data['user']['nome']; 
-    AppStateSingleton().senha = data['user']['senha']; 
-    AppStateSingleton().userProfileImageUrlNotifier.value = data['user']['linkFotoDePerfil'];
-    AppStateSingleton().collections = List<Map<String, dynamic>>.from(data['colecoes']);
-    
-
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => MyHomePage()),
-    );
-  }
-} else {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const MyHomePage()),
+          );
+        } else {
           // Tratar falha no login
           setState(() {
             _tamUsername = 0;
@@ -99,7 +95,7 @@ if (response.statusCode == 200) {
 
   void _navegarParaSigin() {
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => SignInPage()),
+      MaterialPageRoute(builder: (context) => const SignInPage()),
     );
   }
 
