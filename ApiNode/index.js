@@ -7,6 +7,7 @@ const { Storage } = require('@google-cloud/storage');
 const { v4: uuidv4 } = require('uuid');
 const sharp = require('sharp');
 const path = require('path');
+const { Console } = require('console');
 
 const app = express(); 
 const prisma = new PrismaClient();
@@ -41,6 +42,7 @@ app.get('/', (req, res) => {
 });
 
 app.post('/api/upload-image', upload.single('image'), async (req, res) => {
+  console.log("Upload da imagem...");
   try {
     if (!req.file) {
       console.error('Nenhum arquivo enviado');
@@ -78,6 +80,7 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
 });
 
 app.get('/api/users', async (req, res) => {
+  console.log("Obtendo todos os usuários...");
   try {
     const users = await prisma.usuario.findMany();
     res.json(users);
@@ -88,6 +91,7 @@ app.get('/api/users', async (req, res) => {
 
 
 app.get('/api/statistics', async (req, res) => {
+  console.log("Obtendo estatísticas...");
   try {
     // Total de estudos e tarefas
     const totalEstudos = await prisma.estudo.count();
@@ -109,13 +113,6 @@ app.get('/api/statistics', async (req, res) => {
     const seconds = totalTempoEstudado % 60;
     const tempoEstudadoFormatado = `${hours}h ${minutes}m ${seconds}s`;
 
-    console.log(
-      totalEstudos + "|" + 
-      totalTarefas + "|" +
-      totalTarefasRevisao + "|" +
-      tempoEstudadoFormatado + "|" +
-      totalNotificacoes + "|")
-
     res.json({
       totalEstudos,
       totalTarefas,
@@ -130,6 +127,7 @@ app.get('/api/statistics', async (req, res) => {
 
 
 app.get('/api/getNotifications', async (req, res) => {
+  console.log("Obtendo notificações...");
   try {
     const userId = req.query.userId; // Pega o ID do usuário da query string
     if (!userId) {
@@ -140,7 +138,6 @@ app.get('/api/getNotifications', async (req, res) => {
       where: { idUsuario: parseInt(userId, 10) } // Filtra as notificações pelo ID do usuário
     });
     
-    console.log(notifications)
     res.json(notifications);
   } catch (error) {
     res.status(500).json({ error: 'Erro ao buscar notificações' });
@@ -149,6 +146,7 @@ app.get('/api/getNotifications', async (req, res) => {
 
 
 app.post('/api/existeUsuario', async (req, res) => {
+  console.log("Verificando a existência de um usuario...");
   try {
     const { username } = req.body; 
     console.log("Verificando " + username + "...")
@@ -177,6 +175,7 @@ app.post('/api/existeUsuario', async (req, res) => {
 
 
 app.get('/api/haveNewNotification', async (req, res) => {
+  console.log("Vendo se há nova notificação...");
   try {
     const userId = req.query.userId; 
     if (!userId) {
@@ -200,6 +199,7 @@ app.get('/api/haveNewNotification', async (req, res) => {
 
 
 app.get('/api/login', async (req, res) => {
+  console.log("Login...");
   try {
     const { username, senha } = req.query;
 
@@ -242,6 +242,7 @@ app.get('/api/login', async (req, res) => {
 
 
 app.post('/api/signUp', async (req, res) => {
+  console.log("SignUp...");
   const { username, nome, senha, linkFotoDePerfil, idColecaoInicial } = req.body;
   console.log({ username, nome, senha, linkFotoDePerfil, idColecaoInicial });
 
@@ -304,19 +305,10 @@ app.post('/api/signUp', async (req, res) => {
 });
 
 
-
-
-
-
-
-
-
-
-
 app.get('/api/rankingUsers', async (req, res) => {
+  console.log("Obtendo ranking dos usuarios...");
   try {
     const { idColecao, comBaseEmTempo } = req.query;
-    console.log({ idColecao, comBaseEmTempo })
 
     if (!idColecao) {
       return res.status(400).json({ error: 'idColecao é obrigatório' });
@@ -385,8 +377,6 @@ app.get('/api/rankingUsers', async (req, res) => {
       user: userMap.get(ranking.idUsuario),
     }));
 
-    console.log(result)
-
     res.json(result);
   } catch (error) {
     console.error(error);
@@ -396,6 +386,7 @@ app.get('/api/rankingUsers', async (req, res) => {
 
 
 app.get('/api/getColecoes', async (req, res) => {
+  console.log("Obtendo todas as coleções...");
   try {
     console.log("Obtendo colecoes....");
     const colecoes = await prisma.colecao.findMany({
@@ -419,6 +410,58 @@ app.get('/api/getColecoes', async (req, res) => {
     res.status(500).json({ error: 'Erro ao buscar colecoes' });
   }
 });
+
+
+app.post('/api/getGroupMembers', async (req, res) => {
+  const { idColecao } = req.body.query; 
+  console.log("Obtendo membros de um grupo...");
+
+  try {
+    const membros = await prisma.usuario.findMany({
+      where: {
+        UsuarioColecao: {
+          some: {
+            idColecao: idColecao,
+          },
+        },
+      },
+      include: {
+        UsuarioColecao: {
+          select: {
+            idUsuarioColecao: true,
+            idColecao: true,
+          },
+        },
+      },
+    });
+
+    res.json({ membros: membros });
+  } catch (error) {
+    console.error('Error fetching membros:', error);
+    res.status(500).json({ error: 'Erro ao buscar membros' });
+  }
+});
+
+
+app.post('/api/getColecaoInfo', async (req, res) => {
+  const { idColecao } = req.body.query; 
+  console.log("Obtendo informações da coleção...");
+
+  try {
+    const colecao = await prisma.colecao.findUnique({
+      where: {
+        idColecao: idColecao
+      },
+    });
+
+    res.json({ colecao: colecao });
+  } catch (error) {
+    console.error('Error fetching membros:', error);
+    res.status(500).json({ error: 'Erro ao buscar membros' });
+  }
+});
+
+
 
 
 

@@ -4,16 +4,16 @@ import 'bate_pago_page.dart';
 import 'materia_page.dart';
 
 class ChatDetailsPage extends StatelessWidget {
-  final String title;
-  final int students;
 
-  const ChatDetailsPage({super.key, required this.title, required this.students});
+  final int idColecao;
+
+  const ChatDetailsPage({super.key, required this.idColecao});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: Text("A"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -31,7 +31,7 @@ class ChatDetailsPage extends StatelessWidget {
               child: Column(
                 children: [
                   Text(
-                    '$title - $students membros',
+                    '$idColecao',
                     style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 10),
@@ -40,7 +40,7 @@ class ChatDetailsPage extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => MembersPage(),
+                          builder: (context) => MembersPage( idColecao: this.idColecao,),
                         ),
                       );
                     },
@@ -68,11 +68,12 @@ class ChatDetailsPage extends StatelessWidget {
               'Estatísticas',
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
+            const SizedBox(height: 20),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildStatisticCard('Exercícios', '4.378'),
-                _buildStatisticCard('Horas de Estudo', '4.382'),
+                _buildStatisticCard('Exercícios', '- -'),
+                _buildStatisticCard('Horas de Estudo', '- -'),
               ],
             ),
             const SizedBox(height: 20),
@@ -120,7 +121,7 @@ class ChatDetailsPage extends StatelessWidget {
     return Card(
       elevation: 4,
       child: Container(
-        width: 300,
+        width: 200,
         height: 100,
         padding: const EdgeInsets.all(16.0),
         child: Column(

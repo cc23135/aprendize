@@ -1,26 +1,23 @@
 import 'dart:convert';
 import 'package:aprendize/AppStateSingleton.dart';
+import 'package:aprendize/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'criar_colecao_page.dart';
 import 'colecao_page.dart';
+import 'colors.dart';
 
 class ChatsPage extends StatefulWidget {
   const ChatsPage({super.key});
-
 
   @override
   _ChatsPageState createState() => _ChatsPageState();
 }
 
 class _ChatsPageState extends State<ChatsPage> {
-  // Controle do texto de pesquisa
   final TextEditingController _searchController = TextEditingController();
-
-  // Lista de coleções (exemplo inicial vazio)
   List<Map<String, dynamic>> _colecoes = [];
 
-  // Função para buscar coleções da API
   Future<void> _fetchColecoes() async {
     final uri = Uri.parse('${AppStateSingleton().apiUrl}api/getColecoes');
     final response = await http.get(uri);
@@ -38,10 +35,9 @@ class _ChatsPageState extends State<ChatsPage> {
   @override
   void initState() {
     super.initState();
-    _fetchColecoes(); // Chama a função para buscar coleções quando a página é inicializada
+    _fetchColecoes();
   }
 
-  // Função para filtrar coleções com base no texto de pesquisa
   List<Map<String, dynamic>> get _filteredColecoes {
     final query = _searchController.text.toLowerCase();
     return _colecoes.where((colecao) {
@@ -58,7 +54,6 @@ class _ChatsPageState extends State<ChatsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              // Título e botão para criar coleção
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
@@ -70,7 +65,7 @@ class _ChatsPageState extends State<ChatsPage> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => CriarColecaoPage()), // Navegação para CriarColecaoPage
+                        MaterialPageRoute(builder: (context) => CriarColecaoPage()),
                       );
                     },
                     child: const Icon(Icons.add),
@@ -78,7 +73,6 @@ class _ChatsPageState extends State<ChatsPage> {
                 ],
               ),
               const SizedBox(height: 20),
-              // Campo de pesquisa
               TextField(
                 controller: _searchController,
                 onChanged: (value) {
@@ -93,11 +87,9 @@ class _ChatsPageState extends State<ChatsPage> {
                 ),
               ),
               const SizedBox(height: 20),
-              // Lista de coleções filtradas
-              // Lista de coleções filtradas
               ListView.builder(
                 shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(), // Remove a rolagem da lista
+                physics: const NeverScrollableScrollPhysics(),
                 itemCount: _filteredColecoes.length,
                 itemBuilder: (context, index) {
                   final colecao = _filteredColecoes[index];
@@ -105,11 +97,14 @@ class _ChatsPageState extends State<ChatsPage> {
                     margin: const EdgeInsets.only(bottom: 10),
                     decoration: BoxDecoration(
                       image: DecorationImage(
-                        image: NetworkImage(colecao['linkImagem']), // URL da imagem de fundo
+                        image: NetworkImage(colecao['linkImagem']),
                         fit: BoxFit.cover,
+                        colorFilter: ColorFilter.mode(
+                          AppColors.darkPurple.withOpacity(0.4), // Altere para AppColors.lightPurple quando disponível
+                          BlendMode.darken,
+                        ),
                       ),
                       borderRadius: BorderRadius.circular(8),
-                      color: Colors.black.withOpacity(0.3), // Opacidade para contraste
                     ),
                     child: ListTile(
                       contentPadding: const EdgeInsets.all(16),
@@ -121,14 +116,13 @@ class _ChatsPageState extends State<ChatsPage> {
                         '${colecao['numEstudantes']} estudantes',
                         style: const TextStyle(color: Colors.white),
                       ),
-                      trailing: const Icon(Icons.info, color: Colors.white),
+                      trailing: const Icon(Icons.chat, color: Colors.white),
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => ChatDetailsPage(
-                              title: colecao['nome'],
-                              students: colecao['numEstudantes'],
+                              idColecao: colecao['idColecao'],
                             ),
                           ),
                         );
@@ -137,6 +131,8 @@ class _ChatsPageState extends State<ChatsPage> {
                   );
                 },
               ),
+
+
             ],
           ),
         ),
@@ -145,7 +141,6 @@ class _ChatsPageState extends State<ChatsPage> {
   }
 }
 
-// Modelo para representar uma coleção (se necessário para outras partes do código)
 class Colecao {
   Colecao({
     required this.nome,
