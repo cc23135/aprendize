@@ -7,7 +7,7 @@ class ChatDetailsPage extends StatelessWidget {
   final String title;
   final int students;
 
-  const ChatDetailsPage({required this.title, required this.students});
+  const ChatDetailsPage({super.key, required this.title, required this.students});
 
   @override
   Widget build(BuildContext context) {

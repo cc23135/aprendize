@@ -7,11 +7,11 @@ class CardColecao extends StatelessWidget {
   final String imageUrl;
 
   const CardColecao({
-    Key? key,
+    super.key,
     required this.title,
     required this.subtitle,
     required this.imageUrl,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +35,7 @@ class CardColecao extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Color(0xFF8C52FF).withOpacity(0.8), Color(0xFF5E17EB).withOpacity(0.8)],
+                    colors: [const Color(0xFF8C52FF).withOpacity(0.8), const Color(0xFF5E17EB).withOpacity(0.8)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -50,7 +50,7 @@ class CardColecao extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
@@ -63,10 +63,10 @@ class CardColecao extends StatelessWidget {
                       ],
                     ),
                   ),
-                  SizedBox(height: 40), 
+                  const SizedBox(height: 40), 
                   Text(
                     subtitle,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 14,
                       shadows: [

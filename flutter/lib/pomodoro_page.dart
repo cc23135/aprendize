@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 class PomodoroPage extends StatefulWidget {
+  const PomodoroPage({super.key});
+
   @override
   _PomodoroPageState createState() => _PomodoroPageState();
 }

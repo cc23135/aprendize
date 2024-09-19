@@ -13,7 +13,7 @@ class AppColors {
   static Color get lightPurple => _getColorForTheme(_lightPurple, _lightPurple);
   static Color get black => _getColorForTheme(_black, _white);
   static Color get white => _getColorForTheme(_white, _black);
-  static Color get lightBlackForFooter => _getColorForTheme(_lightBlackForFooter, Color.fromARGB(255, 246, 237, 255));
+  static Color get lightBlackForFooter => _getColorForTheme(_lightBlackForFooter, const Color.fromARGB(255, 246, 237, 255));
 
   static Color _getColorForTheme(Color darkModeColor, Color lightModeColor) {
     return AppStateSingleton().themeModeNotifier.value == ThemeMode.dark ? darkModeColor : lightModeColor;

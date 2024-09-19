@@ -8,6 +8,8 @@ import 'sign-page.dart';
 import 'colors.dart'; // Certifique-se de importar o arquivo colors.dart
 
 class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
   @override
   _LoginPageState createState() => _LoginPageState();
 }
@@ -39,7 +41,7 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       final response = await http.get(
-        Uri.parse('${AppStateSingleton().ApiUrl}api/login?username=$username&senha=$senha'),
+        Uri.parse('${AppStateSingleton().apiUrl}api/login?username=$username&senha=$senha'),
       );
 
       if (response.statusCode == 200) {
@@ -88,7 +90,7 @@ if (response.statusCode == 200) {
       SnackBar(
         content: Text(
           message,
-          style: const TextStyle(color: AppColors.white), // Texto branco
+          style: TextStyle(color: AppColors.white), // Texto branco
         ),
         backgroundColor: AppColors.darkPurple,
       ),
@@ -121,7 +123,7 @@ if (response.statusCode == 200) {
                 style: TextStyle(color: AppColors.white), // Texto preto
                 decoration: InputDecoration(
                   labelText: 'Username',
-                  labelStyle: const TextStyle(color: AppColors.white),
+                  labelStyle: TextStyle(color: AppColors.white),
                   border: const OutlineInputBorder(),
                   errorText: _tamUsername > 0 ? "Informe o username" : null,
                   fillColor: AppColors.black,

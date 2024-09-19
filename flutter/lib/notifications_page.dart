@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class NotificationsPage extends StatefulWidget {
+  const NotificationsPage({super.key});
+
   @override
   _NotificationsPageState createState() => _NotificationsPageState();
 }
@@ -86,6 +88,7 @@ class NotificationWidget extends StatelessWidget {
   final VoidCallback onDismiss;
 
   NotificationWidget({
+    super.key, 
     required this.content,
     required this.onDismiss,
   });

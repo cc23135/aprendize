@@ -37,7 +37,7 @@ class ImageService {
 
   Future<void> uploadImage(FormData formData) async {
     try {
-      final url = '${AppStateSingleton().ApiUrl}api/upload-image';
+      final url = '${AppStateSingleton().apiUrl}api/upload-image';
       if (kIsWeb) {
         final response = await _dio.post(url, data: formData);
         if (response.statusCode == 200) {
@@ -70,6 +70,8 @@ class ImageService {
 }
 
 class UserPage extends StatefulWidget {
+  const UserPage({super.key});
+
   @override
   _UserPageState createState() => _UserPageState();
 }
@@ -133,7 +135,7 @@ class _UserPageState extends State<UserPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                SizedBox(height: 50),
+                const SizedBox(height: 50),
                 Stack(
                   alignment: Alignment.topRight,
                   children: [
@@ -159,7 +161,7 @@ class _UserPageState extends State<UserPage> {
                                   ? null
                                   : (imageUrl.isNotEmpty
                                           ? NetworkImage(imageUrl)
-                                          : AssetImage(
+                                          : const AssetImage(
                                               'assets/images/mona.png'))
                                       as ImageProvider,
                               backgroundColor: themeMode == ThemeMode.dark
@@ -192,7 +194,7 @@ class _UserPageState extends State<UserPage> {
                     ),
                   ],
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Text(
                   AppStateSingleton().nome, // Usar o nome do singleton
                   style: TextStyle(
@@ -201,7 +203,7 @@ class _UserPageState extends State<UserPage> {
                     color: AppColors.white,
                   ),
                 ),
-                SizedBox(height: 5),
+                const SizedBox(height: 5),
                 Text(
                   'Total de horas estudadas: 21', // Usar o valor do singleton
                   style: TextStyle(
@@ -209,7 +211,7 @@ class _UserPageState extends State<UserPage> {
                     color: AppColors.white,
                   ),
                 ),
-                SizedBox(height: 30),
+                const SizedBox(height: 30),
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
@@ -229,11 +231,11 @@ class _UserPageState extends State<UserPage> {
                       borderRadius:
                           BorderRadius.circular(10), // Borda arredondada
                     ),
-                    padding: EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(8),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         Expanded(
                           child: ListView(
                             children: AppStateSingleton()
@@ -258,7 +260,7 @@ class _UserPageState extends State<UserPage> {
                     ),
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.darkPurple,

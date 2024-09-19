@@ -3,6 +3,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class RankingPage extends StatefulWidget {
+  const RankingPage({super.key});
+
   @override
   _RankingPageState createState() => _RankingPageState();
 }
@@ -74,7 +76,7 @@ class _RankingPageState extends State<RankingPage> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text('Botão 1'),
+                  //child: const Text('Botão 1'),
                 ),
                 items: List.generate(
                   20,
@@ -82,33 +84,33 @@ class _RankingPageState extends State<RankingPage> {
                     value: index + 1,
                     child: Text('Opção ${index + 1}'),
                   ),
-                  child: const Text('Botão 2'),
+                  //child: const Text('Botão 2'),
                 ),
                 onChanged: _onDropdownChanged,
                 isExpanded: true,
               ),
             ),
-            SizedBox(height: 20),
-            Text(
+            const SizedBox(height: 20),
+            const Text(
               'Ranking dos Usuários',
               style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 ElevatedButton(
                   onPressed: () => _onFilterChanged(true),
-                  child: Text('Ordenar por Tempo'),
+                  child: const Text('Ordenar por Tempo'),
                 ),
-                SizedBox(width: 20),
+                const SizedBox(width: 20),
                 ElevatedButton(
                   onPressed: () => _onFilterChanged(false),
-                  child: Text('Ordenar por Exercícios'),
+                  child: const Text('Ordenar por Exercícios'),
                 ),
               ],
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
@@ -116,7 +118,7 @@ class _RankingPageState extends State<RankingPage> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: isLoading
-                    ? Center(child: CircularProgressIndicator())
+                    ? const Center(child: CircularProgressIndicator())
                     : ListView.builder(
                         itemCount: rankings.length,
                         itemBuilder: (context, index) {
@@ -126,7 +128,7 @@ class _RankingPageState extends State<RankingPage> {
                                 ? Colors.blue.withOpacity(0.1)
                                 : null,
                             child: ListTile(
-                              contentPadding: EdgeInsets.all(16),
+                              contentPadding: const EdgeInsets.all(16),
                               leading: CircleAvatar(
                                 backgroundImage: NetworkImage(user.profilePicture),
                               ),

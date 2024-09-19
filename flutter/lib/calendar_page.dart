@@ -4,6 +4,8 @@ import 'package:intl/intl.dart'; // Adicione esta importação
 import 'create_study_day_page.dart'; // Importe a CreateStudyDayPage
 
 class CalendarPage extends StatefulWidget {
+  const CalendarPage({super.key});
+
   @override
   _CalendarPageState createState() => _CalendarPageState();
 }
@@ -38,7 +40,7 @@ class _CalendarPageState extends State<CalendarPage> {
               });
             },
             locale: 'pt_BR', // Adicione esta linha para definir o locale como português
-            calendarStyle: CalendarStyle(
+            calendarStyle: const CalendarStyle(
               todayDecoration: BoxDecoration(
                 color: Colors.orange,
                 shape: BoxShape.circle,

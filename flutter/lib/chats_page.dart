@@ -6,6 +6,9 @@ import 'criar_colecao_page.dart';
 import 'colecao_page.dart';
 
 class ChatsPage extends StatefulWidget {
+  const ChatsPage({super.key});
+
+
   @override
   _ChatsPageState createState() => _ChatsPageState();
 }
@@ -19,7 +22,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
   // Função para buscar coleções da API
   Future<void> _fetchColecoes() async {
-    final uri = Uri.parse('${AppStateSingleton().ApiUrl}api/getColecoes');
+    final uri = Uri.parse('${AppStateSingleton().apiUrl}api/getColecoes');
     final response = await http.get(uri);
 
     if (response.statusCode == 200) {
@@ -74,7 +77,7 @@ class _ChatsPageState extends State<ChatsPage> {
                   ),
                 ],
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               // Campo de pesquisa
               TextField(
                 controller: _searchController,
@@ -89,17 +92,17 @@ class _ChatsPageState extends State<ChatsPage> {
                   prefixIcon: const Icon(Icons.search),
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               // Lista de coleções filtradas
               // Lista de coleções filtradas
               ListView.builder(
                 shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(), // Remove a rolagem da lista
+                physics: const NeverScrollableScrollPhysics(), // Remove a rolagem da lista
                 itemCount: _filteredColecoes.length,
                 itemBuilder: (context, index) {
                   final colecao = _filteredColecoes[index];
                   return Container(
-                    margin: EdgeInsets.only(bottom: 10),
+                    margin: const EdgeInsets.only(bottom: 10),
                     decoration: BoxDecoration(
                       image: DecorationImage(
                         image: NetworkImage(colecao['linkImagem']), // URL da imagem de fundo
@@ -109,16 +112,16 @@ class _ChatsPageState extends State<ChatsPage> {
                       color: Colors.black.withOpacity(0.3), // Opacidade para contraste
                     ),
                     child: ListTile(
-                      contentPadding: EdgeInsets.all(16),
+                      contentPadding: const EdgeInsets.all(16),
                       title: Text(
                         colecao['nome'],
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                       subtitle: Text(
                         '${colecao['numEstudantes']} estudantes',
-                        style: TextStyle(color: Colors.white),
+                        style: const TextStyle(color: Colors.white),
                       ),
-                      trailing: Icon(Icons.info, color: Colors.white),
+                      trailing: const Icon(Icons.info, color: Colors.white),
                       onTap: () {
                         Navigator.push(
                           context,

@@ -4,7 +4,7 @@ class BatePagoPage extends StatelessWidget {
   final String title;
   final int students;
 
-  const BatePagoPage({required this.title, required this.students});
+  const BatePagoPage({super.key, required this.title, required this.students});
 
   @override
   Widget build(BuildContext context) {

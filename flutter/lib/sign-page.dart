@@ -10,6 +10,8 @@ import 'package:http/http.dart' as http;
 
 
 class SignInPage extends StatefulWidget {
+  const SignInPage({super.key});
+
   @override
   _SignInPageState createState() => _SignInPageState();
 }
@@ -46,7 +48,7 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   Future<bool> _existeUsuario(String username) async {
-    final uri = Uri.parse('${AppStateSingleton().ApiUrl}api/existeUsuario');
+    final uri = Uri.parse('${AppStateSingleton().apiUrl}api/existeUsuario');
     
     try {
       final response = await http.post(

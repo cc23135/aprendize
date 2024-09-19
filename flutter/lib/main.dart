@@ -17,7 +17,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final appState = AppStateSingleton();
-  appState.ApiUrl = "http://localhost:6060/";
+  appState.apiUrl = "http://localhost:6060/";
   await appState.loadThemeMode();
 
   runApp(MyApp());
@@ -67,12 +67,12 @@ class MyApp extends StatelessWidget {
             brightness: Brightness.dark,
           ),
           themeMode: themeMode,
-          locale: Locale('pt', 'BR'), 
-          supportedLocales: [
-            const Locale('en', 'US'),
-            const Locale('pt', 'BR'),
+          locale: const Locale('pt', 'BR'), 
+          supportedLocales: const [
+            Locale('en', 'US'),
+            Locale('pt', 'BR'),
           ],
-          localizationsDelegates: [
+          localizationsDelegates: const [
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
@@ -81,11 +81,11 @@ class MyApp extends StatelessWidget {
             future: _checkLoginStatus(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
+                return const Center(child: CircularProgressIndicator());
               } else if (snapshot.hasData && snapshot.data == true) {
                 return MyHomePage();
               } else {
-                return LoginPage();
+                return const LoginPage();
               }
             },
           ),
@@ -96,6 +96,8 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -106,11 +108,11 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _showUserPage = false;
 
   final List<Widget> _pages = [
-    HomePage(),
+    const HomePage(),
     StatisticsPage(),
     RankingPage(),
-    ChatsPage(),
-    CalendarPage(),
+    const ChatsPage(),
+    const CalendarPage(),
   ];
 
   @override
@@ -153,7 +155,7 @@ class _MyHomePageState extends State<MyHomePage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 IconButton(
-                  icon: Icon(Icons.notifications),
+                  icon: const Icon(Icons.notifications),
                   color: theme.brightness == Brightness.light
                       ? Colors.black 
                       : theme.iconTheme.color, 

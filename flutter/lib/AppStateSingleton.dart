@@ -6,7 +6,7 @@ class AppStateSingleton {
   factory AppStateSingleton() => _instance;
   AppStateSingleton._internal();
 
-  String ApiUrl = '';
+  String apiUrl = '';
   ValueNotifier<String> userProfileImageUrlNotifier = ValueNotifier<String>('');
   String username = '';
   String nome = '';

@@ -66,7 +66,7 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
   }
 
   Future<void> _fetchColecoes() async {
-    final uri = Uri.parse('${AppStateSingleton().ApiUrl}api/getColecoes');
+    final uri = Uri.parse('${AppStateSingleton().apiUrl}api/getColecoes');
     try {
       final response = await http.get(uri);
       if (response.statusCode == 200) {
@@ -113,10 +113,10 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
       SnackBar(
         content: Text(
           message,
-          style: TextStyle(color: Colors.white),
+          style: const TextStyle(color: Colors.white),
         ),
         backgroundColor: backgroundColor,
-        duration: Duration(milliseconds: 1500),
+        duration: const Duration(milliseconds: 1500),
       ),
     );
   }
@@ -128,7 +128,7 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
     required String imageUrl,
     required int collectionId,
   }) async {
-    final uri = Uri.parse('${AppStateSingleton().ApiUrl}api/signUp');
+    final uri = Uri.parse('${AppStateSingleton().apiUrl}api/signUp');
 
     try {
       final response = await http.post(
@@ -192,14 +192,16 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
               MouseRegion(
                 onEnter: (_) {
                   setState(() {
-                    if (_iconColor != AppColors.lightPurple)
+                    if (_iconColor != AppColors.lightPurple) {
                       _iconColor = Colors.white70;
+                    }
                   });
                 },
                 onExit: (_) {
                   setState(() {
-                    if (_iconColor != AppColors.lightPurple)
+                    if (_iconColor != AppColors.lightPurple) {
                       _iconColor = Colors.white54;
+                    }
                   });
                 },
                 child: TextField(
