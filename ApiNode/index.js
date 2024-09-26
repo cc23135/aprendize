@@ -411,6 +411,28 @@ app.get('/api/getColecoes', async (req, res) => {
   }
 });
 
+app.post('/api/getSubjectsFromGroups', async (req, res) => {
+  
+  const { groupIds } = req.body; 
+  console.log(groupIds)
+
+  try {
+    const subjects = await prisma.materia.findMany({
+      where: {
+        idColecao: {
+          in: groupIds, 
+        },
+      },
+    });
+
+    console.log(subjects)
+    res.json(subjects); 
+  } catch (error) {
+    console.error('Error fetching subjects:', error);
+    res.status(500).json({ error: 'Erro ao buscar matérias' });
+  }
+});
+
 
 app.post('/api/getGroupMembers', async (req, res) => {
   const { idColecao } = req.body.query; 
