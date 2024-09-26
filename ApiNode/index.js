@@ -443,6 +443,8 @@ app.post('/api/getGroupMembers', async (req, res) => {
 });
 
 
+
+
 app.post('/api/getColecaoInfo', async (req, res) => {
   const { idColecao } = req.body.query; 
   console.log("Obtendo informações da coleção...");
@@ -452,14 +454,45 @@ app.post('/api/getColecaoInfo', async (req, res) => {
       where: {
         idColecao: idColecao
       },
+      include: {
+        Materia: {
+          select: {
+            nome: true,
+            capa: true,
+            Topico: {
+              select: {
+                idTopico: true
+              }
+            }
+          }
+        }
+      }
     });
 
-    res.json({ colecao: colecao });
+    if (!colecao) {
+      return res.status(404).json({ error: 'Coleção não encontrada' });
+    }
+
+    const materias = colecao.Materia.map(materia => ({
+      nome: materia.nome,
+      linkCapa: materia.capa,
+      quantidadeTopicos: materia.Topico.length,
+    }));
+
+    res.json({
+      colecao: {
+        ...colecao,
+        materias
+      }
+    });
+    
   } catch (error) {
-    console.error('Error fetching membros:', error);
-    res.status(500).json({ error: 'Erro ao buscar membros' });
+    console.error('Error fetching colecao:', error);
+    res.status(500).json({ error: 'Erro ao buscar coleção' });
   }
 });
+
+
 
 
 

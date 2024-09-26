@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:aprendize/login-page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'; // Para verificar a plataforma
 import 'package:image_picker/image_picker.dart';
@@ -270,9 +271,16 @@ class _UserPageState extends State<UserPage> {
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
-                  onPressed: () {},
-                  child: const Text('Sair',
-                      style: TextStyle(fontSize: 18, color: Colors.white)),
+                  onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => LoginPage(),
+                          ),
+                        );
+                      },
+                  child: Text('Sair'),
+
                 ),
                 const SizedBox(height: 10),
                 IconButton(
