@@ -1,10 +1,8 @@
 import 'dart:convert';
-import 'package:aprendize/login-page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'; // Para verificar a plataforma
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
-import 'package:http/http.dart' as http; // Importa o http
 import 'package:aprendize/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:aprendize/AppStateSingleton.dart';
@@ -20,7 +18,6 @@ class ImageService {
       final formData = await _prepareFormData(image);
       onImagePicked(formData);
     }
-    print("chegou aqui");
   }
 
   Future<FormData> _prepareFormData(XFile image) async {
@@ -39,30 +36,12 @@ class ImageService {
   Future<void> uploadImage(FormData formData) async {
     try {
       final url = '${AppStateSingleton().apiUrl}api/upload-image';
-      if (kIsWeb) {
-        final response = await _dio.post(url, data: formData);
-        if (response.statusCode == 200) {
-          AppStateSingleton().userProfileImageUrlNotifier.value =
-              response.data['url'];
-        } else {
-          print(
-              'Falha ao enviar a imagem. Status code: ${response.statusCode}');
-        }
+      final response = await _dio.post(url, data: formData);
+      if (response.statusCode == 200) {
+        AppStateSingleton().userProfileImageUrlNotifier.value =
+            response.data['url'];
       } else {
-        // Usar http para mobile
-        final request = http.MultipartRequest('POST', Uri.parse(url))
-          ..files.add(await http.MultipartFile.fromPath(
-              'image', formData.fields.first.value));
-        final streamedResponse = await request.send();
-        final response = await http.Response.fromStream(streamedResponse);
-        if (response.statusCode == 200) {
-          final responseData = jsonDecode(response.body);
-          AppStateSingleton().userProfileImageUrlNotifier.value =
-              responseData['url'];
-        } else {
-          print(
-              'Falha ao enviar a imagem. Status code: ${response.statusCode}');
-        }
+        print('Falha ao enviar a imagem. Status code: ${response.statusCode}');
       }
     } catch (e) {
       print('Erro ao enviar a imagem: $e');
@@ -78,14 +57,18 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserPageState extends State<UserPage> {
-  final ImageService _imageService =
-      ImageService(); // Instância do serviço de imagem
+  final ImageService _imageService = ImageService();
   bool _isLoading = false;
+  bool _isEditingName = false;
+  final TextEditingController _nameController = TextEditingController();
+  String _previousImageUrl = '';
 
   @override
   void initState() {
     super.initState();
-    _loadThemePreference(); // Carregar tema ao iniciar
+    _loadThemePreference();
+    _nameController.text = AppStateSingleton().nome; // Inicializa o controlador com o nome atual
+    _previousImageUrl = AppStateSingleton().userProfileImageUrlNotifier.value; // Armazena a URL anterior da imagem
   }
 
   Future<void> _loadThemePreference() async {
@@ -101,11 +84,14 @@ class _UserPageState extends State<UserPage> {
   }
 
   Future<void> _pickImage() async {
-    _toggleLoadingState(true);
-    await _imageService.pickImage((formData) async {
+    // O loading é ativado apenas se uma imagem for escolhida
+    final XFile? image = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      _toggleLoadingState(true); // Ativa o loading
+      final formData = await _imageService._prepareFormData(image);
       await _imageService.uploadImage(formData);
-      _toggleLoadingState(false);
-    });
+      _toggleLoadingState(false); // Desativa o loading
+    }
   }
 
   void _toggleLoadingState(bool state) {
@@ -124,6 +110,13 @@ class _UserPageState extends State<UserPage> {
     await _saveThemePreference(newThemeMode == ThemeMode.dark);
   }
 
+  void _saveName() {
+    setState(() {
+      AppStateSingleton().nome = _nameController.text; // Atualiza o nome no singleton
+      _isEditingName = false; // Para o modo de edição
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<ThemeMode>(
@@ -135,6 +128,7 @@ class _UserPageState extends State<UserPage> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center, // Centraliza verticalmente
               children: <Widget>[
                 const SizedBox(height: 50),
                 Stack(
@@ -153,8 +147,7 @@ class _UserPageState extends State<UserPage> {
                           ),
                         ),
                         child: ValueListenableBuilder<String>(
-                          valueListenable:
-                              AppStateSingleton().userProfileImageUrlNotifier,
+                          valueListenable: AppStateSingleton().userProfileImageUrlNotifier,
                           builder: (context, imageUrl, child) {
                             return CircleAvatar(
                               radius: 50,
@@ -162,13 +155,11 @@ class _UserPageState extends State<UserPage> {
                                   ? null
                                   : (imageUrl.isNotEmpty
                                           ? NetworkImage(imageUrl)
-                                          : const AssetImage(
-                                              'assets/images/mona.png'))
+                                          : const AssetImage('assets/images/mona.png'))
                                       as ImageProvider,
                               backgroundColor: themeMode == ThemeMode.dark
-                                  ? AppColors
-                                      .lightBlackForFooter // Cor para o modo escuro
-                                  : AppColors.white, // Cor para o modo claro
+                                  ? AppColors.lightBlackForFooter
+                                  : AppColors.white,
                               child: _isLoading
                                   ? Center(
                                       child: CircularProgressIndicator(
@@ -196,17 +187,62 @@ class _UserPageState extends State<UserPage> {
                   ],
                 ),
                 const SizedBox(height: 20),
-                Text(
-                  AppStateSingleton().nome, // Usar o nome do singleton
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.white,
-                  ),
-                ),
+                _isEditingName
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.center, // Centraliza o nome
+                        children: [
+                          Container(
+                            width: MediaQuery.of(context).size.width * 0.5, // 50% da largura
+                            child: TextField(
+                              controller: _nameController,
+                              style: TextStyle(color: AppColors.white),
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: AppColors.lightBlackForFooter,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide.none,
+                                ),
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.check, color: AppColors.lightPurple),
+                            onPressed: _saveName,
+                          ),
+                        ],
+                      )
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center, // Centraliza o nome
+                        children: [
+                          SizedBox(width: 40), // Adiciona um espaço à esquerda igual ao tamanho do botão
+                          Expanded(
+                            child: Container(
+                              alignment: Alignment.center, // Alinha o texto no centro do Container
+                              child: Text(
+                                AppStateSingleton().nome,
+                                textAlign: TextAlign.center, // Adiciona alinhamento ao texto
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.edit, color: AppColors.lightPurple),
+                            onPressed: () {
+                              setState(() {
+                                _isEditingName = true; // Ativa o modo de edição
+                              });
+                            },
+                          ),
+                        ],
+                      ),
                 const SizedBox(height: 5),
                 Text(
-                  'Total de horas estudadas: 21', // Usar o valor do singleton
+                  'Total de horas estudadas: 21',
                   style: TextStyle(
                     fontSize: 16,
                     color: AppColors.white,
@@ -227,37 +263,23 @@ class _UserPageState extends State<UserPage> {
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      border: Border.all(
-                          color: AppColors.white, width: 2), // Borda branca
-                      borderRadius:
-                          BorderRadius.circular(10), // Borda arredondada
+                      border: Border.all(color: AppColors.white, width: 2),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     padding: const EdgeInsets.all(8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 10),
-                        Expanded(
-                          child: ListView(
-                            children: AppStateSingleton()
-                                .collections
-                                .map((collection) => Padding(
-                                      padding: const EdgeInsets.only(
-                                          bottom:
-                                              20.0), // Adiciona um espaço de 20 pixels abaixo de cada item
-                                      child: CardColecao(
-                                        title: collection['nome'] ??
-                                            'Título não disponível',
-                                        subtitle: collection['descricao'] ??
-                                            'Descrição não disponível',
-                                        imageUrl:
-                                            collection['linkImagem'] ?? '',
-                                      ),
-                                    ))
-                                .toList(),
+                    child: ListView.builder(
+                      itemCount: AppStateSingleton().collections.length,
+                      itemBuilder: (context, index) {
+                        final collection = AppStateSingleton().collections[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 20.0),
+                          child: CardColecao(
+                            title: collection['nome'] ?? 'Título não disponível',
+                            subtitle: collection['descricao'] ?? 'Descrição não disponível',
+                            imageUrl: collection['linkImagem'] ?? '',
                           ),
-                        ),
-                      ],
+                        );
+                      },
                     ),
                   ),
                 ),
@@ -265,38 +287,16 @@ class _UserPageState extends State<UserPage> {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.darkPurple,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 40, vertical: 15),
+                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
-                  onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => LoginPage(),
-                          ),
-                        );
-                      },
-                  child: Text('Sair'),
-
-                ),
-                const SizedBox(height: 10),
-                IconButton(
-                  icon: Transform.rotate(
-                    angle: themeMode == ThemeMode.light
-                        ? 0
-                        : 3.14159, // 180 graus em radianos
-                    child: Icon(
-                      themeMode == ThemeMode.dark
-                          ? Icons.wb_sunny
-                          : Icons.mode_night,
-                      color: AppColors.white,
-                      size: 30,
-                    ),
+                  onPressed: () {},
+                  child: const Text(
+                    'Logout',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
-                  onPressed: _toggleTheme,
                 ),
               ],
             ),
