@@ -70,7 +70,7 @@ class _CalendarPageState extends State<CalendarPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => CreateStudyDayPage(), // Navega para a CreateStudyDayPage
+              builder: (context) => CreateStudyDayPage(selectedDay: _selectedDay), // Passa o dia selecionado
             ),
           );
         },

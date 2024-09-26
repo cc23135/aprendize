@@ -9,8 +9,6 @@ import 'calendar_page.dart';
 import 'notifications_page.dart';
 import 'user_page.dart';
 import 'colors.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'AppStateSingleton.dart';
 
 void main() async {
@@ -117,9 +115,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    print('${AppStateSingleton().userProfileImageUrlNotifier}');
     super.initState();
-    print('URL do perfil do usuário: ${AppStateSingleton().userProfileImageUrlNotifier.value}');
   }
 
   void _onItemTapped(int index) {
