@@ -1,5 +1,9 @@
 import 'package:aprendize/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart'; // Para verificar a plataforma
+import 'package:image_picker/image_picker.dart';
+import 'package:dio/dio.dart';
+import 'package:aprendize/AppStateSingleton.dart';
 
 class CardColecao extends StatelessWidget {
   final String title;
@@ -85,5 +89,46 @@ class CardColecao extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class ImageService {
+  final Dio _dio = Dio();
+
+  Future<void> pickImage(Function(FormData) onImagePicked) async {
+    final XFile? image =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      final formData = await prepareFormData(image);
+      onImagePicked(formData);
+    }
+  }
+
+  Future<FormData> prepareFormData(XFile image) async {
+    if (kIsWeb) {
+      final bytes = await image.readAsBytes();
+      return FormData.fromMap({
+        'image': MultipartFile.fromBytes(bytes, filename: image.name),
+      });
+    } else {
+      return FormData.fromMap({
+        'image': await MultipartFile.fromFile(image.path, filename: image.name),
+      });
+    }
+  }
+
+  Future<void> uploadImage(FormData formData) async {
+    try {
+      final url = '${AppStateSingleton().apiUrl}api/upload-image';
+      final response = await _dio.post(url, data: formData);
+      if (response.statusCode == 200) {
+        AppStateSingleton().userProfileImageUrlNotifier.value =
+            response.data['url'];
+      } else {
+        print('Falha ao enviar a imagem. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Erro ao enviar a imagem: $e');
+    }
   }
 }

@@ -1,53 +1,9 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart'; // Para verificar a plataforma
 import 'package:image_picker/image_picker.dart';
-import 'package:dio/dio.dart';
 import 'package:aprendize/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:aprendize/AppStateSingleton.dart';
-import 'components.dart'; // Importa o CustomCard
-
-class ImageService {
-  final Dio _dio = Dio();
-
-  Future<void> pickImage(Function(FormData) onImagePicked) async {
-    final XFile? image =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      final formData = await _prepareFormData(image);
-      onImagePicked(formData);
-    }
-  }
-
-  Future<FormData> _prepareFormData(XFile image) async {
-    if (kIsWeb) {
-      final bytes = await image.readAsBytes();
-      return FormData.fromMap({
-        'image': MultipartFile.fromBytes(bytes, filename: image.name),
-      });
-    } else {
-      return FormData.fromMap({
-        'image': await MultipartFile.fromFile(image.path, filename: image.name),
-      });
-    }
-  }
-
-  Future<void> uploadImage(FormData formData) async {
-    try {
-      final url = '${AppStateSingleton().apiUrl}api/upload-image';
-      final response = await _dio.post(url, data: formData);
-      if (response.statusCode == 200) {
-        AppStateSingleton().userProfileImageUrlNotifier.value =
-            response.data['url'];
-      } else {
-        print('Falha ao enviar a imagem. Status code: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Erro ao enviar a imagem: $e');
-    }
-  }
-}
+import 'components.dart';
 
 class UserPage extends StatefulWidget {
   const UserPage({super.key});
@@ -60,15 +16,21 @@ class _UserPageState extends State<UserPage> {
   final ImageService _imageService = ImageService();
   bool _isLoading = false;
   bool _isEditingName = false;
+  bool _isEditingUsername = false;
+  bool _isEditingPassword = false;
   final TextEditingController _nameController = TextEditingController();
-  String _previousImageUrl = '';
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _newPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+  bool _isPasswordVisible = false;
 
   @override
   void initState() {
     super.initState();
     _loadThemePreference();
-    _nameController.text = AppStateSingleton().nome; // Inicializa o controlador com o nome atual
-    _previousImageUrl = AppStateSingleton().userProfileImageUrlNotifier.value; // Armazena a URL anterior da imagem
+    _nameController.text = AppStateSingleton().nome;
+    _usernameController.text = AppStateSingleton().username;
+    _newPasswordController.text = AppStateSingleton().senha; // Define a senha atual no campo
   }
 
   Future<void> _loadThemePreference() async {
@@ -78,19 +40,13 @@ class _UserPageState extends State<UserPage> {
         isDarkMode ? ThemeMode.dark : ThemeMode.light;
   }
 
-  Future<void> _saveThemePreference(bool isDarkMode) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isDarkMode', isDarkMode);
-  }
-
   Future<void> _pickImage() async {
-    // O loading é ativado apenas se uma imagem for escolhida
     final XFile? image = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (image != null) {
-      _toggleLoadingState(true); // Ativa o loading
-      final formData = await _imageService._prepareFormData(image);
+      _toggleLoadingState(true);
+      final formData = await _imageService.prepareFormData(image);
       await _imageService.uploadImage(formData);
-      _toggleLoadingState(false); // Desativa o loading
+      _toggleLoadingState(false);
     }
   }
 
@@ -100,20 +56,26 @@ class _UserPageState extends State<UserPage> {
     });
   }
 
-  void _toggleTheme() async {
-    final newThemeMode =
-        AppStateSingleton().themeModeNotifier.value == ThemeMode.dark
-            ? ThemeMode.light
-            : ThemeMode.dark;
-
-    AppStateSingleton().themeModeNotifier.value = newThemeMode;
-    await _saveThemePreference(newThemeMode == ThemeMode.dark);
-  }
-
   void _saveName() {
     setState(() {
-      AppStateSingleton().nome = _nameController.text; // Atualiza o nome no singleton
-      _isEditingName = false; // Para o modo de edição
+      AppStateSingleton().nome = _nameController.text;
+      _isEditingName = false;
+    });
+  }
+
+  void _saveUsername() {
+    setState(() {
+      AppStateSingleton().username = _usernameController.text;
+      _isEditingUsername = false;
+    });
+  }
+
+  void _saveNewPassword() {
+    setState(() {
+      AppStateSingleton().senha = _newPasswordController.text; // Salva a nova senha
+      _isEditingPassword = false;
+      _newPasswordController.clear();
+      _confirmPasswordController.clear();
     });
   }
 
@@ -124,144 +86,117 @@ class _UserPageState extends State<UserPage> {
       builder: (context, themeMode, child) {
         return Scaffold(
           backgroundColor: AppColors.black,
-          body: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center, // Centraliza verticalmente
-              children: <Widget>[
-                const SizedBox(height: 50),
-                Stack(
-                  alignment: Alignment.topRight,
-                  children: [
-                    GestureDetector(
-                      onTap: _pickImage,
-                      child: Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: AppColors.white,
-                            width: 4.0,
-                          ),
-                        ),
-                        child: ValueListenableBuilder<String>(
-                          valueListenable: AppStateSingleton().userProfileImageUrlNotifier,
-                          builder: (context, imageUrl, child) {
-                            return CircleAvatar(
-                              radius: 50,
-                              backgroundImage: _isLoading
-                                  ? null
-                                  : (imageUrl.isNotEmpty
-                                          ? NetworkImage(imageUrl)
-                                          : const AssetImage('assets/images/mona.png'))
-                                      as ImageProvider,
-                              backgroundColor: themeMode == ThemeMode.dark
-                                  ? AppColors.lightBlackForFooter
-                                  : AppColors.white,
-                              child: _isLoading
-                                  ? Center(
-                                      child: CircularProgressIndicator(
-                                        color: AppColors.white,
-                                      ),
-                                    )
-                                  : null,
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      right: 0,
-                      child: GestureDetector(
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  const SizedBox(height: 50),
+                  Stack(
+                    alignment: Alignment.topRight,
+                    children: [
+                      GestureDetector(
                         onTap: _pickImage,
-                        child: CircleAvatar(
-                          radius: 15,
-                          backgroundColor: AppColors.white,
-                          child: Icon(Icons.edit,
-                              size: 25, color: AppColors.darkPurple),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                _isEditingName
-                    ? Row(
-                        mainAxisAlignment: MainAxisAlignment.center, // Centraliza o nome
-                        children: [
-                          Container(
-                            width: MediaQuery.of(context).size.width * 0.5, // 50% da largura
-                            child: TextField(
-                              controller: _nameController,
-                              style: TextStyle(color: AppColors.white),
-                              decoration: InputDecoration(
-                                filled: true,
-                                fillColor: AppColors.lightBlackForFooter,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide.none,
-                                ),
-                              ),
+                        child: Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.white,
+                              width: 4.0,
                             ),
                           ),
-                          IconButton(
-                            icon: Icon(Icons.check, color: AppColors.lightPurple),
-                            onPressed: _saveName,
-                          ),
-                        ],
-                      )
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.center, // Centraliza o nome
-                        children: [
-                          SizedBox(width: 40), // Adiciona um espaço à esquerda igual ao tamanho do botão
-                          Expanded(
-                            child: Container(
-                              alignment: Alignment.center, // Alinha o texto no centro do Container
-                              child: Text(
-                                AppStateSingleton().nome,
-                                textAlign: TextAlign.center, // Adiciona alinhamento ao texto
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.edit, color: AppColors.lightPurple),
-                            onPressed: () {
-                              setState(() {
-                                _isEditingName = true; // Ativa o modo de edição
-                              });
+                          child: ValueListenableBuilder<String>(
+                            valueListenable: AppStateSingleton().userProfileImageUrlNotifier,
+                            builder: (context, imageUrl, child) {
+                              return CircleAvatar(
+                                radius: 50,
+                                backgroundImage: _isLoading
+                                    ? null
+                                    : (imageUrl.isNotEmpty
+                                        ? NetworkImage(imageUrl)
+                                        : const AssetImage('assets/images/mona.png')) as ImageProvider,
+                                backgroundColor: themeMode == ThemeMode.dark
+                                    ? AppColors.lightBlackForFooter
+                                    : AppColors.white,
+                                child: _isLoading
+                                    ? Center(
+                                        child: CircularProgressIndicator(
+                                          color: AppColors.white,
+                                        ),
+                                      )
+                                    : null,
+                              );
                             },
                           ),
-                        ],
+                        ),
                       ),
-                const SizedBox(height: 5),
-                Text(
-                  'Total de horas estudadas: 21',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: AppColors.white,
+                      Positioned(
+                        right: 0,
+                        child: GestureDetector(
+                          onTap: _pickImage,
+                          child: CircleAvatar(
+                            radius: 15,
+                            backgroundColor: AppColors.white,
+                            child: Icon(Icons.edit, size: 25, color: AppColors.darkPurple),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 30),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Grupos',
+                  const SizedBox(height: 20),
+                  _isEditingName
+                      ? _buildEditField(
+                          controller: _nameController,
+                          onSave: _saveName,
+                        )
+                      : _buildDisplayField(
+                          value: _nameController.text,
+                          onEdit: () {
+                            setState(() {
+                              _isEditingName = true;
+                            });
+                          },
+                        ),
+                  _isEditingUsername
+                      ? _buildEditField(
+                          controller: _usernameController,
+                          onSave: _saveUsername,
+                        )
+                      : _buildDisplayField(
+                          value: '@${_usernameController.text}',
+                          onEdit: () {
+                            setState(() {
+                              _isEditingUsername = true;
+                            });
+                          },
+                        ),
+                  _buildPasswordField(),
+                  const SizedBox(height: 5),
+                  Text(
+                    'Total de horas estudadas: 21',
                     style: TextStyle(
+                      fontSize: 16,
                       color: AppColors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                ),
-                Expanded(
-                  child: Container(
+                  const SizedBox(height: 30),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Grupos',
+                      style: TextStyle(
+                        color: AppColors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    height: 200,
                     decoration: BoxDecoration(
                       border: Border.all(color: AppColors.white, width: 2),
                       borderRadius: BorderRadius.circular(10),
@@ -282,27 +217,195 @@ class _UserPageState extends State<UserPage> {
                       },
                     ),
                   ),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.darkPurple,
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.darkPurple,
+                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    onPressed: () {},
+                    child: const Text(
+                      'Logout',
+                      style: TextStyle(color: Colors.white, fontSize: 16),
                     ),
                   ),
-                  onPressed: () {},
-                  child: const Text(
-                    'Logout',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  const SizedBox(height: 10),
+                  IconButton(
+                    icon: Transform.rotate(
+                      angle: themeMode == ThemeMode.light ? 0 : 3.14159,
+                      child: Icon(
+                        themeMode == ThemeMode.dark
+                            ? Icons.wb_sunny
+                            : Icons.mode_night,
+                        color: AppColors.white,
+                        size: 30,
+                      ),
+                    ),
+                    onPressed: _toggleTheme,
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
       },
     );
+  }
+
+  Widget _buildEditField({
+    required TextEditingController controller,
+    required VoidCallback onSave,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Expanded(
+            child: TextField(
+              controller: controller,
+              decoration: InputDecoration(
+                hintText: 'Novo valor',
+                hintStyle: TextStyle(color: AppColors.lightPurple),
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ),
+          IconButton(
+            icon: Icon(Icons.check, color: AppColors.lightPurple),
+            onPressed: onSave,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDisplayField({
+    required String value,
+    required VoidCallback onEdit,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: Stack(
+        alignment: Alignment.centerRight,
+        children: [
+          Center(
+            child: Text(
+              value,
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Positioned(
+            right: 10,
+            child: IconButton(
+              icon: Icon(Icons.edit, color: AppColors.lightPurple),
+              onPressed: onEdit,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPasswordField() {
+    if (_isEditingPassword) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _newPasswordController,
+                obscureText: !_isPasswordVisible,
+                decoration: InputDecoration(
+                  hintText: 'Nova Senha',
+                  hintStyle: TextStyle(color: AppColors.lightPurple),
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+            const SizedBox(width: 5), // Espaço entre os inputs
+            Expanded(
+              child: TextField(
+                controller: _confirmPasswordController,
+                obscureText: !_isPasswordVisible,
+                decoration: InputDecoration(
+                  hintText: 'Confirmação',
+                  hintStyle: TextStyle(color: AppColors.lightPurple),
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+            IconButton(
+              icon: Icon(
+                _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                color: AppColors.lightPurple,
+              ),
+              onPressed: () {
+                setState(() {
+                  _isPasswordVisible = !_isPasswordVisible;
+                });
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.check, color: AppColors.lightPurple),
+              onPressed: _saveNewPassword,
+            ),
+          ],
+        ),
+      );
+    } else {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10.0),
+        child: Stack(
+          alignment: Alignment.centerRight,
+          children: [
+            Center(
+              child: Text(
+                _isPasswordVisible ? AppStateSingleton().senha : '******',
+                textAlign: TextAlign.center,
+              ),
+            ),
+            Positioned(
+              right: 10,
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                      color: AppColors.lightPurple,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isPasswordVisible = !_isPasswordVisible;
+                      });
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.edit, color: AppColors.lightPurple),
+                    onPressed: () {
+                      setState(() {
+                        _isEditingPassword = true;
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  void _toggleTheme() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isDarkMode = AppStateSingleton().themeModeNotifier.value == ThemeMode.dark;
+    AppStateSingleton().themeModeNotifier.value = isDarkMode ? ThemeMode.light : ThemeMode.dark;
+    prefs.setBool('isDarkMode', !isDarkMode);
   }
 }
