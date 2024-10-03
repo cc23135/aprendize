@@ -55,7 +55,7 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
             // Campo para o nome da coleção
             TextField(
@@ -74,7 +74,7 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
             // Campo para a descrição da coleção
             TextField(
@@ -94,7 +94,7 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
             // Título das matérias
             Text(
@@ -105,7 +105,7 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
                 color: AppColors.white,
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
 
             // Lista de matérias e subtópicos
             Column(
@@ -140,7 +140,7 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
                               border: InputBorder.none,
                             ),
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
 
                           // Lista de subtópicos da matéria
                           Column(
@@ -180,7 +180,7 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
                               );
                             }).toList(),
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
 
                           // Botão para adicionar subtópico
                           Align(
@@ -220,7 +220,7 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
             // Botão para criar a coleção
             Center(
@@ -231,7 +231,7 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.lightPurple,
                   padding:
-                      EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
+                      const EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),

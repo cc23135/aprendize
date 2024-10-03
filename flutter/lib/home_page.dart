@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'pomodoro_page.dart';
 
 class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -11,11 +13,11 @@ class HomePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             // Mensagem de boas-vindas
-            Text(
+            const Text(
               'Bem-vindo, Usuário!',
               style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
             // Row com cartões e botões
             Container(
@@ -29,10 +31,10 @@ class HomePage extends StatelessWidget {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
-                          ListTile(
+                          const ListTile(
                             title: Text('Resumo Diário'),
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Row(
@@ -41,19 +43,19 @@ class HomePage extends StatelessWidget {
                                 Expanded(
                                   child: _buildProgressCircle('Horas Estudadas', 70), // exemplo de progresso
                                 ),
-                                SizedBox(width: 10),
+                                const SizedBox(width: 10),
                                 Expanded(
                                   child: _buildProgressCircle('Exercícios Feitos', 45), // exemplo de progresso
                                 ),
                               ],
                             ),
                           ),
-                          SizedBox(height: 20)
+                          const SizedBox(height: 20)
                         ],
                       ),
                     ),
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Card(
                       elevation: 4,
@@ -66,7 +68,7 @@ class HomePage extends StatelessWidget {
                         },
                         child: Container(
                           height: 170, // Altura ajustada para a mesma altura do cartão de resumo diário
-                          child: Center(
+                          child: const Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
@@ -83,14 +85,14 @@ class HomePage extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 40),
+            const SizedBox(height: 40),
 
             // Seção "Para Estudar"
-            Text(
+            const Text(
               'Para Estudar',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Column(
               children: List.generate(
                 10,
@@ -100,14 +102,14 @@ class HomePage extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 40),
+            const SizedBox(height: 40),
 
             // Seção "Revisar"
-            Text(
+            const Text(
               'Revisar',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Column(
               children: List.generate(
                 10,
@@ -135,7 +137,7 @@ class HomePage extends StatelessWidget {
             strokeWidth: 4,
           ),
         ),
-        SizedBox(height: 5),
+        const SizedBox(height: 5),
         Text(
           '$label\n$progress%',
           textAlign: TextAlign.center,
@@ -150,15 +152,15 @@ class HomePage extends StatelessWidget {
       elevation: 4,
       child: Container(
         width: double.infinity, // Ocupa toda a largura disponível
-        padding: EdgeInsets.all(8),
+        padding: const EdgeInsets.all(8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(
               title,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 5),
+            const SizedBox(height: 5),
             Text(subtitle),
           ],
         ),

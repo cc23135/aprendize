@@ -1,29 +1,47 @@
+import 'dart:convert';
+import 'package:aprendize/AppStateSingleton.dart';
+import 'package:aprendize/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'criar_colecao_page.dart';
 import 'colecao_page.dart';
+import 'colors.dart';
 
 class ChatsPage extends StatefulWidget {
+  const ChatsPage({super.key});
+
   @override
   _ChatsPageState createState() => _ChatsPageState();
 }
 
 class _ChatsPageState extends State<ChatsPage> {
-  // Controle do texto de pesquisa
   final TextEditingController _searchController = TextEditingController();
+  List<Map<String, dynamic>> _colecoes = [];
 
-  // Lista de chats (exemplo de dados)
-  final List<Chat> _chats = [
-    Chat(title: 'Chat com João', students: 5, newMessages: 3),
-    Chat(title: 'Grupo de Estudo', students: 20, newMessages: 0),
-    Chat(title: 'Projeto de Trabalho', students: 4, newMessages: 1),
-    Chat(title: 'Discussão de Código', students: 10, newMessages: 2),
-  ];
+  Future<void> _fetchColecoes() async {
+    final uri = Uri.parse('${AppStateSingleton().apiUrl}api/getColecoes');
+    final response = await http.get(uri);
 
-  // Função para filtrar chats com base no texto de pesquisa
-  List<Chat> get _filteredChats {
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      setState(() {
+        _colecoes = List<Map<String, dynamic>>.from(data['colecoes']);
+      });
+    } else {
+      throw Exception('Falha ao carregar coleções');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchColecoes();
+  }
+
+  List<Map<String, dynamic>> get _filteredColecoes {
     final query = _searchController.text.toLowerCase();
-    return _chats.where((chat) {
-      return chat.title.toLowerCase().contains(query);
+    return _colecoes.where((colecao) {
+      return colecao['nome'].toLowerCase().contains(query);
     }).toList();
   }
 
@@ -36,11 +54,10 @@ class _ChatsPageState extends State<ChatsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              // Título e botão para criar chat
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Text(
+                  const Text(
                     'Suas Coleções',
                     style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                   ),
@@ -48,67 +65,64 @@ class _ChatsPageState extends State<ChatsPage> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => CriarColecaoPage()), // Navegação para PomodoroPage
+                        MaterialPageRoute(builder: (context) => CriarColecaoPage()),
                       );
                     },
-                    child: Icon(Icons.add),
+                    child: const Icon(Icons.add),
                   ),
                 ],
               ),
-              SizedBox(height: 20),
-              // Lista de cards de chats (Não filtrados)
-              // Lista de cards de chats (Não filtrados)
+              const SizedBox(height: 20),
+              TextField(
+                controller: _searchController,
+                onChanged: (value) {
+                  setState(() {});
+                },
+                decoration: InputDecoration(
+                  hintText: 'Digite o nome da coleção',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  prefixIcon: const Icon(Icons.search),
+                ),
+              ),
+              const SizedBox(height: 20),
               ListView.builder(
                 shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(), // Remove a rolagem da lista
-                itemCount: _chats.length,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _filteredColecoes.length,
                 itemBuilder: (context, index) {
-                  final chat = _chats[index];
-                  return Card(
-                    elevation: 5,
-                    margin: EdgeInsets.only(bottom: 10),
+                  final colecao = _filteredColecoes[index];
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: NetworkImage(colecao['linkImagem']),
+                        fit: BoxFit.cover,
+                        colorFilter: ColorFilter.mode(
+                          AppColors.darkPurple.withOpacity(0.4), // Altere para AppColors.lightPurple quando disponível
+                          BlendMode.darken,
+                        ),
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                     child: ListTile(
-                      contentPadding: EdgeInsets.all(16),
-                      title: Text(chat.title),
-                      subtitle: Text('${chat.students} estudantes'),
-                      trailing: chat.newMessages > 0
-                          ? Stack(
-                              children: <Widget>[
-                                Icon(Icons.message, color: Colors.grey),
-                                Positioned(
-                                  right: 0,
-                                  top: 0,
-                                  child: Container(
-                                    padding: EdgeInsets.all(4),
-                                    decoration: BoxDecoration(
-                                      color: Colors.red,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    constraints: BoxConstraints(
-                                      maxWidth: 20,
-                                      maxHeight: 20,
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        '${chat.newMessages}',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            )
-                          : null,
+                      contentPadding: const EdgeInsets.all(16),
+                      title: Text(
+                        colecao['nome'],
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text(
+                        '${colecao['numEstudantes']} estudantes',
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      trailing: const Icon(Icons.chat, color: Colors.white),
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => ChatDetailsPage(
-                              title: chat.title,
-                              students: chat.students,
+                              idColecao: colecao['idColecao'],
                             ),
                           ),
                         );
@@ -118,77 +132,7 @@ class _ChatsPageState extends State<ChatsPage> {
                 },
               ),
 
-              SizedBox(height: 20),
-              // Título para pesquisar chats
-              Text(
-                'Pesquisar Chats',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 10),
-              // Campo de pesquisa
-              TextField(
-                controller: _searchController,
-                onChanged: (value) {
-                  setState(() {});
-                },
-                decoration: InputDecoration(
-                  hintText: 'Digite o nome do chat',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  prefixIcon: Icon(Icons.search),
-                ),
-              ),
-              SizedBox(height: 20),
-              // Lista de chats filtrados
-              ListView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(), // Remove a rolagem da lista
-                itemCount: _filteredChats.length,
-                itemBuilder: (context, index) {
-                  final chat = _filteredChats[index];
-                  return Card(
-                    elevation: 5,
-                    margin: EdgeInsets.only(bottom: 10),
-                    child: ListTile(
-                      contentPadding: EdgeInsets.all(16),
-                      title: Text(chat.title),
-                      subtitle: Text('${chat.students} estudantes'),
-                      trailing: chat.newMessages > 0
-                          ? Stack(
-                              children: <Widget>[
-                                Icon(Icons.message, color: Colors.grey),
-                                Positioned(
-                                  right: 0,
-                                  top: 0,
-                                  child: Container(
-                                    padding: EdgeInsets.all(4),
-                                    decoration: BoxDecoration(
-                                      color: Colors.red,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    constraints: BoxConstraints(
-                                      maxWidth: 20,
-                                      maxHeight: 20,
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        '${chat.newMessages}',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            )
-                          : null,
-                    ),
-                  );
-                },
-              ),
+
             ],
           ),
         ),
@@ -197,15 +141,12 @@ class _ChatsPageState extends State<ChatsPage> {
   }
 }
 
-// Modelo para representar um chat
-class Chat {
-  Chat({
-    required this.title,
-    required this.students,
-    required this.newMessages,
+class Colecao {
+  Colecao({
+    required this.nome,
+    required this.numEstudantes,
   });
 
-  final String title;
-  final int students;
-  final int newMessages;
+  final String nome;
+  final int numEstudantes;
 }

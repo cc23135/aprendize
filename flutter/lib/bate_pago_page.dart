@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class PatePagoPage extends StatelessWidget {
+class BatePagoPage extends StatelessWidget {
   final String title;
   final int students;
 
-  PatePagoPage({required this.title, required this.students});
+  const BatePagoPage({super.key, required this.title, required this.students});
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +13,7 @@ class PatePagoPage extends StatelessWidget {
         title: Text(title),
         actions: [
           IconButton(
-            icon: Icon(Icons.exit_to_app),
+            icon: const Icon(Icons.exit_to_app),
             onPressed: () {
               Navigator.pop(context);
             },
@@ -31,14 +31,14 @@ class PatePagoPage extends StatelessWidget {
                 height: 100,
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Center(
               child: Text(
                 '$title - $students estudantes',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
@@ -67,10 +67,10 @@ class PatePagoPage extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Row(
               children: [
-                Expanded(
+                const Expanded(
                   child: TextField(
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
@@ -78,12 +78,12 @@ class PatePagoPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 ElevatedButton(
                   onPressed: () {
                     // Ação ao clicar em "Enviar"
                   },
-                  child: Text('Enviar'),
+                  child: const Text('Enviar'),
                 ),
               ],
             ),
@@ -100,7 +100,7 @@ class PatePagoPage extends StatelessWidget {
       ),
       title: Text(userName),
       subtitle: Text(messageContent),
-      contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
     );
   }
 }

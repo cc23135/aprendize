@@ -9,15 +9,13 @@ import 'calendar_page.dart';
 import 'notifications_page.dart';
 import 'user_page.dart';
 import 'colors.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'AppStateSingleton.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final appState = AppStateSingleton();
-  appState.ApiUrl = "http://localhost:6060/";
+  appState.apiUrl = "http://localhost:6060/";
   await appState.loadThemeMode();
 
   runApp(MyApp());
@@ -67,12 +65,12 @@ class MyApp extends StatelessWidget {
             brightness: Brightness.dark,
           ),
           themeMode: themeMode,
-          locale: Locale('pt', 'BR'), 
-          supportedLocales: [
-            const Locale('en', 'US'),
-            const Locale('pt', 'BR'),
+          locale: const Locale('pt', 'BR'), 
+          supportedLocales: const [
+            Locale('en', 'US'),
+            Locale('pt', 'BR'),
           ],
-          localizationsDelegates: [
+          localizationsDelegates: const [
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
@@ -81,11 +79,11 @@ class MyApp extends StatelessWidget {
             future: _checkLoginStatus(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
+                return const Center(child: CircularProgressIndicator());
               } else if (snapshot.hasData && snapshot.data == true) {
                 return MyHomePage();
               } else {
-                return LoginPage();
+                return const LoginPage();
               }
             },
           ),
@@ -96,6 +94,8 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -106,31 +106,16 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _showUserPage = false;
 
   final List<Widget> _pages = [
-    HomePage(),
+    const HomePage(),
     StatisticsPage(),
     RankingPage(),
-    ChatsPage(),
-    CalendarPage(),
+    const ChatsPage(),
+    const CalendarPage(),
   ];
 
   @override
   void initState() {
     super.initState();
-    _fetchUserProfileImage();
-  }
-
-  Future<void> _fetchUserProfileImage() async {
-    final response = await http.get(Uri.parse('${AppStateSingleton().ApiUrl}api/users'));
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      if (data.isNotEmpty) {
-        setState(() {
-          AppStateSingleton().userProfileImageUrlNotifier.value = data[0]['linkFotoDePerfil'] ?? '';
-        });
-      }
-    } else {
-      print('Failed to load profile image');
-    }
   }
 
   void _onItemTapped(int index) {
@@ -152,7 +137,7 @@ class _MyHomePageState extends State<MyHomePage> {
           decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(
-                color: theme.appBarTheme.backgroundColor?.withOpacity(0.2) ?? Colors.black.withOpacity(0.2),
+              color: AppColors.white.withOpacity(0.4),
                 spreadRadius: 0,
                 blurRadius: 4,
                 offset: const Offset(0, 1),
@@ -160,15 +145,16 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
           ),
           child: AppBar(
+           surfaceTintColor: Colors.transparent,
             scrolledUnderElevation: 0.0,
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 IconButton(
-                  icon: Icon(Icons.notifications),
+                  icon: const Icon(Icons.notifications),
                   color: theme.brightness == Brightness.light
-                      ? Colors.black // Preto para o tema claro
-                      : theme.iconTheme.color, // Cor padrão para o tema escuro
+                      ? Colors.black 
+                      : theme.iconTheme.color, 
                   onPressed: () {
                     setState(() {
                       _showNotifications = true;
@@ -224,8 +210,7 @@ class _MyHomePageState extends State<MyHomePage> {
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: theme.bottomNavigationBarTheme.backgroundColor
-                      ?.withOpacity(0.2) ?? Colors.black.withOpacity(0.2),
+              color: Colors.black.withOpacity(0.8),
               spreadRadius: 0,
               blurRadius: 4,
               offset: const Offset(0, 0),

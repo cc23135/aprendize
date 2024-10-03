@@ -6,10 +6,12 @@ class AppStateSingleton {
   factory AppStateSingleton() => _instance;
   AppStateSingleton._internal();
 
-  String ApiUrl = '';
+  String apiUrl = '';
   ValueNotifier<String> userProfileImageUrlNotifier = ValueNotifier<String>('');
-  String userName = '';
-  List<String> collections = [];
+  String username = '';
+  String nome = '';
+  String senha = '';
+  List<Map<String, dynamic>> collections = [];
   String statisticsJson = '';
 
   static bool isDarkMode = false;

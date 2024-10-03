@@ -8,6 +8,8 @@ import 'sign-page.dart';
 import 'colors.dart'; // Certifique-se de importar o arquivo colors.dart
 
 class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
   @override
   _LoginPageState createState() => _LoginPageState();
 }
@@ -22,12 +24,12 @@ class _LoginPageState extends State<LoginPage> {
 
   // Função para realizar o login
   Future<void> _login() async {
-    final nome = _usernameController.text;
+    final username = _usernameController.text;
     final senha = _passwordController.text;
 
-    if (nome.isEmpty || senha.isEmpty) {
+    if (username.isEmpty || senha.isEmpty) {
       setState(() {
-        _tamUsername = nome.isEmpty ? 15 : 0;
+        _tamUsername = username.isEmpty ? 15 : 0;
         _tamSenha = senha.isEmpty ? 15 : 0;
       });
       return;
@@ -39,15 +41,22 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       final response = await http.get(
-        Uri.parse('${AppStateSingleton().ApiUrl}api/login?nome=$nome&senha=$senha'),
+        Uri.parse('${AppStateSingleton().apiUrl}api/login?username=$username&senha=$senha'),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
         if (data['success']) {
+          AppStateSingleton().username = data['user']['username'];
+          AppStateSingleton().nome = data['user']['nome']; 
+          AppStateSingleton().senha = data['user']['senha']; 
+          AppStateSingleton().userProfileImageUrlNotifier.value = data['user']['linkFotoDePerfil'];
+          AppStateSingleton().collections = List<Map<String, dynamic>>.from(data['colecoes']);
+          
+
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => MyHomePage()),
+            MaterialPageRoute(builder: (context) => const MyHomePage()),
           );
         } else {
           // Tratar falha no login
@@ -86,7 +95,7 @@ class _LoginPageState extends State<LoginPage> {
 
   void _navegarParaSigin() {
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => SignInPage()),
+      MaterialPageRoute(builder: (context) => const SignInPage()),
     );
   }
 
@@ -111,7 +120,7 @@ class _LoginPageState extends State<LoginPage> {
                 decoration: InputDecoration(
                   labelText: 'Username',
                   labelStyle: TextStyle(color: AppColors.white),
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
                   errorText: _tamUsername > 0 ? "Informe o username" : null,
                   fillColor: AppColors.black,
                   filled: true,
@@ -125,7 +134,7 @@ class _LoginPageState extends State<LoginPage> {
                 decoration: InputDecoration(
                   labelText: 'Senha',
                   labelStyle: TextStyle(color: AppColors.white),
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
                   errorText: _tamSenha > 0 ? "Informe a senha" : null,
                   fillColor: AppColors.black,
                   filled: true,
@@ -155,10 +164,6 @@ class _LoginPageState extends State<LoginPage> {
               else
                 ElevatedButton(
                   onPressed: _login,
-                  child: const Text(
-                    'Login',
-                    style: TextStyle(color: Colors.white), 
-                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.darkPurple,
                     minimumSize: const Size(180, 55),
@@ -166,6 +171,10 @@ class _LoginPageState extends State<LoginPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
+                  ),
+                  child: const Text(
+                    'Login',
+                    style: TextStyle(color: Colors.white), 
                   ),
                 ),
             ],

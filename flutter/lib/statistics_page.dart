@@ -6,6 +6,8 @@ import 'dart:convert'; // For json.decode()
 import 'package:http/http.dart' as http; // For http.get()
 
 class StatisticsPage extends StatefulWidget {
+  const StatisticsPage({super.key});
+
   @override
   _StatisticsPageState createState() => _StatisticsPageState();
 }
@@ -14,13 +16,13 @@ class _StatisticsPageState extends State<StatisticsPage> {
   bool isLoading = true;
   
   List<FlSpot> spots = [ // dados das horas
-  FlSpot(0, 1),
-  FlSpot(1, 3),
-  FlSpot(2, 5),
-  FlSpot(3, 2),
-  FlSpot(4, 4),
-  FlSpot(5, 4),
-  FlSpot(6, 4),
+  const FlSpot(0, 1),
+  const FlSpot(1, 3),
+  const FlSpot(2, 5),
+  const FlSpot(3, 2),
+  const FlSpot(4, 4),
+  const FlSpot(5, 4),
+  const FlSpot(6, 4),
   ];
 
   int timeSpent = 0;  // Variable to hold time spent
@@ -72,9 +74,9 @@ class _StatisticsPageState extends State<StatisticsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : Padding(
-              padding: EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16.0),
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -113,7 +115,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                           ),
                         ],
                       ),
-                    )
+                    ),
 
 
 
@@ -135,20 +137,20 @@ class _StatisticsPageState extends State<StatisticsPage> {
                     // coluna deitada
 
 
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     Text(
                       'Time spent on app: $timeSpent minutes', // Display time spent
-                      style: TextStyle(fontSize: 16),
+                      style: const TextStyle(fontSize: 16),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Text(
                       'Number of tasks done: $tasksDone', // Display tasks done
-                      style: TextStyle(fontSize: 16),
+                      style: const TextStyle(fontSize: 16),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     Text(
                       AppStateSingleton().statisticsJson, // Show the raw JSON data for debugging
-                      style: TextStyle(fontSize: 16, fontFamily: 'monospace'),
+                      style: const TextStyle(fontSize: 16, fontFamily: 'monospace'),
                     ),
                   ],
                 ),
@@ -160,7 +162,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
   Widget buildLineGraph(List<FlSpot> spots) {
     return LineChart(
       LineChartData(
-        gridData: FlGridData(show: false),
+        gridData: const FlGridData(show: false),
         titlesData: FlTitlesData(
           show: true,
           bottomTitles: AxisTitles(
@@ -171,17 +173,17 @@ class _StatisticsPageState extends State<StatisticsPage> {
                 // Dynamically generate day labels based on index
                 int index = value.toInt();
                 if (index >= 0 && index < spots.length) {
-                  return Text('Day ${index + 1}', style: TextStyle(fontSize: 10)); 
+                  return Text('Day ${index + 1}', style: const TextStyle(fontSize: 10)); 
                 } else {
-                  return Text(''); // Return empty text for out-of-bound indexes
+                  return const Text(''); // Return empty text for out-of-bound indexes
                 }
               },
             ),
           ),
-          leftTitles: AxisTitles(
+          leftTitles: const AxisTitles(
             sideTitles: SideTitles(showTitles: true), // Default Y-axis titles
           ),
-          topTitles: AxisTitles(
+          topTitles: const AxisTitles(
             sideTitles: SideTitles(showTitles: false),
           ),
         ),
@@ -197,7 +199,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
             spots: spots,
             isCurved: true,
             color: Colors.blue,
-            dotData: FlDotData(show: false),
+            dotData: const FlDotData(show: false),
             belowBarData: BarAreaData(show: false),
           ),
         ],
@@ -215,7 +217,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
     return BarChart(
       BarChartData(
         alignment: BarChartAlignment.spaceEvenly,
-        gridData: FlGridData(show: false),
+        gridData: const FlGridData(show: false),
         titlesData: FlTitlesData(
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
@@ -224,17 +226,17 @@ class _StatisticsPageState extends State<StatisticsPage> {
               getTitlesWidget: (value, meta) {
                 int index = value.toInt();
                 if (index >= 0 && index < spots.length) {
-                  return Text('Day ${index + 1}', style: TextStyle(fontSize: 10));
+                  return Text('Day ${index + 1}', style: const TextStyle(fontSize: 10));
                 } else {
-                  return Text('');
+                  return const Text('');
                 }
               },
             ),
           ),
-          leftTitles: AxisTitles(
+          leftTitles: const AxisTitles(
             sideTitles: SideTitles(showTitles: true),
           ),
-          topTitles: AxisTitles(
+          topTitles: const AxisTitles(
             sideTitles: SideTitles(showTitles: false),
           ),
         ),
@@ -256,7 +258,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                 toY: yValue,
                 color: Colors.blue,
                 width: 50, // Increased width for wider bars
-                borderRadius: BorderRadius.only(
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(5), // Radius for the top left corner
                   topRight: Radius.circular(5), // Radius for the top right corner
 

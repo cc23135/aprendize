@@ -4,6 +4,8 @@ import 'package:intl/intl.dart'; // Adicione esta importação
 import 'create_study_day_page.dart'; // Importe a CreateStudyDayPage
 
 class CalendarPage extends StatefulWidget {
+  const CalendarPage({super.key});
+
   @override
   _CalendarPageState createState() => _CalendarPageState();
 }
@@ -38,7 +40,7 @@ class _CalendarPageState extends State<CalendarPage> {
               });
             },
             locale: 'pt_BR', // Adicione esta linha para definir o locale como português
-            calendarStyle: CalendarStyle(
+            calendarStyle: const CalendarStyle(
               todayDecoration: BoxDecoration(
                 color: Colors.orange,
                 shape: BoxShape.circle,
@@ -49,16 +51,16 @@ class _CalendarPageState extends State<CalendarPage> {
               ),
             ),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           // Lista de tarefas
           Expanded(
             child: ListView(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               children: _tasks[_selectedDay] != null
                   ? _tasks[_selectedDay]!.map((task) => ListTile(
                         title: Text(task),
                       )).toList()
-                  : [Text('Nenhuma tarefa para hoje')],
+                  : [const Text('Nenhuma tarefa para hoje')],
             ),
           ),
         ],
@@ -68,12 +70,12 @@ class _CalendarPageState extends State<CalendarPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => CreateStudyDayPage(), // Navega para a CreateStudyDayPage
+              builder: (context) => CreateStudyDayPage(selectedDay: _selectedDay), // Passa o dia selecionado
             ),
           );
         },
-        child: Icon(Icons.add),
         backgroundColor: Colors.orange,
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -85,20 +87,20 @@ class _CalendarPageState extends State<CalendarPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Adicionar Tarefa'),
+          title: const Text('Adicionar Tarefa'),
           content: TextField(
             controller: _taskController,
-            decoration: InputDecoration(hintText: 'Digite a tarefa'),
+            decoration: const InputDecoration(hintText: 'Digite a tarefa'),
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancelar'),
+              child: const Text('Cancelar'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Adicionar'),
+              child: const Text('Adicionar'),
               onPressed: () {
                 if (_taskController.text.isNotEmpty) {
                   setState(() {

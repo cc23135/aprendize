@@ -1,11 +1,17 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:aprendize/colecao_inicial.dart';
 import 'package:aprendize/login-page.dart';
 import 'colors.dart';
-import 'user_page.dart';
 import 'AppStateSingleton.dart';
+import 'package:http/http.dart' as http;
+import 'components.dart'; 
+
 
 class SignInPage extends StatefulWidget {
+  const SignInPage({super.key});
+
   @override
   _SignInPageState createState() => _SignInPageState();
 }
@@ -41,12 +47,31 @@ class _SignInPageState extends State<SignInPage> {
     return senha.length > 4 && hasDigits;
   }
 
-  bool _existeUsuario(String username){
-    //puxa API
-    return false; ///fazer
+  Future<bool> _existeUsuario(String username) async {
+    final uri = Uri.parse('${AppStateSingleton().apiUrl}api/existeUsuario');
+    
+    try {
+      final response = await http.post(
+        uri,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({'username': username}),
+      );
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        return responseData['success'] ?? false;
+      } else {
+        print('Failed to check user existence: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      print('Error checking user existence: $e');
+      return false;
+    }
   }
 
-  void _sigin() {
+  void _sigin() async{
     bool loginCorreto = true;
 
     if (_usernameController.text.isEmpty) {
@@ -59,7 +84,9 @@ class _SignInPageState extends State<SignInPage> {
         _tamUsername = 0; // Esconder mensagem de erro
       });
 
-      if (_existeUsuario(_usernameController.text)){
+      final usuarioExiste = await _existeUsuario(_usernameController.text);
+
+      if (usuarioExiste == true) {
         loginCorreto = false;
 
         setState(() {
@@ -112,8 +139,10 @@ class _SignInPageState extends State<SignInPage> {
       // estabelece conexão com o banco de dados e pergunta se as informações estão corretas, fazer isso depois
       // bool resposta = true;
 
+      String urlImage = AppStateSingleton().userProfileImageUrlNotifier.value;
+
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => colecaoInicialPage(username: _usernameController.text, name: _nameController.text, password: _passwordController.text, urlImagem: '',)),
+        MaterialPageRoute(builder: (context) => colecaoInicialPage(username: _usernameController.text, name: _nameController.text, password: _passwordController.text, urlImagem: urlImage,)),
       );
 
       // if (resposta){
@@ -132,8 +161,10 @@ class _SignInPageState extends State<SignInPage> {
       bool resposta = true;
 
       if (resposta) {
+        String urlImage = AppStateSingleton().userProfileImageUrlNotifier.value;
+
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) =>  colecaoInicialPage(username: _usernameController.text, name: _nameController.text, password: _passwordController.text, urlImagem: '',)),
+          MaterialPageRoute(builder: (context) =>  colecaoInicialPage(username: _usernameController.text, name: _nameController.text, password: _passwordController.text, urlImagem: urlImage,)),
         );
       } else {
         print("Tratar banco de dados");
@@ -150,6 +181,12 @@ class _SignInPageState extends State<SignInPage> {
   void _onUserNameChange(String text) {
     setState(() {
       _tamUsername = text.isEmpty ? 15 : 0;
+    });
+  }
+
+  void _onUserNameDuplicadoChange(String text) {
+    setState(() {
+      _tamUsernameDuplicado = text.isEmpty ? 15 : 0;
     });
   }
 
@@ -249,10 +286,10 @@ class _SignInPageState extends State<SignInPage> {
             TextField(
               controller: _usernameController,
               onChanged: _onUserNameChange,
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: AppColors.white),
               decoration: InputDecoration(
                 labelText: 'Username',
-                labelStyle: TextStyle(color: Colors.white),
+                labelStyle: TextStyle(color: AppColors.white),
                 border: OutlineInputBorder(),
               ),
             ),
@@ -266,14 +303,24 @@ class _SignInPageState extends State<SignInPage> {
                     color: const Color.fromARGB(255, 189, 54, 44)),
               ),
             ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "Já existe esse usuário!",
+                style: TextStyle(
+                    fontSize: _tamUsernameDuplicado,
+                    fontStyle: FontStyle.italic,
+                    color: const Color.fromARGB(255, 189, 54, 44)),
+              ),
+            ),
             SizedBox(height: 20),
             TextField(
               controller: _nameController,
               onChanged: _onNameChange,
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: AppColors.white),
               decoration: InputDecoration(
                 labelText: 'Seu Nome',
-                labelStyle: TextStyle(color: Colors.white),
+                labelStyle: TextStyle(color: AppColors.white),
                 border: OutlineInputBorder(),
               ),
             ),
@@ -292,10 +339,10 @@ class _SignInPageState extends State<SignInPage> {
               controller: _passwordController,
               onChanged: _onPasswordChange,
               obscureText: true,
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: AppColors.white),
               decoration: InputDecoration(
                 labelText: 'Senha',
-                labelStyle: TextStyle(color: Colors.white),
+                labelStyle: TextStyle(color: AppColors.white),
                 border: OutlineInputBorder(),
               ),
             ),
@@ -314,10 +361,10 @@ class _SignInPageState extends State<SignInPage> {
               controller: _confirmPasswordController,
               onChanged: _onPasswordConfirmChange,
               obscureText: true,
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: AppColors.white),
               decoration: InputDecoration(
                 labelText: 'Confirmar Senha',
-                labelStyle: TextStyle(color: Colors.white),
+                labelStyle: TextStyle(color: AppColors.white),
                 border: OutlineInputBorder(),
               ),
             ),
@@ -337,7 +384,7 @@ class _SignInPageState extends State<SignInPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.darkPurple,
               ),
-              child: Text('Cadastrar'),
+              child: Text('Cadastrar', style: TextStyle(color: Colors.white)),
             ),
             TextButton(
               onPressed: _navegarParaLogin,

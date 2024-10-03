@@ -7,6 +7,7 @@ const { Storage } = require('@google-cloud/storage');
 const { v4: uuidv4 } = require('uuid');
 const sharp = require('sharp');
 const path = require('path');
+const { Console } = require('console');
 
 const app = express(); 
 const prisma = new PrismaClient();
@@ -41,6 +42,7 @@ app.get('/', (req, res) => {
 });
 
 app.post('/api/upload-image', upload.single('image'), async (req, res) => {
+  console.log("Upload da imagem...");
   try {
     if (!req.file) {
       console.error('Nenhum arquivo enviado');
@@ -78,6 +80,7 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
 });
 
 app.get('/api/users', async (req, res) => {
+  console.log("Obtendo todos os usuários...");
   try {
     const users = await prisma.usuario.findMany();
     res.json(users);
@@ -88,6 +91,7 @@ app.get('/api/users', async (req, res) => {
 
 
 app.get('/api/statistics', async (req, res) => {
+  console.log("Obtendo estatísticas...");
   try {
     // Total de estudos e tarefas
     const totalEstudos = await prisma.estudo.count();
@@ -109,13 +113,6 @@ app.get('/api/statistics', async (req, res) => {
     const seconds = totalTempoEstudado % 60;
     const tempoEstudadoFormatado = `${hours}h ${minutes}m ${seconds}s`;
 
-    console.log(
-      totalEstudos + "|" + 
-      totalTarefas + "|" +
-      totalTarefasRevisao + "|" +
-      tempoEstudadoFormatado + "|" +
-      totalNotificacoes + "|")
-
     res.json({
       totalEstudos,
       totalTarefas,
@@ -130,6 +127,7 @@ app.get('/api/statistics', async (req, res) => {
 
 
 app.get('/api/getNotifications', async (req, res) => {
+  console.log("Obtendo notificações...");
   try {
     const userId = req.query.userId; // Pega o ID do usuário da query string
     if (!userId) {
@@ -140,7 +138,6 @@ app.get('/api/getNotifications', async (req, res) => {
       where: { idUsuario: parseInt(userId, 10) } // Filtra as notificações pelo ID do usuário
     });
     
-    console.log(notifications)
     res.json(notifications);
   } catch (error) {
     res.status(500).json({ error: 'Erro ao buscar notificações' });
@@ -148,28 +145,37 @@ app.get('/api/getNotifications', async (req, res) => {
 });
 
 
-app.get('/api/existeUsuario', async (req,res) => {
+app.post('/api/existeUsuario', async (req, res) => {
+  console.log("Verificando a existência de um usuario...");
   try {
-    const username = req.query.username; 
+    const { username } = req.body; 
+    console.log("Verificando " + username + "...")
+    if (!username) {
+      return res.status(400).json({ error: 'Username é necessário.' });
+    }
 
-    const user = await prisma.usuario.findMany({
-      where: { username: username } 
+    const user = await prisma.usuario.findUnique({
+      where: { username: username },
     });
 
-    if(user != null){
+    if (user) {
+      console.log("Existe usuario")
       res.json({ success: true });
-    }else{
-      res.json({success: false});
+    } else {
+      console.log("Nao existe usuario")
+      res.json({ success: false });
     }
    
   } catch (error) {
-    console.error('Error :', error);
-    res.status(500).json({ error: 'Erro' });
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Erro ao verificar usuário.' });
   }
-})
+});
+
 
 
 app.get('/api/haveNewNotification', async (req, res) => {
+  console.log("Vendo se há nova notificação...");
   try {
     const userId = req.query.userId; 
     if (!userId) {
@@ -191,29 +197,40 @@ app.get('/api/haveNewNotification', async (req, res) => {
 });
 
 
+
 app.get('/api/login', async (req, res) => {
+  console.log("Login...");
   try {
-    const { nome, senha } = req.query;
+    const { username, senha } = req.query;
 
-    console.log("Tentando logar como " + nome + "...")
+    console.log("Tentando logar como " + username + "...")
 
-    if (!nome || !senha) {
+    if (!username || !senha) {
       return res.json({ success: false, message: 'Nome de usuário e senha são obrigatórios.' });
     }
 
     const user = await prisma.usuario.findFirst({
       where: {
         AND: [
-          { nome: nome },
+          { username: username },
           { senha: senha }
         ]
       }
     });
 
-    console.log(user)
+    const colecoes = await prisma.colecao.findMany({
+      where: {
+        idColecao: {
+          in: await prisma.usuarioColecao.findMany({
+            where: { idUsuario: user.idUsuario },
+            select: { idColecao: true }
+          }).then(results => results.map(result => result.idColecao))
+        }
+      }
+    });
 
     if (user) {
-      return res.json({ success: true });
+      return res.json({ success: true, user: user, colecoes: colecoes});
     } else {
       return res.json({ success: false, message: 'Nome de usuário ou senha inválidos.' });
     }
@@ -225,64 +242,73 @@ app.get('/api/login', async (req, res) => {
 
 
 app.post('/api/signUp', async (req, res) => {
+  console.log("SignUp...");
   const { username, nome, senha, linkFotoDePerfil, idColecaoInicial } = req.body;
-  console.log({ username, nome, senha, linkFotoDePerfil, idColecaoInicial })
+  console.log({ username, nome, senha, linkFotoDePerfil, idColecaoInicial });
 
   if (!username || !nome || !senha) {
     return res.status(400).json({ error: 'Todos campos necessários.' });
   }
 
+  const idColecaoInicialInt = idColecaoInicial ? parseInt(idColecaoInicial, 10) : null;
+
+  if (isNaN(idColecaoInicialInt) && idColecaoInicial !== undefined) {
+    return res.status(400).json({ error: 'idColecaoInicial deve ser um número válido.' });
+  }
+
   try {
-    // Inserindo o novo usuário
-    await prisma.$executeRaw`
-      INSERT INTO Usuario (nome, username, senha, linkFotoDePerfil)
-      VALUES (${nome}, ${username}, ${senha}, ${linkFotoDePerfil});
-      SELECT SCOPE_IDENTITY() AS idUsuario;
-    `;
-  
-    // Obtendo o ID do novo usuário
-    const [newUserResult] = await prisma.$queryRaw`
-      SELECT SCOPE_IDENTITY() AS idUsuario
-    `;
-    
-    const newUserId = newUserResult?.idUsuario;
-  
-    if (!newUserId) {
-      throw new Error('Erro ao obter o ID do novo usuário');
+    const existingUser = await prisma.usuario.findUnique({
+      where: { username },
+    });
+
+    if (existingUser) {
+      console.log("Já existe!");
+      return res.status(409).json({ error: 'Nome de usuário já está em uso.' });
     }
-  
-    if (idColecaoInicial) {
-      await prisma.$executeRaw`
-        INSERT INTO UsuarioColecao (idUsuario, idColecao, cargo)
-        VALUES (${newUserId}, ${idColecaoInicial}, '1')
-      `;
+
+    console.log("Usuario não existe... Pode criar!");
+
+    const newUser = await prisma.usuario.create({
+      data: {
+        nome,
+        username,
+        senha,
+        linkFotoDePerfil,
+      },
+    });
+
+    let colecoes = [];
+    if (idColecaoInicialInt) {
+      await prisma.usuarioColecao.create({
+        data: {
+          idUsuario: newUser.idUsuario,
+          idColecao: idColecaoInicialInt,
+          cargo: '1',
+        },
+      });
+
+      colecoes = await prisma.colecao.findMany({
+        where: { idColecao: idColecaoInicialInt }
+      });
     }
-  
+
     console.log("Criado!");
     res.status(201).json({
       message: 'Usuário criado com sucesso!',
-      user: { idUsuario: newUserId, nome, username, senha, linkFotoDePerfil },
+      user: { idUsuario: newUser.idUsuario, nome, username, senha, linkFotoDePerfil },
+      colecoes, 
     });
   } catch (error) {
     console.error('Error creating user:', error);
     res.status(500).json({ error: 'Erro ao criar usuário.' });
   }
-
 });
 
 
-
-
-
-
-
-
-
-
 app.get('/api/rankingUsers', async (req, res) => {
+  console.log("Obtendo ranking dos usuarios...");
   try {
     const { idColecao, comBaseEmTempo } = req.query;
-    console.log({ idColecao, comBaseEmTempo })
 
     if (!idColecao) {
       return res.status(400).json({ error: 'idColecao é obrigatório' });
@@ -351,14 +377,143 @@ app.get('/api/rankingUsers', async (req, res) => {
       user: userMap.get(ranking.idUsuario),
     }));
 
-    console.log(result)
-
     res.json(result);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 });
+
+
+app.get('/api/getColecoes', async (req, res) => {
+  console.log("Obtendo todas as coleções...");
+  try {
+    console.log("Obtendo colecoes....");
+    const colecoes = await prisma.colecao.findMany({
+      include: {
+        UsuarioColecao: {
+          select: {
+            idUsuarioColecao: true,
+          }
+        }
+      }
+    });
+    
+    const colecoesComEstudantes = colecoes.map(colecao => ({
+      ...colecao,
+      numEstudantes: colecao.UsuarioColecao.length 
+    }));
+    
+    res.json({ colecoes: colecoesComEstudantes });
+  } catch (error) {
+    console.error('Error fetching colecoes:', error);
+    res.status(500).json({ error: 'Erro ao buscar colecoes' });
+  }
+});
+
+app.post('/api/getSubjectsFromGroups', async (req, res) => {
+  
+  const { groupIds } = req.body; 
+  console.log(groupIds)
+
+  try {
+    const subjects = await prisma.materia.findMany({
+      where: {
+        idColecao: {
+          in: groupIds, 
+        },
+      },
+    });
+
+    console.log(subjects)
+    res.json(subjects); 
+  } catch (error) {
+    console.error('Error fetching subjects:', error);
+    res.status(500).json({ error: 'Erro ao buscar matérias' });
+  }
+});
+
+
+app.post('/api/getGroupMembers', async (req, res) => {
+  const { idColecao } = req.body.query; 
+  console.log("Obtendo membros de um grupo...");
+
+  try {
+    const membros = await prisma.usuario.findMany({
+      where: {
+        UsuarioColecao: {
+          some: {
+            idColecao: idColecao,
+          },
+        },
+      },
+      include: {
+        UsuarioColecao: {
+          select: {
+            idUsuarioColecao: true,
+            idColecao: true,
+          },
+        },
+      },
+    });
+
+    res.json({ membros: membros });
+  } catch (error) {
+    console.error('Error fetching membros:', error);
+    res.status(500).json({ error: 'Erro ao buscar membros' });
+  }
+});
+
+
+
+
+app.post('/api/getColecaoInfo', async (req, res) => {
+  const { idColecao } = req.body.query; 
+  console.log("Obtendo informações da coleção...");
+
+  try {
+    const colecao = await prisma.colecao.findUnique({
+      where: {
+        idColecao: idColecao
+      },
+      include: {
+        Materia: {
+          select: {
+            nome: true,
+            capa: true,
+            Topico: {
+              select: {
+                idTopico: true
+              }
+            }
+          }
+        }
+      }
+    });
+
+    if (!colecao) {
+      return res.status(404).json({ error: 'Coleção não encontrada' });
+    }
+
+    const materias = colecao.Materia.map(materia => ({
+      nome: materia.nome,
+      linkCapa: materia.capa,
+      quantidadeTopicos: materia.Topico.length,
+    }));
+
+    res.json({
+      colecao: {
+        ...colecao,
+        materias
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error fetching colecao:', error);
+    res.status(500).json({ error: 'Erro ao buscar coleção' });
+  }
+});
+
 
 
 
