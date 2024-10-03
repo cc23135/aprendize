@@ -1,3 +1,4 @@
+import 'package:aprendize/login-page.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:aprendize/colors.dart';
@@ -212,7 +213,9 @@ class _UserPageState extends State<UserPage> {
                             title: collection['nome'] ?? 'Título não disponível',
                             subtitle: collection['descricao'] ?? 'Descrição não disponível',
                             imageUrl: collection['linkImagem'] ?? '',
+                            idColecao: collection['idColecao'] ?? '',
                           ),
+                          
                         );
                       },
                     ),
@@ -226,7 +229,14 @@ class _UserPageState extends State<UserPage> {
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LoginPage(),
+                        ),
+                      );
+                    },
                     child: const Text(
                       'Logout',
                       style: TextStyle(color: Colors.white, fontSize: 16),

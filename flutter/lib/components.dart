@@ -1,3 +1,4 @@
+import 'package:aprendize/colecao_page.dart';
 import 'package:aprendize/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'; // Para verificar a plataforma
@@ -9,21 +10,32 @@ class CardColecao extends StatelessWidget {
   final String title;
   final String subtitle;
   final String imageUrl;
+  final int idColecao;
 
   const CardColecao({
     super.key,
     required this.title,
     required this.subtitle,
     required this.imageUrl,
+    required this.idColecao,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.white, width: 2), 
-      ),
+    return MouseRegion(
+    cursor: SystemMouseCursors.click, // Defina o cursor como ponteiro
+    child: GestureDetector(
+      onTap: () {
+      // Aqui você pode adicionar a navegação para a página de detalhes do chat
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ChatDetailsPage(
+            idColecao: this.idColecao, // Substitua pelo ID que você deseja passar
+          ),
+        ),
+      );
+    },
       child: ClipRRect(
         borderRadius: BorderRadius.circular(10),
         child: Stack(
@@ -88,6 +100,8 @@ class CardColecao extends StatelessWidget {
           ],
         ),
       ),
+      
+    )
     );
   }
 }

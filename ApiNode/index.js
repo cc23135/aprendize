@@ -516,6 +516,63 @@ app.post('/api/getColecaoInfo', async (req, res) => {
 
 
 
+app.post('/api/getTarefasDoDia', async (req, res) => {
+  const { username, dataTarefa } = req.body; 
+  console.log("DADOS: " + username + " " + dataTarefa);
+
+  if (!username || !dataTarefa) {
+    return res.status(400).json({ error: 'username e dataTarefa são obrigatórios.' });
+  }
+
+  try {
+    console.log("getTarefasDoDia...");
+
+    const usuario = await prisma.usuario.findUnique({
+      where: {
+        username: username,
+      },
+    });
+
+    if (!usuario) {
+      return res.status(404).json({ error: 'Usuário não encontrado.' });
+    }
+
+    const idUsuario = usuario.idUsuario;
+    const data = new Date(dataTarefa);
+
+    if (isNaN(data.getTime())) {
+      return res.status(400).json({ error: 'dataTarefa deve ser uma data válida.' });
+    }
+
+    const tarefas = await prisma.tarefa.findMany({
+      where: {
+        idUsuario: idUsuario,
+        dataTarefa: {
+          equals: data,
+        },
+      },
+      include: {
+        Topico: {
+          select: {
+            nome: true, 
+          },
+        },
+      },
+    });
+
+    const tarefasComTopicos = tarefas.map(tarefa => ({
+      ...tarefa,
+      topicoNome: tarefa.Topico.nome, 
+    }));
+
+    console.log(tarefasComTopicos);
+    res.json(tarefasComTopicos); 
+  } catch (error) {
+    console.error('Error fetching tasks:', error);
+    res.status(500).json({ error: 'Erro ao buscar tarefas' });
+  }
+});
+
 
 
 
