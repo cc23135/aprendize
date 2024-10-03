@@ -70,6 +70,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
     return spots;
   }
 
+  List<bool> isSelected = [true, false]; // Initial selection for "Weekly"
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,86 +92,123 @@ class _StatisticsPageState extends State<StatisticsPage> {
                     child: Text("Estatísticas", style: TextStyle(fontSize: 40, fontWeight: FontWeight.w600 )),
                   ),
                   
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 20),
 
                     // botão para definir semanal ou diário
-
-
-                    Align(
-                      alignment: Alignment.topCenter,
-                        child: Column(
-                          children: [
-
-                          // exercícios feitos
-                          // linha
-                          Text("Exercícios feitos", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600 )),
-
-                          // exemplo linha
+                  Center(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300), // Animation duration
+                      transitionBuilder: (Widget child, Animation<double> animation) {
+                        return FadeTransition(opacity: animation, child: child); // Fades between states
+                      },
+                      child: ToggleButtons(
+                        key: ValueKey<bool>(isSelected[0]), // Key to trigger the animation
+                        isSelected: isSelected,
+                        selectedColor: Colors.white,
+                        fillColor: Colors.blue, // Background color when selected
+                        borderColor: Colors.blue, // Border color for all buttons
+                        borderRadius: BorderRadius.circular(10),
+                        children: const [
                           Padding(
-                            padding: const EdgeInsets.only(right: 35.0), // padding pora corrigir espaço dedicado ao label
-                            child: 
-                              Container(
-                                height: 300,
-                                width: MediaQuery.of(context).size.width * 0.8,
-                                child: buildLineGraph(spots),
-                              ),
+                            padding: EdgeInsets.symmetric(horizontal: 20),
+                            child: Text('Weekly'),
                           ),
-
-
-                          const SizedBox(height: 50),
-
-                          // exemplo barra vertical
-                          Text("Tempo gasto no aplicativo", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600 )),
                           Padding(
-                            padding: const EdgeInsets.only(right: 35.0), // padding pora corrigir espaço dedicado ao label
-                            child: Container(
-                              height: 300,
-                              width: MediaQuery.of(context).size.width * 0.8,
-                              child: buildBarGraph(spots),
-                            )
+                            padding: EdgeInsets.symmetric(horizontal: 20),
+                            child: Text('Daily'),
                           ),
-
-
-                          // exercícios feitos por matéria
-                          // coluna deitada
-
-
-                          
-                          // tempo gasto por matéria
-                          // coluna deitada
-
-                          // exercícios feitos por coleção
-                          // coluna deitada
-                          
-                          // tempo gasto por coleção
-                          // coluna deitada
                         ],
+                        onPressed: (int index) {
+                          setState(() {
+                            // Toggle button selection
+                            for (int i = 0; i < isSelected.length; i++) {
+                              isSelected[i] = i == index;
+                            }
+                          });
+                        },
                       ),
                     ),
+                  ),
 
 
+                  const SizedBox(height: 40),
 
 
+                  Align(
+                    alignment: Alignment.topCenter,
+                      child: Column(
+                        children: [
 
-                    const SizedBox(height: 20),
-                    Text(
-                      'Time spent on app: $timeSpent minutes', // Display time spent
-                      style: const TextStyle(fontSize: 16),
+                        // exercícios feitos
+                        // linha
+                        Text("Exercícios feitos", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600 )),
+
+                        // exemplo linha
+                        Padding(
+                          padding: const EdgeInsets.only(right: 35.0), // padding pora corrigir espaço dedicado ao label
+                          child: 
+                            Container(
+                              height: 300,
+                              width: MediaQuery.of(context).size.width * 0.8,
+                              child: buildLineGraph(spots),
+                            ),
+                        ),
+
+
+                        const SizedBox(height: 50),
+
+                        // exemplo barra vertical
+                        Text("Tempo gasto no aplicativo", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600 )),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 35.0), // padding pora corrigir espaço dedicado ao label
+                          child: Container(
+                            height: 300,
+                            width: MediaQuery.of(context).size.width * 0.8,
+                            child: buildBarGraph(spots),
+                          )
+                        ),
+
+
+                        // exercícios feitos por matéria
+                        // coluna deitada
+
+
+                        
+                        // tempo gasto por matéria
+                        // coluna deitada
+
+                        // exercícios feitos por coleção
+                        // coluna deitada
+                        
+                        // tempo gasto por coleção
+                        // coluna deitada
+                      ],
                     ),
-                    const SizedBox(height: 10),
-                    Text(
-                      'Number of tasks done: $tasksDone', // Display tasks done
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      AppStateSingleton().statisticsJson, // Show the raw JSON data for debugging
-                      style: const TextStyle(fontSize: 16, fontFamily: 'monospace'),
-                    ),
-                  ],
-                ),
+                  ),
+
+
+
+
+
+                  const SizedBox(height: 20),
+                  Text(
+                    'Time spent on app: $timeSpent minutes', // Display time spent
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Number of tasks done: $tasksDone', // Display tasks done
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    AppStateSingleton().statisticsJson, // Show the raw JSON data for debugging
+                    style: const TextStyle(fontSize: 16, fontFamily: 'monospace'),
+                  ),
+                ],
               ),
             ),
+          ),
     );
   }
 
