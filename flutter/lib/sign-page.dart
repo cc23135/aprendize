@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:aprendize/colecao_inicial.dart';
 import 'package:aprendize/login-page.dart';
 import 'colors.dart';
-import 'user_page.dart';
 import 'AppStateSingleton.dart';
 import 'package:http/http.dart' as http;
+import 'components.dart'; 
 
 
 class SignInPage extends StatefulWidget {
