@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:aprendize/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:aprendize/AppStateSingleton.dart';
+import 'package:http/http.dart' as http;
 import 'components.dart';
+import 'package:flutter/services.dart';
 
 class UserPage extends StatefulWidget {
   const UserPage({super.key});
@@ -13,6 +17,7 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserPageState extends State<UserPage> {
+  final validations _validator = validations();
   final ImageService _imageService = ImageService();
   bool _isLoading = false;
   bool _isEditingName = false;
@@ -23,6 +28,9 @@ class _UserPageState extends State<UserPage> {
   final TextEditingController _newPasswordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
   bool _isPasswordVisible = false;
+  String? _usernameError;
+  String? _nameError;
+  String? _passwordError;
 
   @override
   void initState() {
@@ -30,7 +38,7 @@ class _UserPageState extends State<UserPage> {
     _loadThemePreference();
     _nameController.text = AppStateSingleton().nome;
     _usernameController.text = AppStateSingleton().username;
-    _newPasswordController.text = AppStateSingleton().senha; // Define a senha atual no campo
+    _newPasswordController.text = AppStateSingleton().senha;
   }
 
   Future<void> _loadThemePreference() async {
@@ -45,7 +53,7 @@ class _UserPageState extends State<UserPage> {
     if (image != null) {
       _toggleLoadingState(true);
       final formData = await _imageService.prepareFormData(image);
-      await _imageService.uploadImage(formData);
+      await _imageService.uploadImage(formData, AppStateSingleton().username);
       _toggleLoadingState(false);
     }
   }
@@ -56,26 +64,131 @@ class _UserPageState extends State<UserPage> {
     });
   }
 
-  void _saveName() {
+Future<void> _saveName() async {
+  final name = _nameController.text;
+
+  if (name.isEmpty) {
     setState(() {
-      AppStateSingleton().nome = _nameController.text;
+      _nameError = 'O nome não pode estar vazio.';
+    });
+    return;
+  }
+
+  setState(() {
+    AppStateSingleton().nome = name;
+    _isEditingName = false;
+    _nameError = null;
+  });
+
+  final uri = Uri.parse('${AppStateSingleton().apiUrl}api/updateNome');
+  await http.post(
+    uri,
+    headers: {
+      'Content-Type': 'application/json', // Defina o cabeçalho Content-Type
+    },
+    body: jsonEncode({ // Certifique-se de usar jsonEncode
+      'username': AppStateSingleton().username,
+      'novoNome': name,
+    }),
+  );
+}
+
+Future<void> _saveUsername() async {
+  final username = _usernameController.text;
+  
+  if (username.isEmpty || !RegExp(r'^[a-zA-Z0-9]+$').hasMatch(username)) {
+    setState(() {
+      _usernameError = 'Username não pode ter espaços ou caracteres especiais.';
+    });
+    return;
+  }
+
+  if (username != AppStateSingleton().username) {
+    if (await _validator.existeUsuario(username)) {
+      setState(() {
+        _usernameError = 'Já existe um usuário com esse username.';
+      });
+      return;
+    }
+  }
+
+  final uri = Uri.parse('${AppStateSingleton().apiUrl}api/updateUsername');
+  await http.post(
+    uri,
+    headers: {
+      'Content-Type': 'application/json', // Defina o cabeçalho Content-Type
+    },
+    body: jsonEncode({ // Certifique-se de usar jsonEncode
+      'usernameAntigo': AppStateSingleton().username,
+      'novoUsername': username,
+    }),
+  );
+
+   setState(() {
+    AppStateSingleton().username = username;
+    _isEditingUsername = false;
+    _usernameError = null;
+  });
+}
+
+Future<void> _saveNewPassword() async {
+  final newPassword = _newPasswordController.text;
+  final confirmPassword = _confirmPasswordController.text;
+
+  if (newPassword.isEmpty || confirmPassword.isEmpty) {
+    setState(() {
+      _passwordError = 'Não pode ser vazio';
+    });
+    return;
+  }
+
+  if (!_validator.senhaValida(newPassword)) {
+    setState(() {
+      _passwordError = '5 caracteres e 1 número';
+    });
+    return;
+  }
+
+  if (newPassword != confirmPassword) {
+    setState(() {
+      _passwordError = 'As senhas não coincidem';
+    });
+    return;
+  }
+
+  setState(() {
+    AppStateSingleton().senha = newPassword;
+    _isEditingPassword = false;
+    _newPasswordController.clear();
+    _confirmPasswordController.clear();
+    _passwordError = null;
+  });
+
+  final uri = Uri.parse('${AppStateSingleton().apiUrl}api/updatePassword');
+  await http.post(
+    uri,  
+    headers: {
+      'Content-Type': 'application/json', // Defina o cabeçalho Content-Type
+    },
+    body: jsonEncode({ // Certifique-se de usar jsonEncode
+      'username': AppStateSingleton().username,
+      'novaSenha': newPassword,
+    }),
+  );
+}
+
+  void _cancelEdit() {
+    setState(() {
       _isEditingName = false;
-    });
-  }
-
-  void _saveUsername() {
-    setState(() {
-      AppStateSingleton().username = _usernameController.text;
       _isEditingUsername = false;
-    });
-  }
-
-  void _saveNewPassword() {
-    setState(() {
-      AppStateSingleton().senha = _newPasswordController.text; // Salva a nova senha
       _isEditingPassword = false;
+      _nameController.text = AppStateSingleton().nome;
+      _usernameController.text = AppStateSingleton().username;
       _newPasswordController.clear();
       _confirmPasswordController.clear();
+      _usernameError = null;
+      _nameError = null; // Limpar erro ao cancelar edição
+      _passwordError = null; // Limpar erro ao cancelar edição
     });
   }
 
@@ -148,33 +261,63 @@ class _UserPageState extends State<UserPage> {
                     ],
                   ),
                   const SizedBox(height: 20),
-                  _isEditingName
-                      ? _buildEditField(
-                          controller: _nameController,
-                          onSave: _saveName,
-                        )
-                      : _buildDisplayField(
-                          value: _nameController.text,
-                          onEdit: () {
-                            setState(() {
-                              _isEditingName = true;
-                            });
-                          },
-                        ),
-                  _isEditingUsername
-                      ? _buildEditField(
-                          controller: _usernameController,
-                          onSave: _saveUsername,
-                        )
-                      : _buildDisplayField(
-                          value: '@${_usernameController.text}',
-                          onEdit: () {
-                            setState(() {
-                              _isEditingUsername = true;
-                            });
-                          },
-                        ),
-                  _buildPasswordField(),
+
+                  // Nome
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      _isEditingName
+                          ? _buildEditField(
+                              controller: _nameController,
+                              onSave: _saveName,
+                              onCancel: _cancelEdit,
+                              labelText: 'Nome',
+                              errorText: _nameError,
+                            )
+                          : _buildDisplayField(
+                              value: _nameController.text,
+                              onEdit: () {
+                                setState(() {
+                                  _isEditingName = true;
+                                });
+                              },
+                            ),
+                    ],
+                  ),
+
+                  // Username
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      _isEditingUsername
+                          ? _buildEditField(
+                              controller: _usernameController,
+                              onSave: _saveUsername,
+                              onCancel: _cancelEdit,
+                              labelText: 'Username',
+                              errorText: _usernameError,
+                            )
+                          : _buildDisplayField(
+                              value: '@${_usernameController.text}',
+                              onEdit: () {
+                                setState(() {
+                                  _isEditingUsername = true;
+                                });
+                              },
+                            ),
+                    ],
+                  ),
+
+                  // Senha
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      _isEditingPassword
+                          ? _buildPasswordEditField()
+                          : _buildPasswordDisplayField(),
+                    ],
+                  ),
+
                   const SizedBox(height: 5),
                   Text(
                     'Total de horas estudadas: 21',
@@ -208,7 +351,7 @@ class _UserPageState extends State<UserPage> {
                         final collection = AppStateSingleton().collections[index];
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 20.0),
-                          child: CardColecao(
+                            child: CardColecao(
                             title: collection['nome'] ?? 'Título não disponível',
                             subtitle: collection['descricao'] ?? 'Descrição não disponível',
                             imageUrl: collection['linkImagem'] ?? '',
@@ -258,6 +401,9 @@ class _UserPageState extends State<UserPage> {
   Widget _buildEditField({
     required TextEditingController controller,
     required VoidCallback onSave,
+    required VoidCallback onCancel,
+    required String labelText,
+    String? errorText,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -268,11 +414,19 @@ class _UserPageState extends State<UserPage> {
             child: TextField(
               controller: controller,
               decoration: InputDecoration(
-                hintText: 'Novo valor',
-                hintStyle: TextStyle(color: AppColors.lightPurple),
+                labelText: labelText,
+                labelStyle: TextStyle(color: AppColors.lightPurple),
                 border: OutlineInputBorder(),
+                errorText: errorText,
               ),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+              ],
             ),
+          ),
+          IconButton(
+            icon: Icon(Icons.cancel, color: AppColors.lightPurple),
+            onPressed: onCancel,
           ),
           IconButton(
             icon: Icon(Icons.check, color: AppColors.lightPurple),
@@ -310,101 +464,107 @@ class _UserPageState extends State<UserPage> {
     );
   }
 
-  Widget _buildPasswordField() {
-    if (_isEditingPassword) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _newPasswordController,
-                obscureText: !_isPasswordVisible,
-                decoration: InputDecoration(
-                  hintText: 'Nova Senha',
-                  hintStyle: TextStyle(color: AppColors.lightPurple),
-                  border: OutlineInputBorder(),
-                ),
+  Widget _buildPasswordEditField() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Expanded(
+            child: TextField(
+              controller: _newPasswordController,
+              obscureText: !_isPasswordVisible,
+              decoration: InputDecoration(
+                labelText: 'Nova Senha',
+                labelStyle: TextStyle(color: AppColors.lightPurple),
+                border: OutlineInputBorder(),
+                errorText: _passwordError,
               ),
             ),
-            const SizedBox(width: 5), // Espaço entre os inputs
-            Expanded(
-              child: TextField(
-                controller: _confirmPasswordController,
-                obscureText: !_isPasswordVisible,
-                decoration: InputDecoration(
-                  hintText: 'Confirmação',
-                  hintStyle: TextStyle(color: AppColors.lightPurple),
-                  border: OutlineInputBorder(),
-                ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: TextField(
+              controller: _confirmPasswordController,
+              obscureText: !_isPasswordVisible,
+              decoration: InputDecoration(
+                labelText: 'Confirmar Senha',
+                labelStyle: TextStyle(color: AppColors.lightPurple),
+                border: OutlineInputBorder(),
+                errorText: _passwordError,
               ),
             ),
-            IconButton(
-              icon: Icon(
-                _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                color: AppColors.lightPurple,
-              ),
-              onPressed: () {
-                setState(() {
-                  _isPasswordVisible = !_isPasswordVisible;
-                });
-              },
+          ),
+          IconButton(
+            icon: Icon(
+              _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+              color: AppColors.lightPurple,
             ),
-            IconButton(
-              icon: Icon(Icons.check, color: AppColors.lightPurple),
-              onPressed: _saveNewPassword,
-            ),
-          ],
-        ),
-      );
-    } else {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10.0),
-        child: Stack(
-          alignment: Alignment.centerRight,
-          children: [
-            Center(
-              child: Text(
-                _isPasswordVisible ? AppStateSingleton().senha : '******',
-                textAlign: TextAlign.center,
-              ),
-            ),
-            Positioned(
-              right: 10,
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: Icon(
-                      _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                      color: AppColors.lightPurple,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isPasswordVisible = !_isPasswordVisible;
-                      });
-                    },
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.edit, color: AppColors.lightPurple),
-                    onPressed: () {
-                      setState(() {
-                        _isEditingPassword = true;
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
-    }
+            onPressed: () {
+              setState(() {
+                _isPasswordVisible = !_isPasswordVisible;
+              });
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.cancel, color: AppColors.lightPurple),
+            onPressed: _cancelEdit,
+          ),
+          IconButton(
+            icon: Icon(Icons.check, color: AppColors.lightPurple),
+            onPressed: _saveNewPassword,
+          ),
+        ],
+      ),
+    );
   }
+
+Widget _buildPasswordDisplayField() {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 10.0),
+    child: Stack( // Use Stack para centralização
+      alignment: Alignment.center, // Centraliza o conteúdo
+      children: [
+        Center(  // Centraliza o texto dentro do Stack
+          child: Text(
+            _isPasswordVisible ? AppStateSingleton().senha : '******',
+            style: TextStyle(color: AppColors.white, fontSize: 16),
+          ),
+        ),
+        Positioned( // Posiciona os botões à direita
+          right: 10,
+          child: Row(
+            children: [
+              IconButton(
+                icon: Icon(
+                  _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+                  color: AppColors.lightPurple,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _isPasswordVisible = !_isPasswordVisible;
+                  });
+                },
+              ),
+              IconButton(
+                icon: Icon(Icons.edit, color: AppColors.lightPurple),
+                onPressed: () {
+                  setState(() {
+                    _isEditingPassword = true;
+                  });
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
   void _toggleTheme() async {
     final prefs = await SharedPreferences.getInstance();
-    final isDarkMode = AppStateSingleton().themeModeNotifier.value == ThemeMode.dark;
+    final isDarkMode = prefs.getBool('isDarkMode') ?? false;
     AppStateSingleton().themeModeNotifier.value = isDarkMode ? ThemeMode.light : ThemeMode.dark;
     prefs.setBool('isDarkMode', !isDarkMode);
   }

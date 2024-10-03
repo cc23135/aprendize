@@ -6,7 +6,7 @@ CREATE TABLE Aprendize.Usuario (
     idUsuario INT IDENTITY(1,1) PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
     senha VARCHAR(30) NOT NULL,
-    linkFotoDePerfil VARCHAR(100) NOT NULL
+    linkFotoDePerfil VARCHAR(500) NOT NULL
 );
 
 CREATE TABLE Aprendize.Colecao (

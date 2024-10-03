@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'criar_colecao_page.dart';
 import 'colecao_page.dart';
-import 'colors.dart';
 
 class ChatsPage extends StatefulWidget {
   const ChatsPage({super.key});
