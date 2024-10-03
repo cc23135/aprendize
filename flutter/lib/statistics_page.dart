@@ -76,7 +76,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(8.0),
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -91,50 +91,65 @@ class _StatisticsPageState extends State<StatisticsPage> {
                     child: Text("Estatísticas", style: TextStyle(fontSize: 40, fontWeight: FontWeight.w600 )),
                   ),
                   
-
                   const SizedBox(height: 40),
+
                     // botão para definir semanal ou diário
 
 
-                    // exercícios feitos 
-                    // linha com várias matérias e o total
-
                     Align(
-                      alignment: Alignment.center,
-                      child: Column(
-                        children: [
-                          Container(
-                            height: 300,
-                            child: buildLineGraph(spots),
+                      alignment: Alignment.topCenter,
+                        child: Column(
+                          children: [
+
+                          // exercícios feitos
+                          // linha
+                          Text("Exercícios feitos", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600 )),
+
+                          // exemplo linha
+                          Padding(
+                            padding: const EdgeInsets.only(right: 35.0), // padding pora corrigir espaço dedicado ao label
+                            child: 
+                              Container(
+                                height: 300,
+                                width: MediaQuery.of(context).size.width * 0.8,
+                                child: buildLineGraph(spots),
+                              ),
                           ),
 
-                          // tempo gasto no aplicativo
-                          Container(
-                            height: 300,
-                            child: buildBarGraph(spots),
+
+                          const SizedBox(height: 50),
+
+                          // exemplo barra vertical
+                          Text("Tempo gasto no aplicativo", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600 )),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 35.0), // padding pora corrigir espaço dedicado ao label
+                            child: Container(
+                              height: 300,
+                              width: MediaQuery.of(context).size.width * 0.8,
+                              child: buildBarGraph(spots),
+                            )
                           ),
+
+
+                          // exercícios feitos por matéria
+                          // coluna deitada
+
+
+                          
+                          // tempo gasto por matéria
+                          // coluna deitada
+
+                          // exercícios feitos por coleção
+                          // coluna deitada
+                          
+                          // tempo gasto por coleção
+                          // coluna deitada
                         ],
                       ),
                     ),
 
 
 
-
-                    // exercícios feitos
-                    // linha
-
-
-                    // exercícios feitos por matéria
-                    // coluna deitada
-                    
-                    // tempo gasto por matéria
-                    // coluna deitada
-
-                    // exercícios feitos por coleção
-                    // coluna deitada
-                    
-                    // tempo gasto por coleção
-                    // coluna deitada
 
 
                     const SizedBox(height: 20),
@@ -165,6 +180,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
         gridData: const FlGridData(show: false),
         titlesData: FlTitlesData(
           show: true,
+
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
@@ -173,16 +189,43 @@ class _StatisticsPageState extends State<StatisticsPage> {
                 // Dynamically generate day labels based on index
                 int index = value.toInt();
                 if (index >= 0 && index < spots.length) {
-                  return Text('Day ${index + 1}', style: const TextStyle(fontSize: 10)); 
+                  return SideTitleWidget(
+                    axisSide: meta.axisSide,
+                    space: 8, // Optional: Adds space between the labels and the graph
+                    child: Transform.rotate(
+                      angle: -45 * 3.1415926535 / 180, // Rotate 45 degrees counter-clockwise
+                      child: Text('Day ${index + 1}', style: const TextStyle(fontSize: 10)),
+                    ),
+                  );
                 } else {
                   return const Text(''); // Return empty text for out-of-bound indexes
                 }
               },
             ),
           ),
-          leftTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: true), // Default Y-axis titles
+
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              interval: 2,
+              reservedSize: 35, // Increase this if needed to avoid text cropping
+              getTitlesWidget: (value, meta) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 5.0), // Add some padding to prevent cropping
+                  child: Align(alignment: Alignment.topRight,
+                    child: Text(
+                      value.toStringAsFixed(0), // Format to prevent large text
+                      style: const TextStyle(fontSize: 12), // Adjust font size if needed
+                    ),
+                  )
+                );
+              },
+            ),
           ),
+          rightTitles: AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+
           topTitles: const AxisTitles(
             sideTitles: SideTitles(showTitles: false),
           ),
@@ -233,8 +276,26 @@ class _StatisticsPageState extends State<StatisticsPage> {
               },
             ),
           ),
-          leftTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: true),
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              interval: 2,
+              reservedSize: 35, // Increase this if needed to avoid text cropping
+              getTitlesWidget: (value, meta) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 5.0), // Add some padding to prevent cropping
+                  child: Align(alignment: Alignment.topRight,
+                    child: Text(
+                      value.toStringAsFixed(0), // Format to prevent large text
+                      style: const TextStyle(fontSize: 12), // Adjust font size if needed
+                    ),
+                  )
+                );
+              },
+            ),
+          ),
+          rightTitles: AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
           ),
           topTitles: const AxisTitles(
             sideTitles: SideTitles(showTitles: false),
@@ -257,7 +318,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
               BarChartRodData(
                 toY: yValue,
                 color: Colors.blue,
-                width: 50, // Increased width for wider bars
+                width: MediaQuery.of(context).size.width * 0.09, // Increased width for wider bars
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(5), // Radius for the top left corner
                   topRight: Radius.circular(5), // Radius for the top right corner
