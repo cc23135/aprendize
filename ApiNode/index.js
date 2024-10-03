@@ -48,6 +48,7 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
       console.error('Nenhum arquivo enviado');
       return res.status(400).json({ error: 'Nenhum arquivo enviado' });
     }
+
     // Otimiza a imagem com sharp
     const optimizedImageBuffer = await sharp(req.file.buffer)
       .resize(800)
@@ -67,8 +68,16 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
       res.status(500).json({ error: err.message });
     });
 
-    blobStream.on('finish', () => {
-      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
+    const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
+
+    blobStream.on('finish', async () => {
+      const { username } = req.body; // Supondo que username seja passado no corpo da requisição
+
+      // Verifica se o username não está vazio
+      if (username) {
+          await prisma.$executeRaw`UPDATE Aprendize.Usuario SET linkFotoDePerfil = ${publicUrl} WHERE "username" = ${username}`; // Execute a consulta raw para atualizar a imagem
+      }
+
       res.status(200).json({ message: 'Upload bem-sucedido', url: publicUrl });
     });
 
@@ -80,7 +89,6 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
 });
 
 app.get('/api/users', async (req, res) => {
-  console.log("Obtendo todos os usuários...");
   try {
     const users = await prisma.usuario.findMany();
     res.json(users);
@@ -91,7 +99,6 @@ app.get('/api/users', async (req, res) => {
 
 
 app.get('/api/statistics', async (req, res) => {
-  console.log("Obtendo estatísticas...");
   try {
     // Total de estudos e tarefas
     const totalEstudos = await prisma.estudo.count();
@@ -146,29 +153,54 @@ app.get('/api/getNotifications', async (req, res) => {
 
 
 app.post('/api/existeUsuario', async (req, res) => {
-  console.log("Verificando a existência de um usuario...");
+  const { username } = req.body;
+
+  if (!username) return res.status(400).json({ error: 'Username é necessário.' });
+
   try {
-    const { username } = req.body; 
-    console.log("Verificando " + username + "...")
-    if (!username) {
-      return res.status(400).json({ error: 'Username é necessário.' });
-    }
-
-    const user = await prisma.usuario.findUnique({
-      where: { username: username },
-    });
-
-    if (user) {
-      console.log("Existe usuario")
-      res.json({ success: true });
-    } else {
-      console.log("Nao existe usuario")
-      res.json({ success: false });
-    }
-   
+    const userExists = await prisma.usuario.findFirst({ where: { username } });
+    res.json({ success: !!userExists }); 
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ error: 'Erro ao verificar usuário.' });
+  }
+});
+
+
+app.post('/api/updateNome', async (req, res) => {
+  const { username, novoNome } = req.body;
+  try {
+    await prisma.$executeRaw`UPDATE Aprendize.Usuario SET nome = ${novoNome} WHERE "username" = ${username}`;
+
+    res.json({ message: 'Nome atualizado com sucesso' });
+  } catch (error) {
+    console.error('Erro ao atualizar o nome:', error);
+    res.status(500).json({ error: 'Erro ao atualizar o nome' });
+  }
+});
+
+app.post('/api/updateUsername', async (req, res) => {
+  const { usernameAntigo, novoUsername } = req.body;
+
+  try {
+    await prisma.$executeRaw`UPDATE Aprendize.Usuario SET username = ${novoUsername} WHERE "username" = ${usernameAntigo}`;
+    res.json({ message: 'Username atualizado com sucesso' });
+  } catch (error) {
+    console.error('Erro ao atualizar o username:', error);
+    res.status(500).json({ error: 'Erro ao atualizar o username' });
+  }
+});
+
+app.post('/api/updatePassword', async (req, res) => {
+  const { username, novaSenha } = req.body;
+
+  try {
+    await prisma.$executeRaw`UPDATE Aprendize.Usuario SET senha = ${novaSenha} WHERE "username" = ${username}`;
+
+    res.json({ message: 'Senha atualizada com sucesso' });
+  } catch (error) {
+    console.error('Erro ao atualizar a senha:', error);
+    res.status(500).json({ error: 'Erro ao atualizar a senha' });
   }
 });
 
@@ -199,7 +231,6 @@ app.get('/api/haveNewNotification', async (req, res) => {
 
 
 app.get('/api/login', async (req, res) => {
-  console.log("Login...");
   try {
     const { username, senha } = req.query;
 
@@ -217,17 +248,20 @@ app.get('/api/login', async (req, res) => {
         ]
       }
     });
-
-    const colecoes = await prisma.colecao.findMany({
-      where: {
-        idColecao: {
-          in: await prisma.usuarioColecao.findMany({
-            where: { idUsuario: user.idUsuario },
-            select: { idColecao: true }
-          }).then(results => results.map(result => result.idColecao))
+    colecoes = null
+    if(user){
+      colecoes = await prisma.colecao.findMany({
+        where: {
+          idColecao: {
+            in: await prisma.usuarioColecao.findMany({
+              where: { idUsuario: user.idUsuario },
+              select: { idColecao: true }
+            }).then(results => results.map(result => result.idColecao))
+          }
         }
-      }
-    });
+      });
+    }
+    
 
     if (user) {
       return res.json({ success: true, user: user, colecoes: colecoes});
@@ -242,9 +276,7 @@ app.get('/api/login', async (req, res) => {
 
 
 app.post('/api/signUp', async (req, res) => {
-  console.log("SignUp...");
   const { username, nome, senha, linkFotoDePerfil, idColecaoInicial } = req.body;
-  console.log({ username, nome, senha, linkFotoDePerfil, idColecaoInicial });
 
   if (!username || !nome || !senha) {
     return res.status(400).json({ error: 'Todos campos necessários.' });
@@ -257,16 +289,12 @@ app.post('/api/signUp', async (req, res) => {
   }
 
   try {
-    const existingUser = await prisma.usuario.findUnique({
-      where: { username },
-    });
+    const existingUser = await prisma.$queryRaw`SELECT * FROM Aprendize.Usuario WHERE "username" = ${username}`;
 
-    if (existingUser) {
+    if (existingUser.length > 0) {
       console.log("Já existe!");
       return res.status(409).json({ error: 'Nome de usuário já está em uso.' });
     }
-
-    console.log("Usuario não existe... Pode criar!");
 
     const newUser = await prisma.usuario.create({
       data: {
@@ -276,6 +304,9 @@ app.post('/api/signUp', async (req, res) => {
         linkFotoDePerfil,
       },
     });
+
+    console.log('ele')
+    console.log(newUser)
 
     let colecoes = [];
     if (idColecaoInicialInt) {
@@ -292,7 +323,8 @@ app.post('/api/signUp', async (req, res) => {
       });
     }
 
-    console.log("Criado!");
+    console.log(colecoes)
+
     res.status(201).json({
       message: 'Usuário criado com sucesso!',
       user: { idUsuario: newUser.idUsuario, nome, username, senha, linkFotoDePerfil },
@@ -306,7 +338,6 @@ app.post('/api/signUp', async (req, res) => {
 
 
 app.get('/api/rankingUsers', async (req, res) => {
-  console.log("Obtendo ranking dos usuarios...");
   try {
     const { idColecao, comBaseEmTempo } = req.query;
 
@@ -386,9 +417,7 @@ app.get('/api/rankingUsers', async (req, res) => {
 
 
 app.get('/api/getColecoes', async (req, res) => {
-  console.log("Obtendo todas as coleções...");
   try {
-    console.log("Obtendo colecoes....");
     const colecoes = await prisma.colecao.findMany({
       include: {
         UsuarioColecao: {
@@ -414,7 +443,6 @@ app.get('/api/getColecoes', async (req, res) => {
 app.post('/api/getSubjectsFromGroups', async (req, res) => {
   
   const { groupIds } = req.body; 
-  console.log(groupIds)
 
   try {
     const subjects = await prisma.materia.findMany({
@@ -425,7 +453,6 @@ app.post('/api/getSubjectsFromGroups', async (req, res) => {
       },
     });
 
-    console.log(subjects)
     res.json(subjects); 
   } catch (error) {
     console.error('Error fetching subjects:', error);
@@ -436,7 +463,6 @@ app.post('/api/getSubjectsFromGroups', async (req, res) => {
 
 app.post('/api/getGroupMembers', async (req, res) => {
   const { idColecao } = req.body.query; 
-  console.log("Obtendo membros de um grupo...");
 
   try {
     const membros = await prisma.usuario.findMany({
@@ -469,7 +495,6 @@ app.post('/api/getGroupMembers', async (req, res) => {
 
 app.post('/api/getColecaoInfo', async (req, res) => {
   const { idColecao } = req.body.query; 
-  console.log("Obtendo informações da coleção...");
 
   try {
     const colecao = await prisma.colecao.findUnique({

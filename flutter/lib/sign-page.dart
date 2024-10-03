@@ -1,22 +1,22 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:aprendize/colecao_inicial.dart';
 import 'package:aprendize/login-page.dart';
+import 'package:flutter/services.dart';
 import 'colors.dart';
 import 'AppStateSingleton.dart';
-import 'package:http/http.dart' as http;
 import 'components.dart'; 
 
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
+  
 
   @override
   _SignInPageState createState() => _SignInPageState();
 }
 
 class _SignInPageState extends State<SignInPage> {
+  final validations _validator = validations();
   final _usernameController = TextEditingController();
   final _nameController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -36,39 +36,9 @@ class _SignInPageState extends State<SignInPage> {
   Future<void> _pickImage() async {
     _toggleLoadingState(true);
     await _imageService.pickImage((formData) async {
-      await _imageService.uploadImage(formData);
+      await _imageService.uploadImage(formData, "");
       _toggleLoadingState(false);
     });
-  }
-
-  bool _senhaValida(String senha) {
-    bool hasDigits = senha.contains(RegExp(r'[0-9]'));
-
-    return senha.length > 4 && hasDigits;
-  }
-
-  Future<bool> _existeUsuario(String username) async {
-    final uri = Uri.parse('${AppStateSingleton().apiUrl}api/existeUsuario');
-    
-    try {
-      final response = await http.post(
-        uri,
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode({'username': username}),
-      );
-      if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-        return responseData['success'] ?? false;
-      } else {
-        print('Failed to check user existence: ${response.statusCode}');
-        return false;
-      }
-    } catch (e) {
-      print('Error checking user existence: $e');
-      return false;
-    }
   }
 
   void _sigin() async{
@@ -84,7 +54,7 @@ class _SignInPageState extends State<SignInPage> {
         _tamUsername = 0; // Esconder mensagem de erro
       });
 
-      final usuarioExiste = await _existeUsuario(_usernameController.text);
+      final usuarioExiste = await _validator.existeUsuario(_usernameController.text);
 
       if (usuarioExiste == true) {
         loginCorreto = false;
@@ -120,7 +90,7 @@ class _SignInPageState extends State<SignInPage> {
         _tamSenha = 0; // Esconder mensagem de erro
       });
 
-      if (!_senhaValida(_passwordController.text)) {
+      if (!_validator.senhaValida(_passwordController.text)) {
         _tamReqSenha = 15; // Mostrar mensagem de erro
         loginCorreto = false;
       } else {
@@ -287,6 +257,9 @@ class _SignInPageState extends State<SignInPage> {
               controller: _usernameController,
               onChanged: _onUserNameChange,
               style: TextStyle(color: AppColors.white),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+              ],
               decoration: InputDecoration(
                 labelText: 'Username',
                 labelStyle: TextStyle(color: AppColors.white),

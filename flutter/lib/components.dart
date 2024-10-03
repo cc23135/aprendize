@@ -5,6 +5,8 @@ import 'package:flutter/foundation.dart'; // Para verificar a plataforma
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
 import 'package:aprendize/AppStateSingleton.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class CardColecao extends StatelessWidget {
   final String title;
@@ -131,18 +133,54 @@ class ImageService {
     }
   }
 
-  Future<void> uploadImage(FormData formData) async {
+  Future<void> uploadImage(FormData formData, String username) async {
+  try {
+    final url = '${AppStateSingleton().apiUrl}api/upload-image';
+    formData.fields.add(MapEntry('username', username));
+    
+    final response = await _dio.post(url, data: formData);
+    if (response.statusCode == 200) {
+      AppStateSingleton().userProfileImageUrlNotifier.value =
+          response.data['url'];
+    } else {
+      print('Falha ao enviar a imagem. Status code: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Erro ao enviar a imagem: $e');
+  }
+  }
+}
+
+
+
+class validations{
+  bool senhaValida(String senha) {
+    bool hasDigits = senha.contains(RegExp(r'[0-9]'));
+
+    return senha.length > 4 && hasDigits;
+  }
+
+  Future<bool> existeUsuario(String username) async {
+    final uri = Uri.parse('${AppStateSingleton().apiUrl}api/existeUsuario');
+    
     try {
-      final url = '${AppStateSingleton().apiUrl}api/upload-image';
-      final response = await _dio.post(url, data: formData);
+      final response = await http.post(
+        uri,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({'username': username}),
+      );
       if (response.statusCode == 200) {
-        AppStateSingleton().userProfileImageUrlNotifier.value =
-            response.data['url'];
+        final responseData = jsonDecode(response.body);
+        return responseData['success'] ?? false;
       } else {
-        print('Falha ao enviar a imagem. Status code: ${response.statusCode}');
+        print('Failed to check user existence: ${response.statusCode}');
+        return false;
       }
     } catch (e) {
-      print('Erro ao enviar a imagem: $e');
+      print('Error checking user existence: $e');
+      return false;
     }
   }
 }
