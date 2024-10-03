@@ -83,6 +83,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
 
                   const SizedBox(height: 20),
 
+                  // título
                   Align(
                     alignment: Alignment.center,
                     child: Text("Estatísticas", style: TextStyle(fontSize: 40, fontWeight: FontWeight.w600 )),
@@ -95,16 +96,25 @@ class _StatisticsPageState extends State<StatisticsPage> {
 
                     // exercícios feitos 
                     // linha com várias matérias e o total
-                    Container(
-                      height: 300,
-                      child: buildLineGraph(spots),
-                    ),
 
-                    // tempo gasto no aplicativo
-                    Container(
-                      height: 300,
-                      child: buildBarGraph(spots),
-                    ),
+                    Align(
+                      alignment: Alignment.center,
+                      child: Column(
+                        children: [
+                          Container(
+                            height: 300,
+                            child: buildLineGraph(spots),
+                          ),
+
+                          // tempo gasto no aplicativo
+                          Container(
+                            height: 300,
+                            child: buildBarGraph(spots),
+                          ),
+                        ],
+                      ),
+                    )
+
 
 
 
