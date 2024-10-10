@@ -22,7 +22,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   Future<void> _fetchNotifications() async {
     try {
-      final userId = AppStateSingleton().userId; // Substitua com o ID do usuário apropriado, pode ser obtido de um state management ou autenticação
+      final userId = AppStateSingleton().idUsuario; // Substitua com o ID do usuário apropriado, pode ser obtido de um state management ou autenticação
       final response = await http.get(Uri.parse('http://localhost:6060/api/getNotifications?userId=$userId'));
 
       if (response.statusCode == 200) {

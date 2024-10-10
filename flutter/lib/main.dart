@@ -1,5 +1,4 @@
 import 'package:aprendize/loginPage.dart';
-import 'package:aprendize/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'home.dart';

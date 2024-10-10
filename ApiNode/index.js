@@ -430,23 +430,29 @@ app.get('/api/getColecoes', async (req, res) => {
   }
 });
 
-app.post('/api/getSubjectsFromGroups', async (req, res) => {
-  
-  const { groupIds } = req.body; 
+app.post('/api/getTopicsFromGroups', async (req, res) => {
+  const { groupIds } = req.body;
 
   try {
-    const subjects = await prisma.materia.findMany({
+    const topics = await prisma.topico.findMany({
       where: {
-        idColecao: {
-          in: groupIds, 
+        Materia: {
+          idColecao: {
+            in: groupIds, 
+          },
         },
+      },
+      include: {
+        Materia: true, // Inclui informações da matéria se necessário
       },
     });
 
-    res.json(subjects); 
+    console.log(topics)
+
+    res.json(topics); 
   } catch (error) {
-    console.error('Error fetching subjects:', error);
-    res.status(500).json({ error: 'Erro ao buscar matérias' });
+    console.error('Error fetching topics:', error);
+    res.status(500).json({ error: 'Erro ao buscar tópicos' });
   }
 });
 
@@ -529,6 +535,36 @@ app.post('/api/getColecaoInfo', async (req, res) => {
   }
 });
 
+app.post('/api/criarTarefa', async (req, res) => {
+  const { idUsuario, data, subjects } = req.body; // Extrair dados do corpo da requisição
+
+  try {
+    console.log(subjects[1]);
+
+    const tarefas = subjects.map(subject => {
+      const tempoDeEstudo = subject.tempoDeEstudo === 0 ? null : new Date(new Date(data).getTime() + subject.tempoDeEstudo * 60000); // Converte minutos em milissegundos
+
+      return {
+        idUsuario: idUsuario,
+        idTopico: subject.idTopico,
+        metaExercicios: subject.exercicios === 0 ? null : subject.exercicios,
+        metaTempo: tempoDeEstudo ? tempoDeEstudo.toISOString() : null, // Formato ISO 8601 se não for null
+        dataTarefa: new Date(data).toISOString(), // Formato ISO 8601 para dataTarefa
+        ehRevisao: false,
+      };
+    });
+
+    // Inserir tarefas utilizando createMany
+    await prisma.tarefa.createMany({
+      data: tarefas,
+    });
+
+    res.status(200).json({ message: 'Tarefas criadas com sucesso!' });
+  } catch (error) {
+    console.error('Erro ao criar as tarefas:', error);
+    res.status(500).json({ error: 'Erro ao criar as tarefas' });
+  }
+});
 
 
 app.post('/api/getTarefasDoDia', async (req, res) => {
@@ -581,14 +617,6 @@ app.post('/api/getTarefasDoDia', async (req, res) => {
     res.status(500).json({ error: 'Erro ao buscar tarefas' });
   }
 });
-
-
-
-
-
-
-
-
 
 
 app.listen(port, () => {

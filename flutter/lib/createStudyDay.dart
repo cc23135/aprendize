@@ -1,4 +1,5 @@
 import 'package:aprendize/AppStateSingleton.dart';
+import 'package:aprendize/calendar.dart';
 import 'package:aprendize/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,59 +9,82 @@ import 'package:intl/intl.dart';
 
 class CreateStudyDayPage extends StatefulWidget {
   final DateTime selectedDay;
-  const CreateStudyDayPage({Key? key, required this.selectedDay}) : super(key: key);
+  const CreateStudyDayPage({Key? key, required this.selectedDay})
+      : super(key: key);
 
   @override
   _CreateStudyDayPageState createState() => _CreateStudyDayPageState();
 }
 
 class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
-  List<SubjectData> _allSubjects = [];
-  List<SubjectData> _selectedSubjects = [];
+  List<TopicData> _allTopics = [];
+  List<TopicData> _selectedTopics = [];
   String _searchQuery = '';
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    fetchSubjects();
+    fetchTopics();
   }
 
-  Future<void> fetchSubjects() async {
+  Future<void> fetchTopics() async {
     final response = await http.post(
-      Uri.parse('${AppStateSingleton().apiUrl}api/getSubjectsFromGroups'),
+      Uri.parse('${AppStateSingleton().apiUrl}api/getTopicsFromGroups'),
       headers: {'Content-Type': 'application/json'},
-      body: json.encode({'groupIds': AppStateSingleton().collections.map((group) => group['idColecao']).toList()}),
+      body: json.encode({
+        'groupIds': AppStateSingleton()
+            .collections
+            .map((group) => group['idColecao'])
+            .toList()
+      }),
     );
 
     if (response.statusCode == 200) {
-      final subjectsData = json.decode(response.body) as List;
-      List<SubjectData> subjects = subjectsData.map((subject) {
-        return SubjectData(
-          subject['nome'] as String,
-          capa: subject['capa'] as String,
+      final topicsData = json.decode(response.body) as List;
+      List<TopicData> topics = topicsData.map((topic) {
+        return TopicData(
+          topic['idTopico'] as int,
+          topic['nome'] as String,
+          capa: topic['Materia']['capa'] as String,
+          materia: topic['Materia']['nome'] as String, // Adicionando o nome da matéria
         );
       }).toList();
       setState(() {
-        _allSubjects = subjects;
+        _allTopics = topics;
         _isLoading = false;
       });
     } else {
-      throw Exception('Failed to load subjects');
+      throw Exception('Failed to load topics');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final filteredSubjects = _allSubjects
-        .where((subject) => subject.subject.toLowerCase().contains(_searchQuery.toLowerCase()))
+    final filteredTopics = _allTopics
+        .where((topic) =>
+            topic.topic.toLowerCase().contains(_searchQuery.toLowerCase()))
         .toList();
+
+    // Agrupando os tópicos por matéria
+    Map<String, List<TopicData>> groupedTopics = {};
+    for (var topic in filteredTopics) {
+      if (!groupedTopics.containsKey(topic.materia)) {
+        groupedTopics[topic.materia] = [];
+      }
+      groupedTopics[topic.materia]!.add(topic);
+    }
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.selectedDay.day} de ${DateFormat('MMMM', 'pt_BR').format(widget.selectedDay)}, ${DateFormat('EEEE', 'pt_BR').format(widget.selectedDay)}'),
+        title: Text(
+          '${widget.selectedDay.day} de ${DateFormat('MMMM', 'pt_BR').format(widget.selectedDay)}, ${DateFormat('EEEE', 'pt_BR').format(widget.selectedDay)}',
+        ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.white,),
+          icon: Icon(
+            Icons.arrow_back,
+            color: AppColors.white,
+          ),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -75,7 +99,7 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                   sliver: SliverList(
                     delegate: SliverChildListDelegate([
                       const Text(
-                        'Selecionar Matérias',
+                        'Selecionar Tópicos',
                         style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 20),
@@ -93,16 +117,40 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                       ),
                       const SizedBox(height: 20),
                       const Text(
-                        'Matérias Disponíveis',
+                        'Tópicos Disponíveis',
                         style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                       ),
-                      ListView(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        children: filteredSubjects.map((subject) {
-                          final isSelected = _selectedSubjects.any((data) => data.subject == subject.subject);
+                    ]),
+                  ),
+                ),
+                // Exibição dos tópicos agrupados por matéria
+                ...groupedTopics.entries.map((entry) {
+                  String materia = entry.key;
+                  List<TopicData> topics = entry.value;
+
+                  return SliverPadding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          if (index == 0) {
+                            // Exibindo o nome da matéria com margem à esquerda
+                            return Padding(
+                              padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
+                              child: Text(
+                                materia,
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            );
+                          }
+
+                          final topic = topics[index - 1]; // Ajustando o índice para ignorar o título da matéria
+                          final isSelected = _selectedTopics.any((data) => data.topic == topic.topic);
                           return ListTile(
-                            title: Text(subject.subject),
+                            title: Text(topic.topic),
                             trailing: Icon(
                               isSelected ? Icons.check_box : Icons.check_box_outline_blank,
                               color: isSelected ? Colors.green : null,
@@ -110,29 +158,33 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                             onTap: () {
                               setState(() {
                                 if (isSelected) {
-                                  _selectedSubjects.removeWhere((data) => data.subject == subject.subject);
+                                  _selectedTopics.removeWhere((data) => data.topic == topic.topic);
                                 } else {
-                                  _selectedSubjects.add(subject);
+                                  _selectedTopics.add(topic);
                                 }
                               });
                             },
                           );
-                        }).toList(),
+                        },
+                        childCount: topics.length + 1, // +1 para incluir o título da matéria
                       ),
-                      const SizedBox(height: 20),
-                      const Text(
-                        'Matérias Selecionadas',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 10),
-                    ]),
+                    ),
+                  );
+                }).toList(),
+                const SliverPadding(
+                  padding: EdgeInsets.symmetric(vertical: 16.0),
+                  sliver: SliverToBoxAdapter(
+                    child: Text(
+                      'Tópicos Selecionados',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ),
                 SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
-                      if (index < _selectedSubjects.length) {
-                        final subjectData = _selectedSubjects[index];
+                      if (index < _selectedTopics.length) {
+                        final topicData = _selectedTopics[index];
 
                         return Container(
                           width: MediaQuery.of(context).size.width * 0.9, // 90% do container
@@ -141,18 +193,18 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                             elevation: 4,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
-                              side: BorderSide(color: AppColors.white, width: 2), // Borda branca
+                              side: const BorderSide(color: Colors.white, width: 2), // Borda branca
                             ),
                             child: Stack(
                               children: [
                                 Positioned.fill(
                                   child: ColorFiltered(
                                     colorFilter: ColorFilter.mode(
-                                      AppColors.black.withOpacity(0.3),
+                                      Colors.black.withOpacity(0.3),
                                       BlendMode.darken,
                                     ),
                                     child: Image.network(
-                                      subjectData.capa,
+                                      topicData.capa,
                                       fit: BoxFit.cover,
                                     ),
                                   ),
@@ -177,8 +229,8 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        subjectData.subject,
-                                        style: TextStyle(
+                                        topicData.topic,
+                                        style: const TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold,
                                           color: Colors.white,
@@ -192,7 +244,7 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                                             child: TextField(
                                               decoration: InputDecoration(
                                                 labelText: 'Exercícios',
-                                                fillColor: AppColors.black.withOpacity(0.9),
+                                                fillColor: Colors.black.withOpacity(0.9),
                                                 filled: true,
                                                 border: const OutlineInputBorder(),
                                               ),
@@ -202,7 +254,7 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                                                 LengthLimitingTextInputFormatter(3),
                                               ],
                                               onChanged: (value) {
-                                                subjectData.exercises = int.tryParse(value) ?? 0;
+                                                topicData.exercises = int.tryParse(value) ?? 0;
                                               },
                                             ),
                                           ),
@@ -212,7 +264,7 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                                             child: TextField(
                                               decoration: InputDecoration(
                                                 labelText: 'Tempo (min)',
-                                                fillColor: AppColors.black.withOpacity(0.9),
+                                                fillColor: Colors.black.withOpacity(0.9),
                                                 filled: true,
                                                 border: const OutlineInputBorder(),
                                               ),
@@ -222,7 +274,7 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                                                 LengthLimitingTextInputFormatter(3),
                                               ],
                                               onChanged: (value) {
-                                                subjectData.studyTime = int.tryParse(value) ?? 0;
+                                                topicData.studyTime = int.tryParse(value) ?? 0;
                                               },
                                             ),
                                           ),
@@ -236,26 +288,54 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                           ),
                         );
                       }
-                      return null;
+                      return const SizedBox.shrink();
                     },
-                    childCount: _selectedSubjects.length,
+                    childCount: _selectedTopics.length,
                   ),
-                ),
-                const SliverToBoxAdapter(
-                  child: SizedBox(height: 20),
                 ),
                 SliverToBoxAdapter(
                   child: Center(
                     child: ElevatedButton(
-                      onPressed: () {
-                        print('Criar Dia de Estudo com as matérias selecionadas: $_selectedSubjects');
+                      onPressed: () async {
+                        if (_selectedTopics.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text('Selecione pelo menos um tópico.'),
+                            ),
+                          );
+                          return;
+                        }
+
+                        final studyDayData = {
+  'idUsuario': AppStateSingleton().idUsuario, // Garantir que o idUsuario esteja correto
+  'data': DateFormat('yyyy-MM-dd').format(widget.selectedDay),
+  'subjects': _selectedTopics.map((topic) {
+    return {
+      'idTopico': topic.idTopico,
+      'exercicios': topic.exercises,
+      'tempoDeEstudo': topic.studyTime,
+    };
+  }).toList(),
+};
+
+final response = await http.post(
+  Uri.parse('${AppStateSingleton().apiUrl}api/criarTarefa'),
+  headers: {'Content-Type': 'application/json'},
+  body: json.encode(studyDayData),
+);
+                        if (response.statusCode == 200) {
+                          Navigator.pop(context);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text('Erro ao criar o dia de estudos.'),
+                            ),
+                          );
+                        }
                       },
-                      child: const Text('Criar'),
+                      child: const Text('Salvar Dia de Estudos'),
                     ),
                   ),
-                ),
-                const SliverToBoxAdapter(
-                  child: SizedBox(height: 20),
                 ),
               ],
             ),
@@ -263,11 +343,20 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
   }
 }
 
-class SubjectData {
-  final String subject;
-  final String capa; 
-  int exercises;
+class TopicData {
+  final int idTopico;
+  final String topic;
+  final String capa;
+  final String materia;
   int studyTime;
+  int exercises;
 
-  SubjectData(this.subject, {required this.capa, this.exercises = 0, this.studyTime = 0});
+  TopicData(
+    this.idTopico,
+    this.topic, {
+    required this.capa,
+    required this.materia,
+    this.studyTime = 0,
+    this.exercises = 0,
+  });
 }

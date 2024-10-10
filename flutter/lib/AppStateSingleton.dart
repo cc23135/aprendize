@@ -8,7 +8,7 @@ class AppStateSingleton {
 
   String apiUrl = '';
   ValueNotifier<String> userProfileImageUrlNotifier = ValueNotifier<String>('');
-  int userId = 0;
+  int idUsuario = 0;
   String username = '';
   String nome = '';
   String senha = '';
