@@ -48,6 +48,9 @@ class _LoginPageState extends State<LoginPage> {
         final data = jsonDecode(response.body);
 
         if (data['success']) {
+
+          AppStateSingleton().userId = data['user']['id'];
+          
           AppStateSingleton().username = data['user']['username'];
           AppStateSingleton().nome = data['user']['nome']; 
           AppStateSingleton().senha = data['user']['senha']; 
