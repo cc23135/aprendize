@@ -3,9 +3,9 @@ import 'package:aprendize/colors.dart';
 import 'package:http/http.dart' as http;
 import 'package:aprendize/AppStateSingleton.dart';
 import 'package:flutter/material.dart';
-import 'members_page.dart'; // Importe a nova página
-import 'bate_pago_page.dart';
-import 'materia_page.dart';
+import 'members.dart'; // Importe a nova página
+import 'batePago.dart';
+import 'materia.dart';
 
 class ChatDetailsPage extends StatefulWidget {
   final int idColecao;

@@ -1,13 +1,14 @@
-import 'package:aprendize/login-page.dart';
+import 'package:aprendize/loginPage.dart';
+import 'package:aprendize/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'home_page.dart';
-import 'statistics_page.dart';
-import 'ranking_page.dart';
-import 'chats_page.dart';
-import 'calendar_page.dart';
-import 'notifications_page.dart';
-import 'user_page.dart';
+import 'home.dart';
+import 'statistics.dart';
+import 'ranking.dart';
+import 'chats.dart';
+import 'calendar.dart';
+import 'notifications.dart';
+import 'user.dart';
 import 'colors.dart';
 import 'AppStateSingleton.dart';
 

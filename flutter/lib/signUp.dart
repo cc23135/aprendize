@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:aprendize/colecao_inicial.dart';
-import 'package:aprendize/login-page.dart';
+import 'package:aprendize/colecaoInicial.dart';
+import 'package:aprendize/loginPage.dart';
 import 'package:flutter/services.dart';
 import 'colors.dart';
 import 'AppStateSingleton.dart';
 import 'components.dart'; 
 
 
-class SignInPage extends StatefulWidget {
-  const SignInPage({super.key});
+class SignUpPage extends StatefulWidget {
+  const SignUpPage({super.key});
   
 
   @override
-  _SignInPageState createState() => _SignInPageState();
+  _SignUpPageState createState() => _SignUpPageState();
 }
 
-class _SignInPageState extends State<SignInPage> {
+class _SignUpPageState extends State<SignUpPage> {
   final validations _validator = validations();
   final _usernameController = TextEditingController();
   final _nameController = TextEditingController();

@@ -4,7 +4,7 @@ import 'dart:convert'; // Para converter a resposta em JSON
 import 'AppStateSingleton.dart';
 
 import 'main.dart';
-import 'sign-page.dart';
+import 'signUp.dart';
 import 'colors.dart'; // Certifique-se de importar o arquivo colors.dart
 
 class LoginPage extends StatefulWidget {
@@ -24,6 +24,7 @@ class _LoginPageState extends State<LoginPage> {
 
   // Função para realizar o login
   Future<void> _login() async {
+    print("ba");
     final username = _usernameController.text;
     final senha = _passwordController.text;
 
@@ -38,19 +39,20 @@ class _LoginPageState extends State<LoginPage> {
     setState(() {
       _isLoading = true; // Inicia o carregamento
     });
+    print("ue");
 
     try {
       final response = await http.get(
         Uri.parse('${AppStateSingleton().apiUrl}api/login?username=$username&senha=$senha'),
       );
-
+      print('tchau');
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+        print('oi');
 
         if (data['success']) {
 
-          AppStateSingleton().userId = data['user']['id'];
-          
+          AppStateSingleton().userId = data['user']['idUsuario'];
           AppStateSingleton().username = data['user']['username'];
           AppStateSingleton().nome = data['user']['nome']; 
           AppStateSingleton().senha = data['user']['senha']; 
@@ -98,7 +100,7 @@ class _LoginPageState extends State<LoginPage> {
 
   void _navegarParaSigin() {
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => const SignInPage()),
+      MaterialPageRoute(builder: (context) => const SignUpPage()),
     );
   }
 

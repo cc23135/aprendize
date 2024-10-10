@@ -42,7 +42,6 @@ app.get('/', (req, res) => {
 });
 
 app.post('/api/upload-image', upload.single('image'), async (req, res) => {
-  console.log("Upload da imagem...");
   try {
     if (!req.file) {
       console.error('Nenhum arquivo enviado');
@@ -134,7 +133,6 @@ app.get('/api/statistics', async (req, res) => {
 
 
 app.get('/api/getNotifications', async (req, res) => {
-  console.log("Obtendo notificações...");
   try {
     const userId = req.query.userId; // Pega o ID do usuário da query string
     if (!userId) {
@@ -207,7 +205,6 @@ app.post('/api/updatePassword', async (req, res) => {
 
 
 app.get('/api/haveNewNotification', async (req, res) => {
-  console.log("Vendo se há nova notificação...");
   try {
     const userId = req.query.userId; 
     if (!userId) {
@@ -234,7 +231,6 @@ app.get('/api/login', async (req, res) => {
   try {
     const { username, senha } = req.query;
 
-    console.log("Tentando logar como " + username + "...")
 
     if (!username || !senha) {
       return res.json({ success: false, message: 'Nome de usuário e senha são obrigatórios.' });
@@ -261,7 +257,6 @@ app.get('/api/login', async (req, res) => {
         }
       });
     }
-    
 
     if (user) {
       return res.json({ success: true, user: user, colecoes: colecoes});
@@ -305,9 +300,6 @@ app.post('/api/signUp', async (req, res) => {
       },
     });
 
-    console.log('ele')
-    console.log(newUser)
-
     let colecoes = [];
     if (idColecaoInicialInt) {
       await prisma.usuarioColecao.create({
@@ -322,8 +314,6 @@ app.post('/api/signUp', async (req, res) => {
         where: { idColecao: idColecaoInicialInt }
       });
     }
-
-    console.log(colecoes)
 
     res.status(201).json({
       message: 'Usuário criado com sucesso!',
@@ -543,20 +533,15 @@ app.post('/api/getColecaoInfo', async (req, res) => {
 
 app.post('/api/getTarefasDoDia', async (req, res) => {
   const { username, dataTarefa } = req.body; 
-  console.log("DADOS: " + username + " " + dataTarefa);
 
   if (!username || !dataTarefa) {
     return res.status(400).json({ error: 'username e dataTarefa são obrigatórios.' });
   }
 
   try {
-    console.log("getTarefasDoDia...");
-
-    const usuario = await prisma.usuario.findUnique({
-      where: {
-        username: username,
-      },
-    });
+    const usuario = await prisma.$queryRaw 
+    `SELECT * FROM Aprendize.usuario  WHERE username = ${username}
+    `;
 
     if (!usuario) {
       return res.status(404).json({ error: 'Usuário não encontrado.' });
@@ -590,7 +575,6 @@ app.post('/api/getTarefasDoDia', async (req, res) => {
       topicoNome: tarefa.Topico.nome, 
     }));
 
-    console.log(tarefasComTopicos);
     res.json(tarefasComTopicos); 
   } catch (error) {
     console.error('Error fetching tasks:', error);
