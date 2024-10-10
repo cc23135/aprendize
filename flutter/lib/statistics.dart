@@ -29,13 +29,13 @@ class _StatisticsPageState extends State<StatisticsPage> {
   ];
 
   List<FlSpot> exerciciosFeitosDiario = [ // dados das horas
-  const FlSpot(0, 2),
-  const FlSpot(1, 3),
-  const FlSpot(2, 2),
-  const FlSpot(3, 3),
-  const FlSpot(4, 2),
-  const FlSpot(5, 3),
-  const FlSpot(6, 2),
+  const FlSpot(0, 5),
+  const FlSpot(1, 5),
+  const FlSpot(2, 5),
+  const FlSpot(3, 5),
+  const FlSpot(4, 5),
+  const FlSpot(5, 5),
+  const FlSpot(6, 5),
   ];
   
   List<FlSpot> exerciciosFeitosMensal = [ // dados das horas
@@ -870,42 +870,57 @@ class _StatisticsPageState extends State<StatisticsPage> {
 
                         // exercícios feitos
                         // linha
-                        const Text("Exercícios feitos diário, semanal", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600 )),
-                        const SizedBox(height: 20),
-
-                        Padding(
-                          padding: const EdgeInsets.only(right: 35.0), // padding pora corrigir espaço dedicado ao label
-                          child: 
-                            Container(
-                              height: 300,
-                              width: MediaQuery.of(context).size.width * 0.8,
-                              child: buildLineGraph(exerciciosFeitosSemanal),
-                            ),
+                        Text(
+                          (isSelectedDayWeek[0]) // diario
+                              ? "Exercícios feitos diariamente"
+                              : "Exercícios feitos semanalmente",
+                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
                         ),
+                        const SizedBox(height: 20),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 35.0),
+                          child: Container(
+                            height: 300,
+                            width: MediaQuery.of(context).size.width * 0.8,
+                            child: buildLineGraph((isSelectedDayWeek[0]) // diario
+                                ? exerciciosFeitosDiario
+                                : exerciciosFeitosSemanal), // Pass daily or weekly data
+                          ),
+                        ),
+
+                        const SizedBox(height: 50),
+
+                        // Tempo gasto no aplicativo
+                        Text(
+                          (isSelectedDayWeek[0])
+                              ? "Tempo gasto diariamente"
+                              : "Tempo gasto semanalmente",
+                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 20),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 35.0),
+                          child: Container(
+                            height: 300,
+                            width: MediaQuery.of(context).size.width * 0.8,
+                            child: buildBarGraph((isSelectedDayWeek[0])
+                                ? tempoGastoTotalDiario
+                                : tempoGastoTotalSemanal), // Pass daily or weekly data
+                          ),
+                        ),
+
 
 
                         const SizedBox(height: 50),
 
-                        // tempo gasto no aplicativo
-                        // exemplo barra vertical
-                        const Text("Tempo gasto fazendo lições diário, semanal", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600 )),
-                        const SizedBox(height:20),
-
-                        Padding(
-                          padding: const EdgeInsets.only(right: 35.0), // padding pora corrigir espaço dedicado ao label
-                          child: Container(
-                            height: 300,
-                            width: MediaQuery.of(context).size.width * 0.8,
-                            child: buildBarGraph(tempoGastoTotalSemanal),
-                          )
-                        ),
-
+                        
                         // % acerto aqui
 
                         // Semanal mensal abaixo
 
                         // botão para definir semanal ou mensal
                         const SizedBox(height: 50),
+
 
                         Center(
                           child: AnimatedSwitcher(
@@ -944,67 +959,105 @@ class _StatisticsPageState extends State<StatisticsPage> {
                         ),
                         const SizedBox(height: 30),
 
-
-
-                        // exercícios feitos por matéria
-                        // coluna
-                        const Text("Exercícios feitos por matéria semanal, mensal", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600 )),
-                        const SizedBox(height:20),
-                        
+                        Text(
+                          (isSelectedWeekMonth[0])
+                              ? "Exercícios feitos por matéria semanalmente"
+                              : "Exercícios feitos por matéria mensalmente",
+                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 20),
                         Padding(
-                          padding: const EdgeInsets.only(right: 35.0), // padding pora corrigir espaço dedicado ao label
+                          padding: const EdgeInsets.only(right: 35.0),
                           child: Container(
                             height: 300,
                             width: MediaQuery.of(context).size.width * 0.8,
-                            child: buildMultiLineGraph(exerciciosFeitosPorMateriaSemanal, coresLista, nomesMateriasExerciciosSemanal)
-                          )
+                            child: buildMultiLineGraph((isSelectedWeekMonth[0])
+                                ? exerciciosFeitosPorMateriaSemanal
+                                : exerciciosFeitosPorMateriaMensal,
+                                coresLista,
+                                (isSelectedWeekMonth[0])
+                                ? nomesMateriasExerciciosSemanal
+                                : nomesMateriasExerciciosMensal,
+                                ), // Pass daily or weekly data
+                          ),
                         ),
+                        const SizedBox(height: 30),
 
                         // tempo gasto por matéria
                         // coluna
-                        const SizedBox(height: 20),
-                        const Text("Tempo gasto por matéria semanal, mensal", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600 )),
-                        const SizedBox(height:20),
-                        
-                        Padding(
-                          padding: const EdgeInsets.only(right: 35.0), // padding pora corrigir espaço dedicado ao label
-                          child: Container(
-                            height: 300,
-                            width: MediaQuery.of(context).size.width * 0.8,
-                            child: buildMultiLineGraph(tempoGastoPorMateriaSemanal, coresLista, nomesMateriasTempoSemanal)
-                          )
-                        ),
 
+                        Text(
+                          (isSelectedWeekMonth[0])
+                              ? "Tempo gasto por matéria semanalmente"
+                              : "Tempo gasto por matéria mensalmente",
+                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 20),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 35.0),
+                          child: Container(
+                            height: 300,
+                            width: MediaQuery.of(context).size.width * 0.8,
+                            child: buildMultiLineGraph((isSelectedWeekMonth[0])
+                                ? tempoGastoPorMateriaSemanal
+                                : tempoGastoPorMateriaMensal,
+                                coresLista,
+                                (isSelectedWeekMonth[0])
+                                ? nomesMateriasTempoSemanal
+                                : nomesMateriasTempoMensal,
+                                ), // Pass daily or weekly data
+                          ),
+                        ),
+                        const SizedBox(height: 30),
 
-                        // exercícios feitos por coleção
-                        // coluna
+                        Text(
+                          (isSelectedWeekMonth[0])
+                              ? "Exercícios feitos por coleção semanalmente"
+                              : "Exercícios feitos por coleção mensalmente",
+                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+                        ),
                         const SizedBox(height: 20),
-                        const Text("Exercícios feitos por coleção semanal, mensal", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600 )),
-                        const SizedBox(height:20),
-                        
                         Padding(
-                          padding: const EdgeInsets.only(right: 35.0), // padding pora corrigir espaço dedicado ao label
+                          padding: const EdgeInsets.only(right: 35.0),
                           child: Container(
                             height: 300,
                             width: MediaQuery.of(context).size.width * 0.8,
-                            child: buildMultiLineGraph(exerciciosFeitosPorColecaoSemanal, coresLista, nomesColecoesExerciciosSemanal)
-                          )
+                            child: buildMultiLineGraph((isSelectedWeekMonth[0])
+                                ? exerciciosFeitosPorColecaoSemanal
+                                : exerciciosFeitosPorColecaoMensal,
+                                coresLista,
+                                (isSelectedWeekMonth[0])
+                                ? nomesColecoesExerciciosSemanal
+                                : nomesColecoesExerciciosMensal,
+                                ), // Pass daily or weekly data
+                          ),
                         ),
-                        
-                        // tempo gasto por coleção
-                        // coluna
+                        const SizedBox(height: 30),
+
+                        Text(
+                          (isSelectedWeekMonth[0])
+                              ? "Tempo gasto por coleção semanalmente"
+                              : "Tempo gasto por coleção mensalmente",
+                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+                        ),
                         const SizedBox(height: 20),
-                        const Text("Tempo gasto por coleção semanal, mensal", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600 )),
-                        const SizedBox(height:20),
-                        
                         Padding(
-                          padding: const EdgeInsets.only(right: 35.0), // padding pora corrigir espaço dedicado ao label
+                          padding: const EdgeInsets.only(right: 35.0),
                           child: Container(
                             height: 300,
                             width: MediaQuery.of(context).size.width * 0.8,
-                            child: buildMultiLineGraph(tempoGastoPorColecaoSemanal, coresLista, nomesColecoesTempoSemanal)
-                          )
+                            child: buildMultiLineGraph((isSelectedWeekMonth[0])
+                                ? tempoGastoPorColecaoSemanal
+                                : tempoGastoPorColecaoMensal,
+                                coresLista,
+                                (isSelectedWeekMonth[0])
+                                ? nomesColecoesTempoSemanal
+                                : nomesColecoesTempoMensal,
+                                ), // Pass daily or weekly data
+                          ),
                         ),
+                        const SizedBox(height: 30),
+                        
                       ],
                     ),
                   ),
@@ -1375,13 +1428,5 @@ Widget buildMultiLineGraph(List<List<FlSpot>> lineSpots, List<Color> lineColors,
     ),
   );
 }
-
-
-
-
-  
-
-
-
 
 }

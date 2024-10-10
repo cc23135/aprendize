@@ -23,8 +23,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false; // Variável para gerenciar o estado de carregamento
 
   // Função para realizar o login
-  Future<void> _login() async {
-    print("ba");
+  Future<void> login() async {
     final username = _usernameController.text;
     final senha = _passwordController.text;
 
@@ -39,20 +38,17 @@ class _LoginPageState extends State<LoginPage> {
     setState(() {
       _isLoading = true; // Inicia o carregamento
     });
-    print("ue");
 
     try {
       final response = await http.get(
         Uri.parse('${AppStateSingleton().apiUrl}api/login?username=$username&senha=$senha'),
       );
-      print('tchau');
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print('oi');
 
         if (data['success']) {
 
-          AppStateSingleton().userId = data['user']['idUsuario'];
+          AppStateSingleton().idUsuario = data['user']['idUsuario'];
           AppStateSingleton().username = data['user']['username'];
           AppStateSingleton().nome = data['user']['nome']; 
           AppStateSingleton().senha = data['user']['senha']; 
@@ -168,7 +164,7 @@ class _LoginPageState extends State<LoginPage> {
                 )
               else
                 ElevatedButton(
-                  onPressed: _login,
+                  onPressed: login,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.darkPurple,
                     minimumSize: const Size(180, 55),

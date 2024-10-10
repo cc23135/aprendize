@@ -71,7 +71,7 @@ class _PomodoroPageState extends State<PomodoroPage> {
     final uri = Uri.parse('${AppStateSingleton().apiUrl}api/criarEstudo');
     final idTarefa = widget.idTarefa; 
     final idTopico = widget.idTopico;
-    final idUsuario = AppStateSingleton().userId; 
+    //final idUsuario = AppStateSingleton().userId; 
     final metaExercicios = widget.metaExercicios;
     final metaTempo = widget.metaTempo;
     final qtosExercicios = _exerciciosFeitos;
@@ -86,7 +86,7 @@ class _PomodoroPageState extends State<PomodoroPage> {
         body: jsonEncode({
           'idTarefa': idTarefa,
           'idTopico': idTopico,
-          'idUsuario': idUsuario,
+          'idUsuario': 2,
           'metaExercicios': metaExercicios,
           'metaTempo': metaTempo,
           'qtosExercicios': qtosExercicios,

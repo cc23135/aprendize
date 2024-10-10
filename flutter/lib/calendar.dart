@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'colors.dart';
 import 'createStudyDay.dart'; // Importe a CreateStudyDayPage
 
 class CalendarPage extends StatefulWidget {
@@ -38,7 +39,8 @@ class _CalendarPageState extends State<CalendarPage> {
                 _focusedDay = focusedDay; // Atualiza o dia focalizado
               });
             },
-            locale: 'pt_BR', // Adicione esta linha para definir o locale como português
+            locale:
+                'pt_BR', // Adicione esta linha para definir o locale como português
             calendarStyle: const CalendarStyle(
               todayDecoration: BoxDecoration(
                 color: Colors.orange,
@@ -56,9 +58,11 @@ class _CalendarPageState extends State<CalendarPage> {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: _tasks[_selectedDay] != null
-                  ? _tasks[_selectedDay]!.map((task) => ListTile(
-                        title: Text(task),
-                      )).toList()
+                  ? _tasks[_selectedDay]!
+                      .map((task) => ListTile(
+                            title: Text(task),
+                          ))
+                      .toList()
                   : [const Text('Nenhuma tarefa para hoje')],
             ),
           ),
@@ -66,12 +70,25 @@ class _CalendarPageState extends State<CalendarPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => CreateStudyDayPage(selectedDay: _selectedDay), // Passa o dia selecionado
-            ),
-          );
+ DateTime today = DateTime.now();
+    DateTime selectedDayOnlyDate = DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day);
+
+    if (selectedDayOnlyDate.isBefore(DateTime(today.year, today.month, today.day))) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Não se pode criar tarefa para dias anteriores!', style: TextStyle(color: Colors.white)),
+                backgroundColor: AppColors.darkPurple,
+              ),
+            );
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CreateStudyDayPage(
+                    selectedDay: _selectedDay), 
+              ),
+            );
+          }
         },
         backgroundColor: Colors.orange,
         child: const Icon(Icons.add),
