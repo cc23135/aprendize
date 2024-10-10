@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'create_study_day_page.dart'; // Importe a CreateStudyDayPage
+import 'createStudyDay.dart'; // Importe a CreateStudyDayPage
 
 class CalendarPage extends StatefulWidget {
   const CalendarPage({super.key});

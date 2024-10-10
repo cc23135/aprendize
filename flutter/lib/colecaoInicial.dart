@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'main.dart';
 import 'colors.dart';
-import 'sign-page.dart';
+import 'signUp.dart';
 import 'AppStateSingleton.dart';
 import 'package:http/http.dart' as http;
 
@@ -166,7 +166,7 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
 
   void _voltar() {
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => SignInPage()),
+      MaterialPageRoute(builder: (context) => SignUpPage()),
     );
   }
 

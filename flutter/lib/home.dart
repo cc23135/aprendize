@@ -3,7 +3,7 @@ import 'package:aprendize/colors.dart';
 import 'package:http/http.dart' as http;
 import 'package:aprendize/AppStateSingleton.dart';
 import 'package:flutter/material.dart';
-import 'pomodoro_page.dart';
+import 'pomodoro.dart';
 import 'package:intl/intl.dart'; // Para formatar a data
 
 class HomePage extends StatefulWidget {

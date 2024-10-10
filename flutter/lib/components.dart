@@ -1,4 +1,4 @@
-import 'package:aprendize/colecao_page.dart';
+import 'package:aprendize/colecao.dart';
 import 'package:aprendize/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'; // Para verificar a plataforma
