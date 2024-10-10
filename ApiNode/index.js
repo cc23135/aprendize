@@ -565,6 +565,7 @@ app.post('/api/getTarefasDoDia', async (req, res) => {
         Topico: {
           select: {
             nome: true, 
+            idTopico: true
           },
         },
       },
@@ -583,6 +584,39 @@ app.post('/api/getTarefasDoDia', async (req, res) => {
 });
 
 
+app.post('/api/criarEstudo', async (req, res) => {
+  const { idTarefa, idTopico, idUsuario, metaExercicios, metaTempo, qtosExercicios, qtosExerciciosAcertados, qtoTempo, dataEstudo } = req.body;
+
+  try {
+    await prisma.$transaction(async (prisma) => {
+      await prisma.tarefa.delete({
+        where: {
+          idTarefa: idTarefa,
+        },
+      });
+
+      const novoEstudo = await prisma.estudo.create({
+        data: {
+          idTopico,
+          idUsuario,
+          metaExercicios,
+          metaTempo,
+          qtosExercicios,
+          qtosExerciciosAcertados,
+          qtoTempo,
+          dataEstudo,
+        },
+      });
+
+      return novoEstudo;
+    });
+
+    res.status(201).json({ message: 'Estudo criado e tarefa deletada com sucesso' });
+  } catch (error) {
+    console.error('Error creating estudo and deleting tarefa:', error);
+    res.status(500).json({ error: 'Erro ao criar estudo e deletar tarefa' });
+  }
+});
 
 
 

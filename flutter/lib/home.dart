@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:aprendize/colors.dart';
+import 'package:aprendize/main.dart';
 import 'package:http/http.dart' as http;
 import 'package:aprendize/AppStateSingleton.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _fetchTarefasDoDia(); // Chama o método para pegar as tarefas do dia
+    //_fetchTarefasDoDia(); // Chama o método para pegar as tarefas do dia
   }
 
   Future<void> _fetchTarefasDoDia() async {
@@ -44,6 +45,7 @@ class _HomePageState extends State<HomePage> {
         setState(() {
           _tarefasDoDia = tarefas;
         });
+        print(tarefas);
 
         somatoriaExercicios = 0; 
         somatoriaTempo = 0;
@@ -143,7 +145,7 @@ String minutosEmTexto(int minutos) {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => PomodoroPage()),
+                            MaterialPageRoute(builder: (context) => MyApp()),
                           );
                         },
                         child: Container(
@@ -178,7 +180,7 @@ String minutosEmTexto(int minutos) {
                   ? _tarefasDoDia.map<Widget>((tarefa) {
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 10),
-                        child: _buildStudyCard(tarefa["topicoNome"].toString(), tarefa["metaExercicios"].toString(), tarefa["metaTempo"].toString()),
+                        child: _buildStudyCard(1,tarefa["topicoNome"].toString(), tarefa["idTopico"], tarefa["metaExercicios"].toString(), tarefa["metaTempo"].toString()),
                       );
                     }).toList()
                   : [const Text('Nenhuma tarefa encontrada para hoje.')],
@@ -190,46 +192,41 @@ String minutosEmTexto(int minutos) {
     );
   }
 
-  // Função para criar um círculo de progresso
-  Widget _buildProgressCircle(String label, int progress) {
-    return Column(
-      children: <Widget>[
-        SizedBox(
-          width: 30,
-          height: 30,
-          child: CircularProgressIndicator(
-            value: progress / 100,
-            strokeWidth: 4,
+  Widget _buildStudyCard(int idTarefa, String title, int idTopico, String metaExercicios, String metaTempo) {
+    return GestureDetector(
+      onTap: (){
+        Navigator.push(context, MaterialPageRoute(builder: (context) => PomodoroPage(
+          metaTempo: formatarTempo(metaTempo),
+          metaExercicios: int.parse(metaExercicios),
+          topicoNome: title,
+          idTopico: idTopico,
+          idTarefa: 1,
+          )));
+      },
+      child: Card(
+        elevation: 4,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                title,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 5),
+              Text("Meta exercícios: " + metaExercicios),
+              Text("Meta tempo: " + minutosEmTexto(formatarTempo(metaTempo))),
+            ],
           ),
-        ),
-        const SizedBox(height: 5),
-        Text(
-          '$label\n$progress%',
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStudyCard(String title, String metaExercicios, String metaTempo) {
-    return Card(
-      elevation: 4,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              title,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 5),
-            Text("Meta exercicios: " + metaExercicios),
-            Text("Meta tempo: "+minutosEmTexto(formatarTempo(metaTempo))),
-          ],
         ),
       ),
     );
   }
+
+
+
+
+
 }
