@@ -1,5 +1,4 @@
 import 'package:aprendize/colecao.dart';
-import 'package:aprendize/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'; // Para verificar a plataforma
 import 'package:image_picker/image_picker.dart';
@@ -7,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:aprendize/AppStateSingleton.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CardColecao extends StatelessWidget {
   final String title;
@@ -182,5 +182,19 @@ class validations{
       print('Error checking user existence: $e');
       return false;
     }
+  }
+
+  void salvarDados(Map<String, dynamic> data) async { 
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    await prefs.setString('username', data['user']['username']);
+    await prefs.setString('senha', data['user']['senha']);
+  
+    AppStateSingleton().idUsuario = data['user']['idUsuario'];
+    AppStateSingleton().username = data['user']['username'];
+    AppStateSingleton().nome = data['user']['nome']; 
+    AppStateSingleton().senha = data['user']['senha']; 
+    AppStateSingleton().userProfileImageUrlNotifier.value = data['user']['linkFotoDePerfil'];
+    AppStateSingleton().collections = List<Map<String, dynamic>>.from(data['colecoes']);
   }
 }

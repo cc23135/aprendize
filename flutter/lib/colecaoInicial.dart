@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:aprendize/components.dart';
 import 'package:flutter/material.dart';
 import 'main.dart';
 import 'colors.dart';
@@ -148,11 +149,7 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
       if (response.statusCode == 201) {
 
         final data = jsonDecode(response.body);
-        AppStateSingleton().username = data['user']['username'];
-        AppStateSingleton().nome = data['user']['nome'];
-        AppStateSingleton().senha = data['user']['senha'];
-        AppStateSingleton().userProfileImageUrlNotifier.value = data['user']['linkFotoDePerfil'];  
-        AppStateSingleton().collections = List<Map<String, dynamic>>.from(data['colecoes']);
+        validations().salvarDados(data);
         return true;
       } else {
         print('Failed to sign up: ${response.body}');

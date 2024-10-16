@@ -1,3 +1,4 @@
+import 'package:aprendize/components.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert'; // Para converter a resposta em JSON
@@ -11,10 +12,33 @@ class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  LoginPageState createState() => LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class LoginService {
+  Future<bool> attemptLogin(
+      String username, String senha) async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+            '${AppStateSingleton().apiUrl}api/login?username=$username&senha=$senha'),
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        if (data['success']) {
+          validations().salvarDados(data);
+          return true; // Login bem-sucedido
+        }
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+}
+
+class LoginPageState extends State<LoginPage> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
 
@@ -22,8 +46,7 @@ class _LoginPageState extends State<LoginPage> {
   double _tamSenha = 0;
   bool _isLoading = false; // Variável para gerenciar o estado de carregamento
 
-  // Função para realizar o login
-  Future<void> login() async {
+  Future<void> handleLogin() async {
     final username = _usernameController.text;
     final senha = _passwordController.text;
 
@@ -36,63 +59,40 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     setState(() {
-      _isLoading = true; // Inicia o carregamento
+      _isLoading = true;
     });
 
-    try {
-      final response = await http.get(
-        Uri.parse('${AppStateSingleton().apiUrl}api/login?username=$username&senha=$senha'),
+    bool success = await LoginService().attemptLogin(username, senha);
+
+    if (success) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const MyHomePage()),
       );
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        if (data['success']) {
-
-          AppStateSingleton().idUsuario = data['user']['idUsuario'];
-          AppStateSingleton().username = data['user']['username'];
-          AppStateSingleton().nome = data['user']['nome']; 
-          AppStateSingleton().senha = data['user']['senha']; 
-          AppStateSingleton().userProfileImageUrlNotifier.value = data['user']['linkFotoDePerfil'];
-          AppStateSingleton().collections = List<Map<String, dynamic>>.from(data['colecoes']);
-          
-
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const MyHomePage()),
-          );
-        } else {
-          // Tratar falha no login
-          setState(() {
-            _tamUsername = 0;
-            _tamSenha = 0;
-            _showSnackBar('Nome de usuário ou senha inválidos');
-          });
-        }
-      } else {
-        // Tratar erro de comunicação com a API
-        _showSnackBar('Erro ao conectar com o servidor');
-      }
-    } catch (e) {
-      // Tratar exceções
-      _showSnackBar('Erro ao conectar com o servidor');
-    } finally {
+    } else {
       setState(() {
-        _isLoading = false; // Termina o carregamento
+        _tamUsername = 0;
+        _tamSenha = 0;
+        _showSnackBar(
+            'Nome de usuário ou senha inválidos'); // Exibe o SnackBar diretamente no LoginPageState
       });
     }
+
+    setState(() {
+      _isLoading = false; // Termina o carregamento
+    });
   }
 
-  // Função para mostrar mensagens de erro
   void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          style: TextStyle(color: AppColors.white), // Texto branco
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            message,
+            style: TextStyle(color: AppColors.white), // Texto branco
+          ),
+          backgroundColor: AppColors.darkPurple,
         ),
-        backgroundColor: AppColors.darkPurple,
-      ),
-    );
-  }
+      );
+    }
 
   void _navegarParaSigin() {
     Navigator.of(context).pushReplacement(
@@ -117,7 +117,7 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 65),
               TextField(
                 controller: _usernameController,
-                style: TextStyle(color: AppColors.white), // Texto preto
+                style: TextStyle(color: AppColors.white), // Texto branco
                 decoration: InputDecoration(
                   labelText: 'Username',
                   labelStyle: TextStyle(color: AppColors.white),
@@ -131,7 +131,7 @@ class _LoginPageState extends State<LoginPage> {
               TextField(
                 controller: _passwordController,
                 obscureText: true,
-                style: TextStyle(color: AppColors.white), // Texto preto
+                style: TextStyle(color: AppColors.white), // Texto branco
                 decoration: InputDecoration(
                   labelText: 'Senha',
                   labelStyle: TextStyle(color: AppColors.white),
@@ -164,7 +164,7 @@ class _LoginPageState extends State<LoginPage> {
                 )
               else
                 ElevatedButton(
-                  onPressed: login,
+                  onPressed: handleLogin,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.darkPurple,
                     minimumSize: const Size(180, 55),
@@ -175,7 +175,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   child: const Text(
                     'Login',
-                    style: TextStyle(color: Colors.white), 
+                    style: TextStyle(color: Colors.white),
                   ),
                 ),
             ],

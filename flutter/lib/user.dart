@@ -26,7 +26,8 @@ class _UserPageState extends State<UserPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   bool _isPasswordVisible = false;
   String? _usernameError;
   String? _nameError;
@@ -49,7 +50,8 @@ class _UserPageState extends State<UserPage> {
   }
 
   Future<void> _pickImage() async {
-    final XFile? image = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final XFile? image =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     if (image != null) {
       _toggleLoadingState(true);
       final formData = await _imageService.prepareFormData(image);
@@ -64,118 +66,122 @@ class _UserPageState extends State<UserPage> {
     });
   }
 
-Future<void> _saveName() async {
-  final name = _nameController.text;
+  Future<void> _saveName() async {
+    final name = _nameController.text;
 
-  if (name.isEmpty) {
-    setState(() {
-      _nameError = 'O nome não pode estar vazio.';
-    });
-    return;
-  }
-
-  setState(() {
-    AppStateSingleton().nome = name;
-    _isEditingName = false;
-    _nameError = null;
-  });
-
-  final uri = Uri.parse('${AppStateSingleton().apiUrl}api/updateNome');
-  await http.post(
-    uri,
-    headers: {
-      'Content-Type': 'application/json', // Defina o cabeçalho Content-Type
-    },
-    body: jsonEncode({ // Certifique-se de usar jsonEncode
-      'username': AppStateSingleton().username,
-      'novoNome': name,
-    }),
-  );
-}
-
-Future<void> _saveUsername() async {
-  final username = _usernameController.text;
-  
-  if (username.isEmpty || !RegExp(r'^[a-zA-Z0-9]+$').hasMatch(username)) {
-    setState(() {
-      _usernameError = 'Username não pode ter espaços ou caracteres especiais.';
-    });
-    return;
-  }
-
-  if (username != AppStateSingleton().username) {
-    if (await _validator.existeUsuario(username)) {
+    if (name.isEmpty) {
       setState(() {
-        _usernameError = 'Já existe um usuário com esse username.';
+        _nameError = 'O nome não pode estar vazio.';
       });
       return;
     }
-  }
 
-  final uri = Uri.parse('${AppStateSingleton().apiUrl}api/updateUsername');
-  await http.post(
-    uri,
-    headers: {
-      'Content-Type': 'application/json', // Defina o cabeçalho Content-Type
-    },
-    body: jsonEncode({ // Certifique-se de usar jsonEncode
-      'usernameAntigo': AppStateSingleton().username,
-      'novoUsername': username,
-    }),
-  );
-
-   setState(() {
-    AppStateSingleton().username = username;
-    _isEditingUsername = false;
-    _usernameError = null;
-  });
-}
-
-Future<void> _saveNewPassword() async {
-  final newPassword = _newPasswordController.text;
-  final confirmPassword = _confirmPasswordController.text;
-
-  if (newPassword.isEmpty || confirmPassword.isEmpty) {
     setState(() {
-      _passwordError = 'Não pode ser vazio';
+      AppStateSingleton().nome = name;
+      _isEditingName = false;
+      _nameError = null;
     });
-    return;
+
+    final uri = Uri.parse('${AppStateSingleton().apiUrl}api/updateNome');
+    await http.post(
+      uri,
+      headers: {
+        'Content-Type': 'application/json', // Defina o cabeçalho Content-Type
+      },
+      body: jsonEncode({
+        // Certifique-se de usar jsonEncode
+        'username': AppStateSingleton().username,
+        'novoNome': name,
+      }),
+    );
   }
 
-  if (!_validator.senhaValida(newPassword)) {
+  Future<void> _saveUsername() async {
+    final username = _usernameController.text;
+
+    if (username.isEmpty || !RegExp(r'^[a-zA-Z0-9]+$').hasMatch(username)) {
+      setState(() {
+        _usernameError =
+            'Username não pode ter espaços ou caracteres especiais.';
+      });
+      return;
+    }
+
+    if (username != AppStateSingleton().username) {
+      if (await _validator.existeUsuario(username)) {
+        setState(() {
+          _usernameError = 'Já existe um usuário com esse username.';
+        });
+        return;
+      }
+    }
+
+    final uri = Uri.parse('${AppStateSingleton().apiUrl}api/updateUsername');
+    await http.post(
+      uri,
+      headers: {
+        'Content-Type': 'application/json', // Defina o cabeçalho Content-Type
+      },
+      body: jsonEncode({
+        // Certifique-se de usar jsonEncode
+        'usernameAntigo': AppStateSingleton().username,
+        'novoUsername': username,
+      }),
+    );
+
     setState(() {
-      _passwordError = '5 caracteres e 1 número';
+      AppStateSingleton().username = username;
+      _isEditingUsername = false;
+      _usernameError = null;
     });
-    return;
   }
 
-  if (newPassword != confirmPassword) {
+  Future<void> _saveNewPassword() async {
+    final newPassword = _newPasswordController.text;
+    final confirmPassword = _confirmPasswordController.text;
+
+    if (newPassword.isEmpty || confirmPassword.isEmpty) {
+      setState(() {
+        _passwordError = 'Não pode ser vazio';
+      });
+      return;
+    }
+
+    if (!_validator.senhaValida(newPassword)) {
+      setState(() {
+        _passwordError = '5 caracteres e 1 número';
+      });
+      return;
+    }
+
+    if (newPassword != confirmPassword) {
+      setState(() {
+        _passwordError = 'As senhas não coincidem';
+      });
+      return;
+    }
+
     setState(() {
-      _passwordError = 'As senhas não coincidem';
+      AppStateSingleton().senha = newPassword;
+      _isEditingPassword = false;
+      _newPasswordController.clear();
+      _confirmPasswordController.clear();
+      _passwordError = null;
     });
-    return;
+
+    final uri = Uri.parse('${AppStateSingleton().apiUrl}api/updatePassword');
+    await http.post(
+      uri,
+      headers: {
+        'Content-Type': 'application/json', // Defina o cabeçalho Content-Type
+      },
+      body: jsonEncode({
+        // Certifique-se de usar jsonEncode
+        'username': AppStateSingleton().username,
+        'novaSenha': newPassword,
+      }),
+    );
   }
-
-  setState(() {
-    AppStateSingleton().senha = newPassword;
-    _isEditingPassword = false;
-    _newPasswordController.clear();
-    _confirmPasswordController.clear();
-    _passwordError = null;
-  });
-
-  final uri = Uri.parse('${AppStateSingleton().apiUrl}api/updatePassword');
-  await http.post(
-    uri,  
-    headers: {
-      'Content-Type': 'application/json', // Defina o cabeçalho Content-Type
-    },
-    body: jsonEncode({ // Certifique-se de usar jsonEncode
-      'username': AppStateSingleton().username,
-      'novaSenha': newPassword,
-    }),
-  );
-}
 
   void _cancelEdit() {
     setState(() {
@@ -223,15 +229,18 @@ Future<void> _saveNewPassword() async {
                             ),
                           ),
                           child: ValueListenableBuilder<String>(
-                            valueListenable: AppStateSingleton().userProfileImageUrlNotifier,
+                            valueListenable:
+                                AppStateSingleton().userProfileImageUrlNotifier,
                             builder: (context, imageUrl, child) {
                               return CircleAvatar(
                                 radius: 50,
                                 backgroundImage: _isLoading
                                     ? null
                                     : (imageUrl.isNotEmpty
-                                        ? NetworkImage(imageUrl)
-                                        : const AssetImage('assets/images/mona.png')) as ImageProvider,
+                                            ? NetworkImage(imageUrl)
+                                            : const AssetImage(
+                                                'assets/images/mona.png'))
+                                        as ImageProvider,
                                 backgroundColor: themeMode == ThemeMode.dark
                                     ? AppColors.lightBlackForFooter
                                     : AppColors.white,
@@ -254,7 +263,8 @@ Future<void> _saveNewPassword() async {
                           child: CircleAvatar(
                             radius: 15,
                             backgroundColor: AppColors.white,
-                            child: Icon(Icons.edit, size: 25, color: AppColors.darkPurple),
+                            child: Icon(Icons.edit,
+                                size: 25, color: AppColors.darkPurple),
                           ),
                         ),
                       ),
@@ -348,16 +358,18 @@ Future<void> _saveNewPassword() async {
                     child: ListView.builder(
                       itemCount: AppStateSingleton().collections.length,
                       itemBuilder: (context, index) {
-                        final collection = AppStateSingleton().collections[index];
+                        final collection =
+                            AppStateSingleton().collections[index];
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 20.0),
-                            child: CardColecao(
-                            title: collection['nome'] ?? 'Título não disponível',
-                            subtitle: collection['descricao'] ?? 'Descrição não disponível',
+                          child: CardColecao(
+                            title:
+                                collection['nome'] ?? 'Título não disponível',
+                            subtitle: collection['descricao'] ??
+                                'Descrição não disponível',
                             imageUrl: collection['linkImagem'] ?? '',
                             idColecao: collection['idColecao'] ?? '',
                           ),
-                          
                         );
                       },
                     ),
@@ -366,12 +378,17 @@ Future<void> _saveNewPassword() async {
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.darkPurple,
-                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 40, vertical: 15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    onPressed: () {
+                    onPressed: () async {
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      await prefs.remove('username');
+                      await prefs.remove('senha');
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -528,53 +545,58 @@ Future<void> _saveNewPassword() async {
     );
   }
 
-Widget _buildPasswordDisplayField() {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 10.0),
-    child: Stack( // Use Stack para centralização
-      alignment: Alignment.center, // Centraliza o conteúdo
-      children: [
-        Center(  // Centraliza o texto dentro do Stack
-          child: Text(
-            _isPasswordVisible ? AppStateSingleton().senha : '******',
-            style: TextStyle(color: AppColors.white, fontSize: 16),
+  Widget _buildPasswordDisplayField() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: Stack(
+        // Use Stack para centralização
+        alignment: Alignment.center, // Centraliza o conteúdo
+        children: [
+          Center(
+            // Centraliza o texto dentro do Stack
+            child: Text(
+              _isPasswordVisible ? AppStateSingleton().senha : '******',
+              style: TextStyle(color: AppColors.white, fontSize: 16),
+            ),
           ),
-        ),
-        Positioned( // Posiciona os botões à direita
-          right: 10,
-          child: Row(
-            children: [
-              IconButton(
-                icon: Icon(
-                  _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
-                  color: AppColors.lightPurple,
+          Positioned(
+            right: 10,
+            child: Row(
+              children: [
+                IconButton(
+                  icon: Icon(
+                    _isPasswordVisible
+                        ? Icons.visibility_off
+                        : Icons.visibility,
+                    color: AppColors.lightPurple,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _isPasswordVisible = !_isPasswordVisible;
+                    });
+                  },
                 ),
-                onPressed: () {
-                  setState(() {
-                    _isPasswordVisible = !_isPasswordVisible;
-                  });
-                },
-              ),
-              IconButton(
-                icon: Icon(Icons.edit, color: AppColors.lightPurple),
-                onPressed: () {
-                  setState(() {
-                    _isEditingPassword = true;
-                  });
-                },
-              ),
-            ],
+                IconButton(
+                  icon: Icon(Icons.edit, color: AppColors.lightPurple),
+                  onPressed: () {
+                    setState(() {
+                      _isEditingPassword = true;
+                    });
+                  },
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 
   void _toggleTheme() async {
-    final prefs = await SharedPreferences.getInstance();
-    final isDarkMode = prefs.getBool('isDarkMode') ?? false;
-    AppStateSingleton().themeModeNotifier.value = isDarkMode ? ThemeMode.light : ThemeMode.dark;
-    prefs.setBool('isDarkMode', !isDarkMode);
+      final prefs = await SharedPreferences.getInstance();
+      final isDarkMode = prefs.getBool('isDarkMode') ?? false;
+      AppStateSingleton().themeModeNotifier.value =
+          isDarkMode ? ThemeMode.light : ThemeMode.dark;
+      prefs.setBool('isDarkMode', !isDarkMode);
   }
 }
