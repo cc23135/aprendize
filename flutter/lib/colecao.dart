@@ -1,19 +1,20 @@
 import 'dart:convert';
 import 'package:aprendize/AppStateSingleton.dart';
+import 'package:aprendize/colecaoInfo.dart';
 import 'package:aprendize/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'criarColecao.dart';
-import 'colecaoInfo.dart';
+import 'colecao.dart';
 
 class ColecaoPage extends StatefulWidget {
   const ColecaoPage({super.key});
 
   @override
-  _ColecaoPagePageState createState() => _ColecaoPagePageState();
+  _ChatsPageState createState() => _ChatsPageState();
 }
 
-class _ColecaoPagePageState extends State<ColecaoPage> {
+class _ChatsPageState extends State<ColecaoPage> {
   final TextEditingController _searchController = TextEditingController();
   List<Map<String, dynamic>> _colecoes = [];
 
@@ -57,7 +58,7 @@ class _ColecaoPagePageState extends State<ColecaoPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   const Text(
-                    'Coleções',
+                    'Suas Coleções',
                     style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                   ),
                   ElevatedButton(

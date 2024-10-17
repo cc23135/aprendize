@@ -3,8 +3,7 @@ import 'package:aprendize/colors.dart';
 import 'package:http/http.dart' as http;
 import 'package:aprendize/AppStateSingleton.dart';
 import 'package:flutter/material.dart';
-import 'members.dart'; // Importe a nova página
-import 'batePago.dart';
+import 'members.dart';
 import 'materia.dart';
 
 class ChatDetailsPage extends StatefulWidget {
@@ -37,6 +36,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
+      print(data);
       setState(() {
         _colecao = Map<String, dynamic>.from(data['colecao']);
       });
@@ -71,10 +71,15 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                     child: Column(
                       children: [
                         Text(
-                          '${_colecao!["nome"] ?? "Título"}',
+                          '${_colecao!["nome"] ?? "..."}',
                           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 10),
+                        Text(
+                          '${_colecao!["descricao"] ?? "..."}',
+                          style: const TextStyle(fontSize: 15),
+                        ),
+                        const SizedBox(height: 20),
                         ElevatedButton(
                           onPressed: () {
                             Navigator.push(
@@ -87,20 +92,6 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                           child: const Text('Ver Membros'),
                         ),
                       ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const BatePagoPage(title: "Unicamp", students: 134),
-                          ),
-                        );
-                      },
-                      child: const Text('Chat/Entrar'),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -132,7 +123,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => MateriaPage(),
+                                    builder: (context) => MateriaPage(idMateria: materia["idMateria"],),
                                   ),
                                 );
                               },

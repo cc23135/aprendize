@@ -30,4 +30,15 @@ class AppStateSingleton {
     isDarkMode = isDark;
     themeModeNotifier.value = isDark ? ThemeMode.dark : ThemeMode.light;
   }
+
+  void clear() {
+    apiUrl = '';
+    userProfileImageUrlNotifier.value = '';
+    idUsuario = 0;
+    username = '';
+    nome = '';
+    senha = '';
+    collections.clear();
+    statisticsJson = '';
+  }
 }

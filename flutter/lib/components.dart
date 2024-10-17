@@ -135,6 +135,7 @@ class ImageService {
 
   Future<void> uploadImage(FormData formData, String username) async {
   try {
+    print(username);
     final url = '${AppStateSingleton().apiUrl}api/upload-image';
     formData.fields.add(MapEntry('username', username));
     
@@ -142,6 +143,7 @@ class ImageService {
     if (response.statusCode == 200) {
       AppStateSingleton().userProfileImageUrlNotifier.value =
           response.data['url'];
+          print(AppStateSingleton().userProfileImageUrlNotifier.value);
     } else {
       print('Falha ao enviar a imagem. Status code: ${response.statusCode}');
     }
