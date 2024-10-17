@@ -760,31 +760,57 @@ class _StatisticsPageState extends State<StatisticsPage> {
     _fetchStatisticsData();
   }
 
-  Future<void> _fetchStatisticsData() async {
-    try {
-      final response = await http.get(Uri.parse('http://localhost:6060/api/statistics'));
-      if (response.statusCode == 200) {
-        final String jsonString = response.body;
-        AppStateSingleton().statisticsJson = jsonString;
-        final data = json.decode(jsonString);
-        setState(() {
-          // spots = _parseDataToFlSpots(data['graphData']); // Handle graph data
-          timeSpent = data['timeSpent']; // Assuming the time spent is returned in minutes
-          tasksDone = data['tasksDone']; // Assuming the number of tasks done
-          isLoading = false;
-
-          print(timeSpent + tasksDone);
-        });
-      } else {
-        throw Exception('Failed to load statistics data');
-      }
-    } catch (e) {
-      print('Error fetching statistics data: $e');
+Future<void> _fetchStatisticsData() async {
+  try {
+    final userId = AppStateSingleton().idUsuario;
+    final response = await http.get(Uri.parse('http://localhost:6060/api/statistics?userId=$userId'));
+    
+    if (response.statusCode == 200) {
+      final String jsonString = response.body;
+      AppStateSingleton().statisticsJson = jsonString; // Store JSON if needed
+      final data = json.decode(jsonString);
+      
       setState(() {
-        isLoading = false;
+        // Accessing the data returned by your API
+        exerciciosFeitosSemanal = data['exerciciosFeitosSemanal'];
+        exerciciosFeitosDiario = data['exerciciosFeitosDiario'];
+        exerciciosFeitosMensal = data['exerciciosFeitosMensal'];
+        tempoGastoTotalSemanal = data['tempoGastoTotalSemanal'];
+        tempoGastoTotalDiario = data['tempoGastoTotalDiario'];
+        tempoGastoTotalMensal = data['tempoGastoTotalMensal'];
+        nomesMateriasExerciciosSemanal = data['nomesMateriasExerciciosSemanal'];
+        exerciciosFeitosPorMateriaSemanal = data['exerciciosFeitosPorMateriaSemanal'];
+        nomesMateriasExerciciosMensal = data['nomesMateriasExerciciosMensal'];
+        exerciciosFeitosPorMateriaMensal = data['exerciciosFeitosPorMateriaMensal'];
+        nomesMateriasTempoSemanal = data['nomesMateriasTempoSemanal'];
+        tempoGastoPorMateriaSemanal = data['tempoGastoPorMateriaSemanal'];
+        nomesMateriasTempoMensal = data['nomesMateriasTempoMensal'];
+        tempoGastoPorMateriaMensal = data['tempoGastoPorMateriaMensal'];
+        nomesColecoesExerciciosSemanal = data['nomesColecoesExerciciosSemanal'];
+        exerciciosFeitosPorColecaoSemanal = data['exerciciosFeitosPorColecaoSemanal'];
+        nomesColecoesExerciciosMensal = data['nomesColecoesExerciciosMensal'];
+        exerciciosFeitosPorColecaoMensal = data['exerciciosFeitosPorColecaoMensal'];
+        nomesColecoesTempoSemanal = data['nomesColecoesTempoSemanal'];
+        tempoGastoPorColecaoSemanal = data['tempoGastoPorColecaoSemanal'];
+        nomesColecoesTempoMensal = data['nomesColecoesTempoMensal'];
+        tempoGastoPorColecaoMensal = data['tempoGastoPorColecaoMensal'];
+
+        print(data);
+
+        // Process the data as needed, e.g., updating state variables
       });
+    } else {
+      print(response.statusCode);
+      throw Exception('Failed to load statistics data');
     }
+  } catch (e) {
+    print('Error fetching statistics data: $e');
+    setState(() {
+      isLoading = false; // Handle loading state
+    });
   }
+}
+
 
   List<FlSpot> _parseDataToFlSpots(dynamic data) {
     List<FlSpot> spots = [];
@@ -959,29 +985,57 @@ class _StatisticsPageState extends State<StatisticsPage> {
                         ),
                         const SizedBox(height: 30),
 
-                        Text(
-                          (isSelectedWeekMonth[0])
-                              ? "Exercícios feitos por matéria semanalmente"
-                              : "Exercícios feitos por matéria mensalmente",
-                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
-                        ),
-                        const SizedBox(height: 20),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 35.0),
-                          child: Container(
-                            height: 300,
-                            width: MediaQuery.of(context).size.width * 0.8,
-                            child: buildMultiLineGraph((isSelectedWeekMonth[0])
-                                ? exerciciosFeitosPorMateriaSemanal
-                                : exerciciosFeitosPorMateriaMensal,
-                                coresLista,
-                                (isSelectedWeekMonth[0])
-                                ? nomesMateriasExerciciosSemanal
-                                : nomesMateriasExerciciosMensal,
-                                ), // Pass daily or weekly data
-                          ),
+                        Column(
+                          children: [
+                            Text(
+                              (isSelectedWeekMonth[0])
+                                  ? "Exercícios feitos por matéria semanalmente"
+                                  : "Exercícios feitos por matéria mensalmente",
+                              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+                            ),
+                            const SizedBox(height: 20),
+                            Padding(
+                              padding: const EdgeInsets.only(right: 35.0),
+                              child: Container(
+                                height: 300,
+                                width: MediaQuery.of(context).size.width * 0.8,
+                                child: buildMultiLineGraph(
+                                  (isSelectedWeekMonth[0])
+                                      ? exerciciosFeitosPorMateriaSemanal
+                                      : exerciciosFeitosPorMateriaMensal,
+                                  coresLista,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 30),
+
+                            // Display the names under the graph with associated colors
+                            Wrap(
+                              alignment: WrapAlignment.start, // Ensures left alignment for incomplete lines
+                              children: List.generate(
+                                (isSelectedWeekMonth[0]
+                                    ? nomesMateriasExerciciosSemanal.length
+                                    : nomesMateriasExerciciosMensal.length),
+                                (index) => Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0), // Adjust vertical and horizontal padding
+                                  child: Chip(
+                                    label: Text(
+                                      (isSelectedWeekMonth[0]
+                                          ? nomesMateriasExerciciosSemanal[index]
+                                          : nomesMateriasExerciciosMensal[index]),
+                                      style: const TextStyle(color: Colors.white),
+                                    ),
+                                    backgroundColor: coresLista[index], // Set the color for each subject
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
                         ),
                         const SizedBox(height: 30),
+
+
+
 
                         // tempo gasto por matéria
                         // coluna
@@ -1002,10 +1056,29 @@ class _StatisticsPageState extends State<StatisticsPage> {
                                 ? tempoGastoPorMateriaSemanal
                                 : tempoGastoPorMateriaMensal,
                                 coresLista,
-                                (isSelectedWeekMonth[0])
-                                ? nomesMateriasTempoSemanal
-                                : nomesMateriasTempoMensal,
                                 ), // Pass daily or weekly data
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+
+                        Wrap(
+                          alignment: WrapAlignment.start, // Ensures left alignment for incomplete lines
+                          children: List.generate(
+                            (isSelectedWeekMonth[0]
+                                ? nomesMateriasTempoSemanal.length
+                                : nomesMateriasTempoMensal.length),
+                            (index) => Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0), // Adjust vertical and horizontal padding
+                              child: Chip(
+                                label: Text(
+                                  (isSelectedWeekMonth[0]
+                                      ? nomesMateriasTempoSemanal[index]
+                                      : nomesMateriasTempoMensal[index]),
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                                backgroundColor: coresLista[index], // Set the color for each subject
+                              ),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 30),
@@ -1026,10 +1099,29 @@ class _StatisticsPageState extends State<StatisticsPage> {
                                 ? exerciciosFeitosPorColecaoSemanal
                                 : exerciciosFeitosPorColecaoMensal,
                                 coresLista,
-                                (isSelectedWeekMonth[0])
-                                ? nomesColecoesExerciciosSemanal
-                                : nomesColecoesExerciciosMensal,
                                 ), // Pass daily or weekly data
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+
+                        Wrap(
+                          alignment: WrapAlignment.start, // Ensures left alignment for incomplete lines
+                          children: List.generate(
+                            (isSelectedWeekMonth[0]
+                                ? nomesColecoesExerciciosSemanal.length
+                                : nomesColecoesExerciciosMensal.length),
+                            (index) => Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0), // Adjust vertical and horizontal padding
+                              child: Chip(
+                                label: Text(
+                                  (isSelectedWeekMonth[0]
+                                      ? nomesColecoesExerciciosSemanal[index]
+                                      : nomesColecoesExerciciosMensal[index]),
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                                backgroundColor: coresLista[index], // Set the color for each subject
+                              ),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 30),
@@ -1050,10 +1142,29 @@ class _StatisticsPageState extends State<StatisticsPage> {
                                 ? tempoGastoPorColecaoSemanal
                                 : tempoGastoPorColecaoMensal,
                                 coresLista,
-                                (isSelectedWeekMonth[0])
-                                ? nomesColecoesTempoSemanal
-                                : nomesColecoesTempoMensal,
                                 ), // Pass daily or weekly data
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+
+                        Wrap(
+                          alignment: WrapAlignment.start, // Ensures left alignment for incomplete lines
+                          children: List.generate(
+                            (isSelectedWeekMonth[0]
+                                ? nomesColecoesTempoSemanal.length
+                                : nomesColecoesTempoMensal.length),
+                            (index) => Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0), // Adjust vertical and horizontal padding
+                              child: Chip(
+                                label: Text(
+                                  (isSelectedWeekMonth[0]
+                                      ? nomesColecoesTempoSemanal[index]
+                                      : nomesColecoesTempoMensal[index]),
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                                backgroundColor: coresLista[index], // Set the color for each subject
+                              ),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 30),
@@ -1325,7 +1436,7 @@ Widget buildBarGraphVariableTiles(List<FlSpot> spots, List<String> materias) {
   }
 
 
-Widget buildMultiLineGraph(List<List<FlSpot>> lineSpots, List<Color> lineColors, List<String> lineNames) {
+Widget buildMultiLineGraph(List<List<FlSpot>> lineSpots, List<Color> lineColors) {
   return LineChart(
     LineChartData(
       gridData: const FlGridData(show: false),
@@ -1373,25 +1484,7 @@ Widget buildMultiLineGraph(List<List<FlSpot>> lineSpots, List<Color> lineColors,
         ),
         rightTitles: AxisTitles( // nome de cada linha
           sideTitles: SideTitles(
-            showTitles: true,
-            reservedSize: 80,
-            getTitlesWidget: (value, meta) {
-              int index = value.toInt();
-              if (index >= 0 && index < lineNames.length) {
-                return Container(
-                  margin: const EdgeInsets.only(right: 0.0), // Optional: Adds space between names
-                  child: Text(
-                    lineNames[index],
-                    style: TextStyle(
-                      color: lineColors[index], // Use the same color as the line
-                      fontSize: 12,
-                    ),
-                  ),
-                );
-              } else {
-                return const Text('');
-              }
-            },
+            showTitles: false,
           ),
         ),
         topTitles: const AxisTitles(
