@@ -1,198 +1,151 @@
 import 'dart:convert';
-import 'package:aprendize/colors.dart';
-import 'package:http/http.dart' as http;
 import 'package:aprendize/AppStateSingleton.dart';
+import 'package:aprendize/colors.dart';
 import 'package:flutter/material.dart';
-import 'members.dart'; // Importe a nova página
-import 'batePago.dart';
-import 'materia.dart';
+import 'package:http/http.dart' as http;
+import 'criarColecao.dart';
+import 'colecaoInfo.dart';
 
-class ChatDetailsPage extends StatefulWidget {
-  final int idColecao;
-
-  ChatDetailsPage({super.key, required this.idColecao});
+class ColecaoPage extends StatefulWidget {
+  const ColecaoPage({super.key});
 
   @override
-  _ChatDetailsPageState createState() => _ChatDetailsPageState();
+  _ColecaoPagePageState createState() => _ColecaoPagePageState();
 }
 
-class _ChatDetailsPageState extends State<ChatDetailsPage> {
-  Map<String, dynamic>? _colecao;
+class _ColecaoPagePageState extends State<ColecaoPage> {
+  final TextEditingController _searchController = TextEditingController();
+  List<Map<String, dynamic>> _colecoes = [];
 
-  @override
-  void initState() {
-    super.initState();
-    _fetchColecaoInfo();
-  }
-
-  Future<void> _fetchColecaoInfo() async {
-    final uri = Uri.parse('${AppStateSingleton().apiUrl}api/getColecaoInfo');
-    final response = await http.post(uri, body: jsonEncode({
-      "query": {
-        "idColecao": widget.idColecao
-      }
-    }), headers: {
-      "Content-Type": "application/json",
-    });
+  Future<void> _fetchColecoes() async {
+    final uri = Uri.parse('${AppStateSingleton().apiUrl}api/getColecoes');
+    final response = await http.get(uri);
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       setState(() {
-        _colecao = Map<String, dynamic>.from(data['colecao']);
+        _colecoes = List<Map<String, dynamic>>.from(data['colecoes']);
       });
     } else {
-      throw Exception('Falha ao carregar coleção');
+      throw Exception('Falha ao carregar coleções');
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchColecoes();
+  }
+
+  List<Map<String, dynamic>> get _filteredColecoes {
+    final query = _searchController.text.toLowerCase();
+    return _colecoes.where((colecao) {
+      return colecao['nome'].toLowerCase().contains(query);
+    }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("ID: " + widget.idColecao.toString()),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: _colecao == null
-          ? Center(child: CircularProgressIndicator())
-          : SingleChildScrollView( // Adicionado
-              child: Column( // Mantido
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Image.network(
-                      _colecao!["linkImagem"],
-                      height: 100,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Center(
-                    child: Column(
-                      children: [
-                        Text(
-                          '${_colecao!["nome"] ?? "Título"}',
-                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 10),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => MembersPage(idColecao: widget.idColecao),
-                              ),
-                            );
-                          },
-                          child: const Text('Ver Membros'),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const BatePagoPage(title: "Unicamp", students: 134),
-                          ),
-                        );
-                      },
-                      child: const Text('Chat/Entrar'),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
                   const Text(
-                    'Estatísticas',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    'Coleções',
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _buildStatisticCard('Exercícios', '- -'),
-                      _buildStatisticCard('Horas de Estudo', '- -'),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Matérias',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                  ),
-                  Column(
-                    children: _colecao != null
-                        ? _colecao!["materias"].map<Widget>((materia) {
-                            return _buildMateriaCard(
-                              materia["nome"],
-                              '${materia["quantidadeTopicos"]} Tópicos',
-                              materia["linkCapa"].toString(),
-                              () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => MateriaPage(),
-                                  ),
-                                );
-                              },
-                            );
-                          }).toList()
-                        : [],
-                  ),
-                  const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => CriarColecaoPage()),
+                      );
                     },
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                    child: const Text('Sair do grupo'),
+                    child: const Icon(Icons.add),
                   ),
                 ],
               ),
-            ),
-      ),
-    );
-  }
+              const SizedBox(height: 20),
+              TextField(
+                controller: _searchController,
+                onChanged: (value) {
+                  setState(() {});
+                },
+                decoration: InputDecoration(
+                  hintText: 'Digite o nome da coleção',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  prefixIcon: const Icon(Icons.search),
+                ),
+              ),
+              const SizedBox(height: 20),
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _filteredColecoes.length,
+                itemBuilder: (context, index) {
+                  final colecao = _filteredColecoes[index];
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: NetworkImage(colecao['linkImagem']),
+                        fit: BoxFit.cover,
+                        colorFilter: ColorFilter.mode(
+                          AppColors.darkPurple.withOpacity(0.4), // Altere para AppColors.lightPurple quando disponível
+                          BlendMode.darken,
+                        ),
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.all(16),
+                      title: Text(
+                        colecao['nome'],
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text(
+                        '${colecao['numEstudantes']} estudantes',
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      trailing: const Icon(Icons.chat, color: Colors.white),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChatDetailsPage(
+                              idColecao: colecao['idColecao'],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
 
-  Widget _buildStatisticCard(String title, String value) {
-    return Card(
-      elevation: 4,
-      child: Container(
-        width: 200,
-        height: 100,
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: const TextStyle(fontSize: 16)),
-            const Spacer(),
-            Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-          ],
-        ),
-      ),
-    );
-  }
 
-  Widget _buildMateriaCard(String title, String subtitle, String linkImagem, VoidCallback onTap) {
-    return Container(
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: NetworkImage(linkImagem),
-          fit: BoxFit.cover,
-          colorFilter: ColorFilter.mode(
-            AppColors.black.withOpacity(0.8),
-            BlendMode.darken,
+            ],
           ),
         ),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      margin: const EdgeInsets.only(bottom: 10),
-      child: ListTile(
-        title: Text(title),
-        subtitle: Text(subtitle),
-        onTap: onTap,
       ),
     );
   }
+}
+
+class Colecao {
+  Colecao({
+    required this.nome,
+    required this.numEstudantes,
+  });
+
+  final String nome;
+  final int numEstudantes;
 }

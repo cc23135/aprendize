@@ -619,6 +619,31 @@ app.post('/api/getTarefasDoDia', async (req, res) => {
   }
 });
 
+app.get('/api/getEstudos', async (req, res) => {
+  const { idUsuario } = req.query; 
+  try {
+    const estudos = await prisma.$queryRaw`
+      SELECT Aprendize.Estudo.*, Aprendize.Topico.nome AS topicoNome, Aprendize.Materia.nome AS materiaNome 
+      FROM Aprendize.Estudo
+      JOIN 
+        Aprendize.Topico ON Aprendize.Estudo.idTopico = Aprendize.Topico.idTopico
+      JOIN 
+        Aprendize.Materia ON Aprendize.Topico.idMateria = Aprendize.Materia.idMateria
+      WHERE 
+        Aprendize.Estudo.idUsuario = ${parseInt(idUsuario, 10)} 
+      ORDER BY Aprendize.Estudo.dataEstudo ASC
+    `;
+
+    console.log(estudos);
+
+    res.status(200).json(estudos);
+  } catch (error) {
+    console.error('Erro ao buscar estudos:', error);
+    res.status(500).json({ error: 'Erro ao buscar estudos' });
+  }
+});
+
+
 app.post('/api/criarEstudo', async (req, res) => {
   const { idTarefa, idTopico, idUsuario, metaExercicios, metaTempo, qtosExercicios, qtosExerciciosAcertados, qtoTempo, dataEstudo } = req.body;
 

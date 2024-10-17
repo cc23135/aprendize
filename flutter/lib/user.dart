@@ -28,6 +28,7 @@ class _UserPageState extends State<UserPage> {
   final TextEditingController _newPasswordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+      
   bool _isPasswordVisible = false;
   String? _usernameError;
   String? _nameError;
@@ -363,12 +364,10 @@ class _UserPageState extends State<UserPage> {
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 20.0),
                           child: CardColecao(
-                            title:
-                                collection['nome'] ?? 'Título não disponível',
-                            subtitle: collection['descricao'] ??
-                                'Descrição não disponível',
-                            imageUrl: collection['linkImagem'] ?? '',
-                            idColecao: collection['idColecao'] ?? '',
+                            title: collection['nome'],
+                            subtitle: collection['descricao'],
+                            imageUrl: collection['linkImagem'],
+                            idColecao: collection['idColecao'],
                           ),
                         );
                       },
@@ -445,9 +444,10 @@ class _UserPageState extends State<UserPage> {
                 border: OutlineInputBorder(),
                 errorText: errorText,
               ),
-              inputFormatters: [
+             inputFormatters: [
+              if (labelText == 'Username')
                 FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
-              ],
+            ],
             ),
           ),
           IconButton(

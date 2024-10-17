@@ -1,4 +1,4 @@
-import 'package:aprendize/colecao.dart';
+import 'package:aprendize/colecaoInfo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'; // Para verificar a plataforma
 import 'package:image_picker/image_picker.dart';
@@ -186,7 +186,7 @@ class validations{
 
   void salvarDados(Map<String, dynamic> data) async { 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-
+    print(List<Map<String, dynamic>>.from(data['colecoes']));
     await prefs.setString('username', data['user']['username']);
     await prefs.setString('senha', data['user']['senha']);
   

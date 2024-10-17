@@ -5,7 +5,7 @@ import 'loginPage.dart';
 import 'home.dart';
 import 'statistics.dart';
 import 'ranking.dart';
-import 'chats.dart';
+import 'colecao.dart';
 import 'calendar.dart';
 import 'notifications.dart';
 import 'user.dart';
@@ -129,9 +129,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   final List<Widget> _pages = [
     const HomePage(),
-    StatisticsPage(),
-    RankingPage(),
-    const ChatsPage(),
+    const StatisticsPage(),
+    const RankingPage(),
+    const ColecaoPage(),
     const CalendarPage(),
   ];
 
