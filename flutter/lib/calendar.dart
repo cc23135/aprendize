@@ -129,53 +129,50 @@ class _CalendarPageState extends State<CalendarPage> {
     return DateFormat.Hm().format(time);
   }
 
-int calcularMetaTempoTotal() {
-  int totalMetaTempoEmMinutos = 0;
+  int calcularMetaTempoTotal() {
+    int totalMetaTempoEmMinutos = 0;
 
-  if (_estudos[_selectedDay] != null) {
-    for (var estudo in _estudos[_selectedDay]!) {
-      var metaTempo = estudo['metaTempo'];
+    if (_estudos[_selectedDay] != null) {
+      for (var estudo in _estudos[_selectedDay]!) {
+        var metaTempo = estudo['metaTempo'];
 
-      totalMetaTempoEmMinutos += formatarTempo(metaTempo);
+        totalMetaTempoEmMinutos += formatarTempo(metaTempo);
+      }
     }
+
+    return totalMetaTempoEmMinutos; // Retorna o total em minutos
   }
 
-  return totalMetaTempoEmMinutos; // Retorna o total em minutos
-}
+  int calcularTempoGasto() {
+    int totalTempoGastoEmMinutos = 0;
 
-int calcularTempoGasto() {
-  int totalTempoGastoEmMinutos = 0;
+    if (_estudos[_selectedDay] != null) {
+      for (var estudo in _estudos[_selectedDay]!) {
+        var tempoGasto = estudo['qtoTempo'];
 
-  if (_estudos[_selectedDay] != null) {
-    for (var estudo in _estudos[_selectedDay]!) {
-      var tempoGasto = estudo['qtoTempo'];
-
-      totalTempoGastoEmMinutos += formatarTempo(tempoGasto);
+        totalTempoGastoEmMinutos += formatarTempo(tempoGasto);
+      }
     }
+
+    return totalTempoGastoEmMinutos; // Retorna o total em minutos
   }
 
-  return totalTempoGastoEmMinutos; // Retorna o total em minutos
-}
+  int formatarTempo(String metaTempo) {
+    DateTime dateTime = DateTime.parse(metaTempo);
 
-int formatarTempo(String metaTempo) {
-  DateTime dateTime = DateTime.parse(metaTempo);
-  
-  // Extrai horas e minutos
-  int horas = dateTime.hour;
-  int minutos = dateTime.minute;
+    // Extrai horas e minutos
+    int horas = dateTime.hour;
+    int minutos = dateTime.minute;
 
-  return minutos + horas * 60; // Retorna o total em minutos
-}
+    return minutos + horas * 60; // Retorna o total em minutos
+  }
 
-String formatarTempoVisual(int totalMinutos) {
-  int horas = totalMinutos ~/ 60; 
-  int minutos = totalMinutos % 60; // Resto da divisão para obter minutos
+  String formatarTempoVisual(int totalMinutos) {
+    int horas = totalMinutos ~/ 60;
+    int minutos = totalMinutos % 60; // Resto da divisão para obter minutos
 
-  return '${horas.toString().padLeft(2, '0')}:${minutos.toString().padLeft(2, '0')}'; // Formata para HH:mm
-}
-
-
-
+    return '${horas.toString().padLeft(2, '0')}:${minutos.toString().padLeft(2, '0')}'; // Formata para HH:mm
+  }
 
   @override
   @override
@@ -229,127 +226,147 @@ String formatarTempoVisual(int totalMinutos) {
           ),
           const SizedBox(height: 20),
           Expanded(
-  child: ListView(
-    padding: const EdgeInsets.all(16),
-    children: [
-      // Verifica se há estudos para o dia selecionado antes de mostrar o card geral
-      if (_estudos[_selectedDay]?.isNotEmpty ?? false)
-        Card(
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          elevation: 4,
-          color: AppColors.black,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: ListView(
+              padding: const EdgeInsets.all(16),
               children: [
-                Text(
-                  'Resultados Totais',
-                  style: TextStyle(
-                    color: AppColors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                // Verifica se há estudos para o dia selecionado antes de mostrar o card geral
+                if (_estudos[_selectedDay]?.isNotEmpty ?? false)
+                  Card(
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    elevation: 4,
+                    color: AppColors.black,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Resultados Totais',
+                            style: TextStyle(
+                              color: AppColors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Exercícios: ${_estudos[_selectedDay]?.fold<int>(0, (sum, estudo) => sum + (estudo['qtosExercicios'] as int? ?? 0)) ?? 0}/${_estudos[_selectedDay]?.fold<int>(0, (sum, estudo) => sum + (estudo['metaExercicios'] as int? ?? 0)) ?? 0}',
+                            style: TextStyle(
+                              color: AppColors.white,
+                              fontSize: 16,
+                            ),
+                          ),
+                          // Exiba o texto com o tempo total meta
+                          Text(
+                            'Meta de Tempo Total: ${formatarTempoVisual(calcularTempoGasto())}/${formatarTempoVisual(calcularMetaTempoTotal())}',
+                            style: TextStyle(
+                              color: AppColors.white,
+                              fontSize: 16,
+                            ),
+                          ),
+                          Text(
+                            'Porcentagem de Acertos: ${(_estudos[_selectedDay]?.fold<int>(0, (sum, estudo) => sum + (estudo['qtosExerciciosAcertados'] as int? ?? 0)) ?? 0 * 100 / (_estudos[_selectedDay]?.fold<int>(0, (sum, estudo) => sum + (estudo['metaExercicios'] as int? ?? 0)) ?? 1))}% (${_estudos[_selectedDay]?.fold<int>(0, (sum, estudo) => sum + (estudo['qtosExerciciosAcertados'] as int? ?? 0)) ?? 0}/${_estudos[_selectedDay]?.fold<int>(0, (sum, estudo) => sum + (estudo['metaExercicios'] as int? ?? 0)) ?? 1})',
+                            style: TextStyle(
+                              color: AppColors.white,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Exercícios: ${_estudos[_selectedDay]?.fold<int>(0, (sum, estudo) => sum + (estudo['qtosExercicios'] as int? ?? 0)) ?? 0}/${_estudos[_selectedDay]?.fold<int>(0, (sum, estudo) => sum + (estudo['metaExercicios'] as int? ?? 0)) ?? 0}',
-                  style: TextStyle(
-                    color: AppColors.white,
-                    fontSize: 16,
+                // Cards individuais
+                ..._estudos[_selectedDay]?.map((estudo) {
+                      final qtosExercicios =
+                          estudo['qtosExercicios'] as int? ?? 0;
+                      final metaExercicios =
+                          estudo['metaExercicios'] as int? ?? 0;
+                      final qtosAcertos = estudo['qtosExerciciosAcertados'] as int? ?? 0;
+
+                      return Card(
+                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        elevation: 4,
+                        color: AppColors.black,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${estudo['materiaNome']}',
+                                style: TextStyle(
+                                  color: AppColors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                '${estudo['topicoNome']}',
+                                style: TextStyle(
+                                  color: AppColors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Exercícios: ${qtosExercicios * 100 ~/ (metaExercicios == 0 ? 1 : metaExercicios)}% ($qtosExercicios/$metaExercicios)',
+                                    style: TextStyle(
+                                      color: AppColors.white,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Acertos: ${qtosAcertos * 100 ~/ (qtosExercicios == 0 ? 1 : qtosExercicios)}% ($qtosAcertos/$qtosExercicios)',
+                                    style: TextStyle(
+                                      color: AppColors.white,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Meta de Tempo: ${formatTime(estudo['qtoTempo'])}/${formatTime(estudo['metaTempo'])}',
+                                    style: TextStyle(
+                                      color: AppColors.white,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList() ??
+                    [],
+                // Mensagem se não houver estudos
+                if (_estudos[_selectedDay] == null ||
+                    _estudos[_selectedDay]!.isEmpty)
+                  Text(
+                    'Nenhum estudo para hoje',
+                    style: TextStyle(color: AppColors.white, fontSize: 16),
                   ),
-                ),
-                // Exiba o texto com o tempo total meta
-Text(
-  'Meta de Tempo Total: ${formatarTempoVisual(calcularTempoGasto())}/${formatarTempoVisual(calcularMetaTempoTotal())}',
-  style: TextStyle(
-    color: AppColors.white,
-    fontSize: 16,
-  ),
-),
-                Text(
-                  'Porcentagem de Acertos: ${(_estudos[_selectedDay]?.fold<int>(0, (sum, estudo) => sum + (estudo['qtosAcertos'] as int? ?? 0)) ?? 0 * 100 / (_estudos[_selectedDay]?.fold<int>(0, (sum, estudo) => sum + (estudo['metaExercicios'] as int? ?? 0)) ?? 1))}% (${_estudos[_selectedDay]?.fold<int>(0, (sum, estudo) => sum + (estudo['qtosAcertos'] as int? ?? 0)) ?? 0}/${_estudos[_selectedDay]?.fold<int>(0, (sum, estudo) => sum + (estudo['metaExercicios'] as int? ?? 0)) ?? 1})',
-                  style: TextStyle(
-                    color: AppColors.white,
-                    fontSize: 16,
-                  ),
-                ),
               ],
             ),
           ),
-        ),
-      // Cards individuais
-      ..._estudos[_selectedDay]?.map((estudo) {
-        final qtosExercicios = estudo['qtosExercicios'] as int? ?? 0;
-        final metaExercicios = estudo['metaExercicios'] as int? ?? 0;
-        final qtosAcertos = estudo['qtosAcertos'] as int? ?? 0;
-        
-        return Card(
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          elevation: 4,
-          color: AppColors.black,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${estudo['materiaNome']}',
-                  style: TextStyle(
-                    color: AppColors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '${estudo['topicoNome']}',
-                  style: TextStyle(
-                    color: AppColors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Exercícios: ${qtosAcertos * 100 ~/ (metaExercicios == 0 ? 1 : metaExercicios)}% ($qtosExercicios/$metaExercicios)',
-                      style: TextStyle(
-                        color: AppColors.white,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Meta de Tempo: ${formatTime(estudo['qtoTempo'])}/${formatTime(estudo['metaTempo'])}',
-                      style: TextStyle(
-                        color: AppColors.white,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      }).toList() ?? [],
-      // Mensagem se não houver estudos
-      if (_estudos[_selectedDay] == null || _estudos[_selectedDay]!.isEmpty)
-        Text(
-          'Nenhum estudo para hoje',
-          style: TextStyle(color: AppColors.white, fontSize: 16),
-        ),
-    ],
-  ),
-),
           ElevatedButton(
             onPressed: () {
               setState(() {
