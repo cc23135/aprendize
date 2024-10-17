@@ -620,7 +620,6 @@ app.post('/api/getTarefasDoDia', async (req, res) => {
 });
 
 
-<<<<<<< HEAD
 app.post('/api/criarEstudo', async (req, res) => {
   const { idTarefa, idTopico, idUsuario, metaExercicios, metaTempo, qtosExercicios, qtosExerciciosAcertados, qtoTempo, dataEstudo } = req.body;
 
@@ -660,10 +659,6 @@ app.post('/api/criarEstudo', async (req, res) => {
 
 
 
-
-
-=======
->>>>>>> 1f1a6c3f7879e4e30e8c9861668f37af746a8299
 app.listen(port, () => {
   console.log(`Servidor rodando na porta ${port}`);
 });
