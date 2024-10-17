@@ -1,6 +1,7 @@
-import 'package:aprendize/loginPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'loginPage.dart';
 import 'home.dart';
 import 'statistics.dart';
 import 'ranking.dart';
@@ -21,9 +22,30 @@ void main() async {
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  Future<bool>? _loginStatusFuture; 
+
+  @override
+  void initState() {
+    super.initState();
+    _loginStatusFuture = _checkLoginStatus(); 
+  }
+
   Future<bool> _checkLoginStatus() async {
-    return User.isLoggedIn;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? username = prefs.getString('username');
+    String? senha = prefs.getString('senha');
+
+    if (username != null && senha != null && username.isNotEmpty && senha.isNotEmpty) {
+      return await LoginService().attemptLogin(username, senha);
+    }
+
+    return false; 
   }
 
   @override
@@ -76,12 +98,12 @@ class MyApp extends StatelessWidget {
             GlobalCupertinoLocalizations.delegate,
           ],
           home: FutureBuilder<bool>(
-            future: _checkLoginStatus(),
+            future: _loginStatusFuture, // Usa a variável armazenada
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               } else if (snapshot.hasData && snapshot.data == true) {
-                return MyHomePage();
+                return const MyHomePage();
               } else {
                 return const LoginPage();
               }
@@ -137,7 +159,7 @@ class _MyHomePageState extends State<MyHomePage> {
           decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(
-              color: AppColors.white.withOpacity(0.4),
+                color: AppColors.white.withOpacity(0.4),
                 spreadRadius: 0,
                 blurRadius: 4,
                 offset: const Offset(0, 1),
@@ -145,7 +167,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
           ),
           child: AppBar(
-           surfaceTintColor: Colors.transparent,
+            surfaceTintColor: Colors.transparent,
             scrolledUnderElevation: 0.0,
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -249,8 +271,4 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-}
-
-class User {
-  static bool isLoggedIn = false; 
 }

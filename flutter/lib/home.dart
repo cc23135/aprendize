@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:aprendize/colors.dart';
 import 'package:aprendize/main.dart';
 import 'package:http/http.dart' as http;
 import 'package:aprendize/AppStateSingleton.dart';
@@ -193,6 +192,7 @@ String minutosEmTexto(int minutos) {
   }
 
   Widget _buildStudyCard(int idTarefa, String title, int idTopico, String metaExercicios, String metaTempo) {
+
     return GestureDetector(
       onTap: (){
         Navigator.push(context, MaterialPageRoute(builder: (context) => PomodoroPage(
@@ -224,9 +224,5 @@ String minutosEmTexto(int minutos) {
       ),
     );
   }
-
-
-
-
 
 }

@@ -24,7 +24,6 @@ class _SignUpPageState extends State<SignUpPage> {
 
   double _tamUsername = 0;
   double _tamNome = 0;
-  double _tamSenha = 0;
   double _tamReqSenha = 0;
   double _tamConfirmarSenha = 0;
   bool _isLoading = false;
@@ -82,12 +81,12 @@ class _SignUpPageState extends State<SignUpPage> {
     if (_passwordController.text.isEmpty) {
       loginCorreto = false;
       setState(() {
-        _tamSenha = 15; // Mostrar mensagem de erro
+// Mostrar mensagem de erro
         _tamConfirmarSenha = 0;
       });
     } else {
       setState(() {
-        _tamSenha = 0; // Esconder mensagem de erro
+// Esconder mensagem de erro
       });
 
       if (!_validator.senhaValida(_passwordController.text)) {
@@ -168,7 +167,6 @@ class _SignUpPageState extends State<SignUpPage> {
 
   void _onPasswordChange(String text) {
     setState(() {
-      _tamSenha = text.isEmpty ? 15 : 0;
     });
   }
 
