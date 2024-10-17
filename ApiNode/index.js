@@ -447,8 +447,6 @@ app.post('/api/getTopicsFromGroups', async (req, res) => {
       },
     });
 
-    console.log(topics)
-
     res.json(topics); 
   } catch (error) {
     console.error('Error fetching topics:', error);
@@ -500,6 +498,7 @@ app.post('/api/getColecaoInfo', async (req, res) => {
       include: {
         Materia: {
           select: {
+            idMateria: true,
             nome: true,
             capa: true,
             Topico: {
@@ -517,6 +516,7 @@ app.post('/api/getColecaoInfo', async (req, res) => {
     }
 
     const materias = colecao.Materia.map(materia => ({
+      idMateria: materia.idMateria,
       nome: materia.nome,
       linkCapa: materia.capa,
       quantidadeTopicos: materia.Topico.length,
@@ -567,6 +567,45 @@ app.post('/api/criarTarefa', async (req, res) => {
 });
 
 
+app.post('/api/getMateriaInfo', async (req, res) => {
+  const { idMateria } = req.body.query; 
+
+  try {
+    const materia = await prisma.materia.findUnique({
+      where: {
+        idMateria: idMateria
+      },
+      include: {
+        Topico: { 
+          select: {
+            idTopico: true,
+            nome: true,
+            ordem: true
+          }
+        }
+      }
+    });
+
+    if (!materia) {
+      return res.status(404).json({ error: 'Matéria não encontrada' });
+    }
+
+    const response = {
+      idMateria: materia.idMateria,
+      nome: materia.nome,
+      linkCapa: materia.capa,
+      topicos: materia.Topico // Array de tópicos
+    };
+
+    res.json(response);
+    
+  } catch (error) {
+    console.error('Error fetching materia:', error);
+    res.status(500).json({ error: 'Erro ao buscar matéria' });
+  }
+});
+
+
 app.post('/api/getTarefasDoDia', async (req, res) => {
   const { username, dataTarefa } = req.body; 
 
@@ -575,9 +614,12 @@ app.post('/api/getTarefasDoDia', async (req, res) => {
   }
 
   try {
-    const usuario = await prisma.$queryRaw 
-    `SELECT * FROM Aprendize.usuario  WHERE username = ${username}
-    `;
+    // Buscando o idUsuario pelo username
+    const usuario = await prisma.usuario.findUnique({
+      where: {
+        username: username,
+      },
+    });
 
     if (!usuario) {
       return res.status(404).json({ error: 'Usuário não encontrado.' });
@@ -601,7 +643,7 @@ app.post('/api/getTarefasDoDia', async (req, res) => {
         Topico: {
           select: {
             nome: true, 
-            idTopico: true
+            idTopico: true,
           },
         },
       },
@@ -620,8 +662,21 @@ app.post('/api/getTarefasDoDia', async (req, res) => {
 });
 
 
+
+function converterMinutosParaIso(minutos) {
+  const dataBase = new Date('1970-01-01T00:00:00Z');
+  dataBase.setMinutes(minutos);
+  return dataBase.toISOString(); 
+}
+
+
 app.post('/api/criarEstudo', async (req, res) => {
-  const { idTarefa, idTopico, idUsuario, metaExercicios, metaTempo, qtosExercicios, qtosExerciciosAcertados, qtoTempo, dataEstudo } = req.body;
+  const { idTarefa, idTopico, username, metaExercicios, metaTempo, qtosExercicios, qtosExerciciosAcertados, qtoTempo, dataEstudo } = req.body;
+
+  const user = await prisma.usuario.findUnique({ where: { username } });
+  if (!user) {
+    return res.status(404).json({ error: 'Usuário não encontrado' });
+  }
 
   try {
     await prisma.$transaction(async (prisma) => {
@@ -631,16 +686,19 @@ app.post('/api/criarEstudo', async (req, res) => {
         },
       });
 
+      const formattedMetaTempo = converterMinutosParaIso(metaTempo);
+      const formattedQtoTempo = converterMinutosParaIso(qtoTempo);
+
       const novoEstudo = await prisma.estudo.create({
         data: {
           idTopico,
-          idUsuario,
+          idUsuario: user.idUsuario,
           metaExercicios,
-          metaTempo,
+          metaTempo: formattedMetaTempo,
           qtosExercicios,
           qtosExerciciosAcertados,
-          qtoTempo,
-          dataEstudo,
+          qtoTempo: formattedQtoTempo,
+          dataEstudo: new Date(dataEstudo),
         },
       });
 
@@ -653,6 +711,7 @@ app.post('/api/criarEstudo', async (req, res) => {
     res.status(500).json({ error: 'Erro ao criar estudo e deletar tarefa' });
   }
 });
+
 
 
 

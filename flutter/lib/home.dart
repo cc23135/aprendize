@@ -17,11 +17,12 @@ class _HomePageState extends State<HomePage> {
   List<dynamic> _tarefasDoDia = []; // Lista para armazenar as tarefas do dia
   int somatoriaTempo = 0;
   int somatoriaExercicios = 0;
+  String nomeUsuario = AppStateSingleton().nome;
 
   @override
   void initState() {
     super.initState();
-    //_fetchTarefasDoDia(); // Chama o método para pegar as tarefas do dia
+    _fetchTarefasDoDia(); // Chama o método para pegar as tarefas do dia
   }
 
   Future<void> _fetchTarefasDoDia() async {
@@ -93,17 +94,19 @@ String minutosEmTexto(int minutos) {
 
   @override
   Widget build(BuildContext context) {
+    _fetchTarefasDoDia();
     return Scaffold(
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            const Text(
-              'Bem-vindo, Usuário!',
+            Text(
+              'Olá, ${nomeUsuario}!',
               style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 20),
+
+            //const SizedBox(height: 20),
 
             // Row com cartões e botões
             Container(
@@ -112,61 +115,77 @@ String minutosEmTexto(int minutos) {
                 children: <Widget>[
                   Expanded(
                     flex: 2,
-                    child: Card(
-                      elevation: 4,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          const ListTile(
-                            title: Text('Resumo Diário'),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Text("Exercícios Restantes: "+somatoriaExercicios.toString()),
-                                const SizedBox(width: 10),
-                                Text("Tempo Restante: "+minutosEmTexto(somatoriaTempo))
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 20)
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Card(
-                      elevation: 4,
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => MyApp()),
-                          );
-                        },
-                        child: Container(
-                          height: 170,
-                          child: const Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Icon(Icons.timer, size: 50, color: Colors.green),
-                                SizedBox(height: 10),
-                                Text('Estudo Livre'),
-                              ],
-                            ),
+                    child: Center( // Centraliza o Card na tela
+                      child: Card(
+                        elevation: 4,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0), // Adiciona padding ao redor do Card
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              const ListTile(
+                                title: Text(
+                                  'Resumo Diário',
+                                  textAlign: TextAlign.center, // Centraliza o título
+                                ),
+                              ),
+                              const SizedBox(height: 8), // Espaço entre o título e o conteúdo
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Text(
+                                    "Exercícios Restantes: " + somatoriaExercicios.toString(),
+                                    textAlign: TextAlign.center, // Centraliza o texto
+                                  ),
+                                  const SizedBox(height: 5), // Espaço entre os textos
+                                  Text(
+                                    "Tempo Restante: " + minutosEmTexto(somatoriaTempo),
+                                    textAlign: TextAlign.center, // Centraliza o texto
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 20), // Espaço na parte inferior
+                            ],
                           ),
                         ),
                       ),
                     ),
                   ),
+                  // const SizedBox(width: 10),
+                  // Expanded(
+                  //   child: Card(
+                  //     elevation: 4,
+                  //     child: InkWell(
+                  //       onTap: () {
+                  //         Navigator.push(context, MaterialPageRoute(builder: (context) => PomodoroPage(
+                  //         metaTempo: 0,
+                  //         metaExercicios: 0,
+                  //         topicoNome: "title",
+                  //         idTopico: -1,
+                  //         idTarefa: -1,
+                  //         )));
+                  //       },
+                  //       child: Container(
+                  //         height: 170,
+                  //         child: const Center(
+                  //           child: Column(
+                  //             mainAxisAlignment: MainAxisAlignment.center,
+                  //             children: <Widget>[
+                  //               Icon(Icons.timer, size: 50, color: Colors.green),
+                  //               SizedBox(height: 10),
+                  //               Text('Estudo Livre'),
+                  //             ],
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
             ),
-            const SizedBox(height: 40),
+            //const SizedBox(height: 40),
 
             // Seção "Para Estudar"
             const Text(
@@ -179,7 +198,7 @@ String minutosEmTexto(int minutos) {
                   ? _tarefasDoDia.map<Widget>((tarefa) {
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 10),
-                        child: _buildStudyCard(1,tarefa["topicoNome"].toString(), tarefa["idTopico"], tarefa["metaExercicios"].toString(), tarefa["metaTempo"].toString()),
+                        child: _buildStudyCard(tarefa["idTarefa"],tarefa["topicoNome"].toString(), tarefa["idTopico"], tarefa["metaExercicios"].toString(), tarefa["metaTempo"].toString()),
                       );
                     }).toList()
                   : [const Text('Nenhuma tarefa encontrada para hoje.')],
@@ -200,7 +219,7 @@ String minutosEmTexto(int minutos) {
           metaExercicios: int.parse(metaExercicios),
           topicoNome: title,
           idTopico: idTopico,
-          idTarefa: 1,
+          idTarefa: idTarefa,
           )));
       },
       child: Card(

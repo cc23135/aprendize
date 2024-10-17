@@ -327,16 +327,7 @@ class _UserPageState extends State<UserPage> {
                           : _buildPasswordDisplayField(),
                     ],
                   ),
-
-                  const SizedBox(height: 5),
-                  Text(
-                    'Total de horas estudadas: 21',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: AppColors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 10),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(

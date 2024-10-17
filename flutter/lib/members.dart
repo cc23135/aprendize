@@ -48,7 +48,7 @@ class _MembersPageState extends State<MembersPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Membros do Grupo - ${widget.idColecao}'),
+        title: Text('Membros do Grupo'),
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator()) // Ícone de carregamento
