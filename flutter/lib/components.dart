@@ -1,4 +1,4 @@
-import 'package:aprendize/colecao.dart';
+import 'package:aprendize/colecaoInfo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'; // Para verificar a plataforma
 import 'package:image_picker/image_picker.dart';
@@ -135,6 +135,7 @@ class ImageService {
 
   Future<void> uploadImage(FormData formData, String username) async {
   try {
+    print(username);
     final url = '${AppStateSingleton().apiUrl}api/upload-image';
     formData.fields.add(MapEntry('username', username));
     
@@ -142,6 +143,7 @@ class ImageService {
     if (response.statusCode == 200) {
       AppStateSingleton().userProfileImageUrlNotifier.value =
           response.data['url'];
+          print(AppStateSingleton().userProfileImageUrlNotifier.value);
     } else {
       print('Falha ao enviar a imagem. Status code: ${response.statusCode}');
     }
@@ -186,7 +188,7 @@ class validations{
 
   void salvarDados(Map<String, dynamic> data) async { 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-
+    print(List<Map<String, dynamic>>.from(data['colecoes']));
     await prefs.setString('username', data['user']['username']);
     await prefs.setString('senha', data['user']['senha']);
   

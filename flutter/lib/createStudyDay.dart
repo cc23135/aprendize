@@ -171,7 +171,7 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                   );
                 }).toList(),
                 const SliverPadding(
-                  padding: EdgeInsets.symmetric(vertical: 16.0),
+                  padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 10),
                   sliver: SliverToBoxAdapter(
                     child: Text(
                       'Tópicos Selecionados',
@@ -186,6 +186,7 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                         final topicData = _selectedTopics[index];
 
                         return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
                           width: MediaQuery.of(context).size.width * 0.9, // 90% do container
                           margin: const EdgeInsets.only(bottom: 10),
                           child: Card(
@@ -294,7 +295,12 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                 ),
                 SliverToBoxAdapter(
                   child: Center(
-                    child: ElevatedButton(
+                    child: Column(
+                      children: [
+                    ElevatedButton(
+                       style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.darkPurple, // Cor de fundo
+                      ),
                       onPressed: () async {
                         if (_selectedTopics.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -306,22 +312,22 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                         }
 
                         final studyDayData = {
-  'idUsuario': AppStateSingleton().idUsuario, // Garantir que o idUsuario esteja correto
-  'data': DateFormat('yyyy-MM-dd').format(widget.selectedDay),
-  'subjects': _selectedTopics.map((topic) {
-    return {
-      'idTopico': topic.idTopico,
-      'exercicios': topic.exercises,
-      'tempoDeEstudo': topic.studyTime,
-    };
-  }).toList(),
-};
+                          'idUsuario': AppStateSingleton().idUsuario, // Garantir que o idUsuario esteja correto
+                          'data': DateFormat('yyyy-MM-dd').format(widget.selectedDay),
+                          'subjects': _selectedTopics.map((topic) {
+                            return {
+                              'idTopico': topic.idTopico,
+                              'exercicios': topic.exercises,
+                              'tempoDeEstudo': topic.studyTime,
+                            };
+                          }).toList(),
+                        };
 
-final response = await http.post(
-  Uri.parse('${AppStateSingleton().apiUrl}api/criarTarefa'),
-  headers: {'Content-Type': 'application/json'},
-  body: json.encode(studyDayData),
-);
+                      final response = await http.post(
+                        Uri.parse('${AppStateSingleton().apiUrl}api/criarTarefa'),
+                        headers: {'Content-Type': 'application/json'},
+                        body: json.encode(studyDayData),
+                      );
                         if (response.statusCode == 200) {
                           Navigator.pop(context);
                         } else {
@@ -334,9 +340,12 @@ final response = await http.post(
                       },
                       child: const Text('Salvar Dia de Estudos'),
                     ),
+                    SizedBox(height: 20,)
+                    ])
                   ),
                 ),
               ],
+              
             ),
     );
   }

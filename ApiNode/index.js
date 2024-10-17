@@ -482,8 +482,6 @@ app.post('/api/getTopicsFromGroups', async (req, res) => {
       },
     });
 
-    console.log(topics)
-
     res.json(topics); 
   } catch (error) {
     console.error('Error fetching topics:', error);
@@ -535,6 +533,7 @@ app.post('/api/getColecaoInfo', async (req, res) => {
       include: {
         Materia: {
           select: {
+            idMateria: true,
             nome: true,
             capa: true,
             Topico: {
@@ -552,6 +551,7 @@ app.post('/api/getColecaoInfo', async (req, res) => {
     }
 
     const materias = colecao.Materia.map(materia => ({
+      idMateria: materia.idMateria,
       nome: materia.nome,
       linkCapa: materia.capa,
       quantidadeTopicos: materia.Topico.length,
@@ -602,6 +602,45 @@ app.post('/api/criarTarefa', async (req, res) => {
 });
 
 
+app.post('/api/getMateriaInfo', async (req, res) => {
+  const { idMateria } = req.body.query; 
+
+  try {
+    const materia = await prisma.materia.findUnique({
+      where: {
+        idMateria: idMateria
+      },
+      include: {
+        Topico: { 
+          select: {
+            idTopico: true,
+            nome: true,
+            ordem: true
+          }
+        }
+      }
+    });
+
+    if (!materia) {
+      return res.status(404).json({ error: 'Matéria não encontrada' });
+    }
+
+    const response = {
+      idMateria: materia.idMateria,
+      nome: materia.nome,
+      linkCapa: materia.capa,
+      topicos: materia.Topico // Array de tópicos
+    };
+
+    res.json(response);
+    
+  } catch (error) {
+    console.error('Error fetching materia:', error);
+    res.status(500).json({ error: 'Erro ao buscar matéria' });
+  }
+});
+
+
 app.post('/api/getTarefasDoDia', async (req, res) => {
   const { username, dataTarefa } = req.body; 
 
@@ -610,37 +649,40 @@ app.post('/api/getTarefasDoDia', async (req, res) => {
   }
 
   try {
-    const usuario = await prisma.$queryRaw 
-    `SELECT * FROM Aprendize.usuario  WHERE username = ${username}
+    // Usando query raw para buscar o usuário
+    const usuario = await prisma.$queryRaw`
+      SELECT *
+      FROM Aprendize.Usuario
+      WHERE username = ${username}
     `;
 
-    if (!usuario) {
+    if (usuario.length === 0) {
       return res.status(404).json({ error: 'Usuário não encontrado.' });
     }
 
-    const idUsuario = usuario.idUsuario;
+    const idUsuario = usuario[0].idUsuario; // Acessa o primeiro (e único) usuário encontrado
     const data = new Date(dataTarefa);
 
     if (isNaN(data.getTime())) {
       return res.status(400).json({ error: 'dataTarefa deve ser uma data válida.' });
     }
-
     const tarefas = await prisma.tarefa.findMany({
       where: {
-        idUsuario: idUsuario,
+        idUsuario: idUsuario, // idUsuario obtido do usuário
         dataTarefa: {
-          equals: data,
+          equals: data, // dataTarefa recebida no corpo da requisição
         },
       },
       include: {
         Topico: {
           select: {
             nome: true, 
-            idTopico: true
+            idTopico: true,
           },
         },
       },
     });
+    
 
     const tarefasComTopicos = tarefas.map(tarefa => ({
       ...tarefa,
@@ -655,8 +697,44 @@ app.post('/api/getTarefasDoDia', async (req, res) => {
 });
 
 
+app.get('/api/getEstudos', async (req, res) => {
+  const { idUsuario } = req.query; 
+  try {
+    const estudos = await prisma.$queryRaw`
+      SELECT Aprendize.Estudo.*, Aprendize.Topico.nome AS topicoNome, Aprendize.Materia.nome AS materiaNome 
+      FROM Aprendize.Estudo
+      JOIN 
+        Aprendize.Topico ON Aprendize.Estudo.idTopico = Aprendize.Topico.idTopico
+      JOIN 
+        Aprendize.Materia ON Aprendize.Topico.idMateria = Aprendize.Materia.idMateria
+      WHERE 
+        Aprendize.Estudo.idUsuario = ${parseInt(idUsuario, 10)} 
+      ORDER BY Aprendize.Estudo.dataEstudo ASC
+    `;
+
+
+    res.status(200).json(estudos);
+  } catch (error) {
+    console.error('Erro ao buscar estudos:', error);
+    res.status(500).json({ error: 'Erro ao buscar estudos' });
+  }
+});
+
+
+function converterMinutosParaIso(minutos) {
+  const dataBase = new Date('1970-01-01T00:00:00Z');
+  dataBase.setMinutes(minutos);
+  return dataBase.toISOString(); 
+}
+
+
 app.post('/api/criarEstudo', async (req, res) => {
-  const { idTarefa, idTopico, idUsuario, metaExercicios, metaTempo, qtosExercicios, qtosExerciciosAcertados, qtoTempo, dataEstudo } = req.body;
+  const { idTarefa, idTopico, username, metaExercicios, metaTempo, qtosExercicios, qtosExerciciosAcertados, qtoTempo, dataEstudo } = req.body;
+
+  const user = await prisma.usuario.findUnique({ where: { username } });
+  if (!user) {
+    return res.status(404).json({ error: 'Usuário não encontrado' });
+  }
 
   try {
     await prisma.$transaction(async (prisma) => {
@@ -666,16 +744,19 @@ app.post('/api/criarEstudo', async (req, res) => {
         },
       });
 
+      const formattedMetaTempo = converterMinutosParaIso(metaTempo);
+      const formattedQtoTempo = converterMinutosParaIso(qtoTempo);
+
       const novoEstudo = await prisma.estudo.create({
         data: {
           idTopico,
-          idUsuario,
+          idUsuario: user.idUsuario,
           metaExercicios,
-          metaTempo,
+          metaTempo: formattedMetaTempo,
           qtosExercicios,
           qtosExerciciosAcertados,
-          qtoTempo,
-          dataEstudo,
+          qtoTempo: formattedQtoTempo,
+          dataEstudo: new Date(dataEstudo),
         },
       });
 
@@ -688,6 +769,7 @@ app.post('/api/criarEstudo', async (req, res) => {
     res.status(500).json({ error: 'Erro ao criar estudo e deletar tarefa' });
   }
 });
+
 
 
 

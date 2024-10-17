@@ -1,7 +1,9 @@
 import 'dart:convert';
-
+import 'dart:math';
 import 'package:aprendize/AppStateSingleton.dart';
 import 'package:aprendize/colors.dart';
+import 'package:aprendize/home.dart';
+import 'package:aprendize/main.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
@@ -68,15 +70,17 @@ class _PomodoroPageState extends State<PomodoroPage> {
 
 
   void FinalizarEstudo() async {
+    _stopTimer();
+
     final uri = Uri.parse('${AppStateSingleton().apiUrl}api/criarEstudo');
     final idTarefa = widget.idTarefa; 
     final idTopico = widget.idTopico;
-    //final idUsuario = AppStateSingleton().userId; 
+    final username = AppStateSingleton().username; 
     final metaExercicios = widget.metaExercicios;
     final metaTempo = widget.metaTempo;
     final qtosExercicios = _exerciciosFeitos;
     final qtosExerciciosAcertados = _exerciciosAcertados; 
-    final qtoTempo = 0; //fazer
+    final qtoTempo = ((_totalSeconds - _remainingSeconds) / 60).ceil();
     final dataEstudo = DateTime.now().toIso8601String();
 
     try {
@@ -86,7 +90,7 @@ class _PomodoroPageState extends State<PomodoroPage> {
         body: jsonEncode({
           'idTarefa': idTarefa,
           'idTopico': idTopico,
-          'idUsuario': 2,
+          'username': username,
           'metaExercicios': metaExercicios,
           'metaTempo': metaTempo,
           'qtosExercicios': qtosExercicios,
@@ -98,6 +102,7 @@ class _PomodoroPageState extends State<PomodoroPage> {
 
       if (response.statusCode == 201) {
         print('Estudo finalizado e tarefa deletada com sucesso');
+        Navigator.push(context, MaterialPageRoute(builder: (context) => MyApp()));
       } else {
         print('Falha ao finalizar estudo: ${response.statusCode}');
       }
