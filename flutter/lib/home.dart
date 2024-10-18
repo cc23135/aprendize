@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:aprendize/main.dart';
 import 'package:http/http.dart' as http;
 import 'package:aprendize/AppStateSingleton.dart';
 import 'package:flutter/material.dart';
@@ -94,7 +93,6 @@ String minutosEmTexto(int minutos) {
 
   @override
   Widget build(BuildContext context) {
-    _fetchTarefasDoDia();
     return Scaffold(
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),

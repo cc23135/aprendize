@@ -5,7 +5,6 @@ import 'package:aprendize/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'criarColecao.dart';
-import 'colecao.dart';
 
 class ColecaoPage extends StatefulWidget {
   const ColecaoPage({super.key});

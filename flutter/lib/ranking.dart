@@ -1,3 +1,4 @@
+import 'package:aprendize/AppStateSingleton.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -13,8 +14,8 @@ class _RankingPageState extends State<RankingPage> {
   List<UserRanking> rankings = [];
   bool isLoading = true;
   bool comBaseEmTempo = true; // Define se é baseado em tempo ou não
-  int selectedColecao = 1; // Inicialmente seleciona o índice 1 (ou outro valor padrão)
-  
+  int selectedColecao = 0;
+
   @override
   void initState() {
     super.initState();
@@ -25,15 +26,18 @@ class _RankingPageState extends State<RankingPage> {
     setState(() {
       isLoading = true;
     });
-    
+
     try {
-      final response = await http.get(Uri.parse(
-          'http://localhost:6060/api/rankingUsers?idColecao=$selectedColecao&comBaseEmTempo=$comBaseEmTempo'));
+      final response = await http.get(Uri.parse(AppStateSingleton().apiUrl +
+          'api/rankingUsers?idColecao=$selectedColecao&comBaseEmTempo=$comBaseEmTempo'));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
+        print('veio');
         setState(() {
-          rankings = data.map((item) => UserRanking.fromJson(item)).toList();
+          rankings = data
+              .map((item) => UserRanking.fromJson(item, comBaseEmTempo))
+              .toList();
           isLoading = false;
         });
       } else {
@@ -50,6 +54,7 @@ class _RankingPageState extends State<RankingPage> {
   void _onDropdownChanged(int? newValue) {
     setState(() {
       selectedColecao = newValue ?? 1;
+      _fetchRanking(); // Atualiza o ranking ao mudar a coleção
     });
   }
 
@@ -62,6 +67,9 @@ class _RankingPageState extends State<RankingPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Obtendo as coleções do AppStateSingleton
+    final collections = AppStateSingleton().collections;
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -76,16 +84,21 @@ class _RankingPageState extends State<RankingPage> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  //child: const Text('Botão 1'),
                 ),
-                items: List.generate(
-                  20,
-                  (index) => DropdownMenuItem<int>(
-                    value: index + 1,
-                    child: Text('Opção ${index + 1}'),
+                items: [
+                  DropdownMenuItem<int>(
+                    value: 0, // Valor para "Todos"
+                    child: const Text('Todos'),
                   ),
-                  //child: const Text('Botão 2'),
-                ),
+                  ...List.generate(
+                    collections.length,
+                    (index) => DropdownMenuItem<int>(
+                      value: index + 1, // Ajuste o valor conforme a coleção
+                      child: Text(collections[index][
+                          'nome']), // Supondo que 'nome' é a chave para o nome da coleção
+                    ),
+                  ),
+                ],
                 onChanged: _onDropdownChanged,
                 isExpanded: true,
               ),
@@ -111,37 +124,51 @@ class _RankingPageState extends State<RankingPage> {
               ],
             ),
             const SizedBox(height: 20),
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300, width: 2),
-                  borderRadius: BorderRadius.circular(8),
+Expanded(
+  child: Container(
+    decoration: BoxDecoration(
+      border: Border.all(color: Colors.grey.shade300, width: 2),
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : ListView.builder(
+            itemCount: rankings.length,
+            itemBuilder: (context, index) {
+              final user = rankings[index];
+
+              // Define a cor de fundo com base na posição
+              Color backgroundColor;
+              if (index == 0) {
+                backgroundColor = Colors.amber.withOpacity(0.3); // Dourado
+              } else if (index == 1) {
+                backgroundColor = Colors.grey.withOpacity(0.3); // Prata
+              } else if (index == 2) {
+                backgroundColor = Colors.brown.withOpacity(0.3); // Bronze
+              } else {
+                backgroundColor = Colors.transparent; // Fundo padrão
+              }
+
+              return Container(
+                color: backgroundColor, // Aplica a cor de fundo
+                child: ListTile(
+                  contentPadding: const EdgeInsets.all(16),
+                  leading: CircleAvatar(
+                    backgroundImage: NetworkImage(user.profilePicture),
+                  ),
+                  title: Text(user.name),
+                  subtitle: comBaseEmTempo
+                      ? Text('${(user.qtoTempo / 3600).toStringAsFixed(0)} horas estudadas')
+                      : Text('${user.qtosExercicios} exercícios feitos'),
+                  trailing: Text('#${index + 1}'), // Usando o índice como posição
+                  isThreeLine: false,
                 ),
-                child: isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : ListView.builder(
-                        itemCount: rankings.length,
-                        itemBuilder: (context, index) {
-                          final user = rankings[index];
-                          return Container(
-                            color: user.isMainUser
-                                ? Colors.blue.withOpacity(0.1)
-                                : null,
-                            child: ListTile(
-                              contentPadding: const EdgeInsets.all(16),
-                              leading: CircleAvatar(
-                                backgroundImage: NetworkImage(user.profilePicture),
-                              ),
-                              title: Text(user.name),
-                              subtitle: Text('${user.points} pontos'),
-                              trailing: Text('#${user.position}'),
-                              isThreeLine: false,
-                            ),
-                          );
-                        },
-                      ),
-              ),
-            ),
+              );
+            },
+          ),
+  ),
+),
+
           ],
         ),
       ),
@@ -151,37 +178,23 @@ class _RankingPageState extends State<RankingPage> {
 
 class UserRanking {
   UserRanking({
-    required this.position,
     required this.name,
-    required this.points,
+    required this.qtoTempo,
+    required this.qtosExercicios,
     required this.profilePicture,
-    this.isMainUser = false,
   });
 
-  final int position;
   final String name;
-  final int points;
+  final int qtoTempo;
+  final int qtosExercicios;
   final String profilePicture;
-  final bool isMainUser;
 
-  factory UserRanking.fromJson(Map<String, dynamic> json) {
-    // Convert qtoTempo para um valor numérico de pontos, se necessário
-    final qtoTempo = json['qtoTempo'] is String
-        ? _parseTempoToPoints(json['qtoTempo'])
-        : 0;
-
+  factory UserRanking.fromJson(Map<String, dynamic> json, bool comBaseEmTempo) {
     return UserRanking(
-      position: json['position'],
       name: json['user']['nome'],
-      points: qtoTempo > 0 ? qtoTempo : json['qtosExercicios'],
+      qtoTempo: json['qtoTempo'],
+      qtosExercicios: json['qtosExercicios'],
       profilePicture: json['user']['linkFotoDePerfil'],
-      isMainUser: json['idUsuario'] == 1, // Supondo que o usuário com ID 1 é o principal
     );
-  }
-
-  static int _parseTempoToPoints(String tempo) {
-    // Lógica para converter a string de tempo em pontos
-    // Isso deve ser ajustado conforme a lógica de negócios real
-    return 0; // Ajuste isso conforme necessário
   }
 }

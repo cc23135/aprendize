@@ -135,7 +135,6 @@ class ImageService {
 
   Future<void> uploadImage(FormData formData, String username) async {
   try {
-    print(username);
     final url = '${AppStateSingleton().apiUrl}api/upload-image';
     formData.fields.add(MapEntry('username', username));
     
@@ -188,7 +187,6 @@ class validations{
 
   void salvarDados(Map<String, dynamic> data) async { 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    print(List<Map<String, dynamic>>.from(data['colecoes']));
     await prefs.setString('username', data['user']['username']);
     await prefs.setString('senha', data['user']['senha']);
   

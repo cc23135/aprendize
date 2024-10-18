@@ -1,8 +1,6 @@
 import 'dart:convert';
-import 'dart:math';
 import 'package:aprendize/AppStateSingleton.dart';
 import 'package:aprendize/colors.dart';
-import 'package:aprendize/home.dart';
 import 'package:aprendize/main.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';

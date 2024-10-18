@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert'; // Para converter a resposta JSON
+import 'dart:convert';
 import 'colors.dart';
-import 'createStudyDay.dart'; // Importe a CreateStudyDayPage
+import 'createStudyDay.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class CalendarPage extends StatefulWidget {
   const CalendarPage({super.key});
@@ -15,10 +16,9 @@ class CalendarPage extends StatefulWidget {
 }
 
 class _CalendarPageState extends State<CalendarPage> {
-  DateTime _selectedDay = DateTime.now();
+  DateTime _selectedDay =  DateTime.now().toUtc().copyWith(hour: 0, minute: 0, second: 0, millisecond: 0, microsecond: 0);
   DateTime _focusedDay = DateTime.now();
 
-  // Armazena os estudos carregados
   Map<DateTime, List<dynamic>> _estudos = {};
 
   @override
@@ -86,18 +86,18 @@ class _CalendarPageState extends State<CalendarPage> {
     String iconUrl;
 
     if (porcentagemExercicios >= 1 && porcentagemTempo >= 1) {
-      iconUrl = 'assets/images/CarinhaFeliz.png'; // Carinha feliz
+      iconUrl = 'assets/images/CarinhaFeliz.svg'; // Carinha feliz
     } else if ((porcentagemExercicios >= 0.5 && porcentagemExercicios < 1) ||
         (porcentagemTempo >= 0.5 && porcentagemTempo < 1)) {
-      iconUrl = 'assets/images/CarinhaMedia.png'; // Carinha média
+      iconUrl = 'assets/images/CarinhaMedia.svg'; // Carinha média
     } else {
-      iconUrl = 'assets/images/CarinhaTriste.png'; // Carinha triste
+      iconUrl = 'assets/images/CarinhaTriste.svg'; // Carinha triste
     }
 
     return Container(
       padding:
           const EdgeInsets.all(4), // Adiciona espaçamento ao redor do ícone
-      child: Image.asset(
+      child: SvgPicture.asset(
         iconUrl,
         width: 20,
         height: 20,
@@ -220,16 +220,23 @@ class _CalendarPageState extends State<CalendarPage> {
                     child: _getIconForDay(date),
                   );
                 }
-                return Container(); // Retorna um Container vazio se não houver eventos
+                return Container(); 
               },
             ),
           ),
-          const SizedBox(height: 20),
+         ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _selectedDay = DateTime.now().toUtc().copyWith(hour: 0, minute: 0, second: 0, millisecond: 0, microsecond: 0);
+                _focusedDay = DateTime.now();
+              });
+            },
+            child: const Text('Voltar ao Hoje'),
+          ),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                // Verifica se há estudos para o dia selecionado antes de mostrar o card geral
                 if (_estudos[_selectedDay]?.isNotEmpty ?? false)
                   Card(
                     margin: const EdgeInsets.symmetric(vertical: 8),
@@ -265,7 +272,7 @@ class _CalendarPageState extends State<CalendarPage> {
                             ),
                           ),
                           Text(
-                            'Porcentagem de Acertos: ${(_estudos[_selectedDay]?.fold<int>(0, (sum, estudo) => sum + (estudo['qtosExerciciosAcertados'] as int? ?? 0)) ?? 0 * 100 / (_estudos[_selectedDay]?.fold<int>(0, (sum, estudo) => sum + (estudo['metaExercicios'] as int? ?? 0)) ?? 1))}% (${_estudos[_selectedDay]?.fold<int>(0, (sum, estudo) => sum + (estudo['qtosExerciciosAcertados'] as int? ?? 0)) ?? 0}/${_estudos[_selectedDay]?.fold<int>(0, (sum, estudo) => sum + (estudo['metaExercicios'] as int? ?? 0)) ?? 1})',
+                            'Porcentagem de Acertos: ${((_estudos[_selectedDay]?.fold<int>(0, (sum, estudo) => sum + (estudo['qtosExerciciosAcertados'] as int? ?? 0)) ?? 0) * 100 / (_estudos[_selectedDay]?.fold<int>(0, (sum, estudo) => sum + (estudo['qtosExercicios'] as int? ?? 0)) ?? 1)).toStringAsFixed(1)}% (${_estudos[_selectedDay]?.fold<int>(0, (sum, estudo) => sum + (estudo['qtosExerciciosAcertados'] as int? ?? 0)) ?? 0}/${_estudos[_selectedDay]?.fold<int>(0, (sum, estudo) => sum + (estudo['qtosExercicios'] as int? ?? 0)) ?? 1})',
                             style: TextStyle(
                               color: AppColors.white,
                               fontSize: 16,
@@ -281,7 +288,8 @@ class _CalendarPageState extends State<CalendarPage> {
                           estudo['qtosExercicios'] as int? ?? 0;
                       final metaExercicios =
                           estudo['metaExercicios'] as int? ?? 0;
-                      final qtosAcertos = estudo['qtosExerciciosAcertados'] as int? ?? 0;
+                      final qtosAcertos =
+                          estudo['qtosExerciciosAcertados'] as int? ?? 0;
 
                       return Card(
                         margin: const EdgeInsets.symmetric(vertical: 8),
@@ -315,7 +323,7 @@ class _CalendarPageState extends State<CalendarPage> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    'Exercícios: ${qtosExercicios * 100 ~/ (metaExercicios == 0 ? 1 : metaExercicios)}% ($qtosExercicios/$metaExercicios)',
+                                    'Exercícios: $qtosExercicios/$metaExercicios',
                                     style: TextStyle(
                                       color: AppColors.white,
                                       fontSize: 16,
@@ -357,7 +365,6 @@ class _CalendarPageState extends State<CalendarPage> {
                       );
                     }).toList() ??
                     [],
-                // Mensagem se não houver estudos
                 if (_estudos[_selectedDay] == null ||
                     _estudos[_selectedDay]!.isEmpty)
                   Text(
@@ -366,15 +373,6 @@ class _CalendarPageState extends State<CalendarPage> {
                   ),
               ],
             ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              setState(() {
-                _selectedDay = DateTime.now();
-                _focusedDay = DateTime.now();
-              });
-            },
-            child: const Text('Voltar ao Hoje'),
           ),
         ],
       ),
