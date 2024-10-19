@@ -443,24 +443,8 @@ app.get('/api/rankingUsers', async (req, res) => {
 
 function parseTimeToSeconds(time) {
   if (!time) return 0;
-
-  // Verifica se a entrada é um objeto Date
-  if (typeof time === 'object') {
-    const hours = time.getHours()-21;
-    const minutes = time.getMinutes();
-    const seconds = time.getSeconds();
-    return (hours * 3600) + (minutes * 60) + seconds; // Converte tudo para segundos
-  }
-
-  // Remove os milissegundos, se houver
-  const timeWithoutMilliseconds = time.split('.')[0];
-
-  const parts = timeWithoutMilliseconds.split(':');
-  if (parts.length !== 3) return 0;
-  const hours = parseInt(parts[0], 10) || 0;
-  const minutes = parseInt(parts[1], 10) || 0;
-  const seconds = parseInt(parts[2], 10) || 0;
-  return (hours * 3600) + (minutes * 60) + seconds;
+  
+  return Math.floor(new Date(time).getTime() / 1000);
 }
 
 
