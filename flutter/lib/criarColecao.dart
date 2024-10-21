@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:aprendize/AppStateSingleton.dart';
-import 'package:aprendize/colecaoInfo.dart';
+import 'package:aprendize/colecao.dart';
 import 'package:aprendize/components.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
