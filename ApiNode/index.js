@@ -266,7 +266,8 @@ app.get('/api/login', async (req, res) => {
   try {
     const { username, senha } = req.query;
 
-
+    console.log(username + " " + senha)
+    
     if (!username || !senha) {
       return res.json({ success: false, message: 'Nome de usuário e senha são obrigatórios.' });
     }
@@ -775,6 +776,99 @@ app.post('/api/criarEstudo', async (req, res) => {
     res.status(500).json({ error: 'Erro ao criar estudo e deletar tarefa' });
   }
 });
+
+
+app.post('/api/entrarEmUmaColecao', async (req, res) => {
+  const { username, idColecao } = req.body;
+
+  const user = await prisma.usuario.findUnique({ where: { username } });
+  if (!user) {
+    return res.status(404).json({ error: 'Usuário não encontrado' });
+  }
+
+  try {
+    const novaConexao = await prisma.usuarioColecao.create({
+      data: {
+        idUsuario: user.idUsuario,
+        idColecao,
+        cargo: "1"
+      },
+    });
+
+    res.status(201).json({ success: true, message: 'Usuário entrou na coleção com sucesso', data: novaConexao });
+    
+  } catch (error) {
+    console.error('Error fetching:', error);
+    res.status(500).json({ error: 'Erro' });
+  }
+});
+
+
+
+
+
+app.post('/api/sairDeUmaColecao', async (req, res) => {
+  const { username, idColecao } = req.body;
+
+  const user = await prisma.usuario.findUnique({ where: { username } });
+  if (!user) {
+    return res.status(404).json({ error: 'Usuário não encontrado' });
+  }
+
+  try {
+    const usuarioColecao = await prisma.usuarioColecao.findFirst({
+      where: {
+        idUsuario: user.idUsuario,
+        idColecao: idColecao,
+      },
+    });
+
+    if (!usuarioColecao) {
+      return res.status(404).json({ error: 'Associação não encontrada' });
+    }
+
+    await prisma.usuarioColecao.delete({
+      where: {
+        idUsuarioColecao: usuarioColecao.idUsuarioColecao,
+      },
+    });
+
+    res.status(200).json({ success: true, message: 'Usuário saiu da coleção com sucesso' });
+    
+  } catch (error) {
+    console.error('Error fetching:', error);
+    res.status(500).json({ error: 'Erro ao sair da coleção' });
+  }
+});
+
+
+
+
+
+app.post('/api/ehDeUmaColecao', async (req, res) => {
+  const { username, idColecao } = req.body;
+
+  const user = await prisma.usuario.findUnique({ where: { username } });
+  if (!user) {
+    return res.status(404).json({ error: 'Usuário não encontrado' });
+  }
+
+  try {
+    const pertenceColecao = await prisma.usuarioColecao.findFirst({
+      where: {
+        idUsuario: user.idUsuario,
+        idColecao,
+      },
+    });
+
+    res.json({ success: true, pertence: !!pertenceColecao });
+    
+  } catch (error) {
+    console.error('Error fetching:', error);
+    res.status(500).json({ error: 'Erro ao verificar associação com a coleção' });
+  }
+});
+
 
 
 

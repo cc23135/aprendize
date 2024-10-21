@@ -5,7 +5,7 @@ import 'loginPage.dart';
 import 'home.dart';
 import 'statistics.dart';
 import 'ranking.dart';
-import 'colecao.dart';
+import 'todasColecoes.dart';
 import 'calendar.dart';
 import 'notifications.dart';
 import 'user.dart';

@@ -44,7 +44,8 @@ class LoginPageState extends State<LoginPage> {
 
   double _tamUsername = 0;
   double _tamSenha = 0;
-  bool _isLoading = false; // Variável para gerenciar o estado de carregamento
+  bool _isLoading = false; 
+  bool success = false;
 
   Future<void> handleLogin() async {
     final username = _usernameController.text;
@@ -62,24 +63,31 @@ class LoginPageState extends State<LoginPage> {
       _isLoading = true;
     });
 
-    bool success = await LoginService().attemptLogin(username, senha);
+    print(username + " " + senha);
 
-    if (success) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const MyHomePage()),
-      );
-    } else {
+    try{
+      success = await LoginService().attemptLogin(username, senha);
+      if (success) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const MyHomePage()),
+        );
+      } else {
+        setState(() {
+          _tamUsername = 0;
+          _tamSenha = 0;
+          _showSnackBar(
+              'Nome de usuário ou senha inválidos'); // Exibe o SnackBar diretamente no LoginPageState
+        });
+      }
+
       setState(() {
-        _tamUsername = 0;
-        _tamSenha = 0;
-        _showSnackBar(
-            'Nome de usuário ou senha inválidos'); // Exibe o SnackBar diretamente no LoginPageState
+        _isLoading = false; // Termina o carregamento
       });
-    }
 
-    setState(() {
-      _isLoading = false; // Termina o carregamento
-    });
+    }catch(e){
+      print(e);
+    }
+    
   }
 
   void _showSnackBar(String message) {

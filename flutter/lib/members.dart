@@ -76,38 +76,6 @@ class _MembersPageState extends State<MembersPage> {
               : AssetImage('assets/images/mona.png') as ImageProvider,
         ),
         title: Text(name),
-        trailing: PopupMenuButton<String>(
-          onSelected: (value) {
-            // Lógica para cada opção do menu
-            switch (value) {
-              case 'Banir':
-                // Implementar ação para banir
-                break;
-              case 'Promover':
-                // Implementar ação para promover
-                break;
-              case 'Cancelar':
-                // Implementar ação para cancelar
-                break;
-            }
-          },
-          itemBuilder: (BuildContext context) {
-            return [
-              const PopupMenuItem<String>(
-                value: 'Banir',
-                child: Text('Banir'),
-              ),
-              const PopupMenuItem<String>(
-                value: 'Promover',
-                child: Text('Promover a Administrador'),
-              ),
-              const PopupMenuItem<String>(
-                value: 'Cancelar',
-                child: Text('Cancelar'),
-              ),
-            ];
-          },
-        ),
       ),
     );
   }
