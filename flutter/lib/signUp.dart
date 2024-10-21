@@ -35,7 +35,7 @@ class _SignUpPageState extends State<SignUpPage> {
   Future<void> _pickImage() async {
     _toggleLoadingState(true);
     await _imageService.pickImage((formData) async {
-      await _imageService.uploadImage(formData, "");
+      await _imageService.uploadImage(formData, "", true);
       _toggleLoadingState(false);
     });
   }

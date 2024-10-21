@@ -622,7 +622,6 @@ app.post('/api/getMateriaInfo', async (req, res) => {
           select: {
             idTopico: true,
             nome: true,
-            ordem: true
           }
         }
       }
@@ -733,6 +732,57 @@ function converterMinutosParaIso(minutos) {
   dataBase.setMinutes(minutos);
   return dataBase.toISOString(); 
 }
+
+
+app.post('/api/createCollection', async (req, res) => {
+  const { nome, descricao, linkImagem, idCriador, dataCriacao, materias } = req.body;
+
+  try {
+    const novaColecao = await prisma.colecao.create({
+      data: {
+        nome,
+        descricao,
+        linkImagem,
+        idCriador,
+        dataCriacao,
+        UsuarioColecao: {
+          create: {
+            idUsuario: idCriador,
+            cargo: '2', // adm
+          },
+        },
+      },
+    });
+
+    const materiasPromises = materias.map(async (materia) => {
+      const novaMateria = await prisma.materia.create({
+        data: {
+          nome: materia.nome,
+          capa: materia.capa,
+          idColecao: novaColecao.idColecao, 
+        },
+      });
+
+      const topicosPromises = materia.topicos.map((topico) => {
+        return prisma.topico.create({
+          data: {
+            nome: topico.nome,
+            idMateria: novaMateria.idMateria, 
+          },
+        });
+      });
+
+      await Promise.all(topicosPromises); 
+    });
+
+    await Promise.all(materiasPromises); 
+
+    res.status(200).json({ idColecao: novaColecao.idColecao });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro ao criar a coleção' });
+  } 
+});
 
 
 app.post('/api/criarEstudo', async (req, res) => {

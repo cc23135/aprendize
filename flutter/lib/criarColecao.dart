@@ -1,4 +1,10 @@
+import 'dart:convert';
+
+import 'package:aprendize/AppStateSingleton.dart';
+import 'package:aprendize/colecaoInfo.dart';
+import 'package:aprendize/components.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'colors.dart';
 
 class CriarColecaoPage extends StatefulWidget {
@@ -7,13 +13,18 @@ class CriarColecaoPage extends StatefulWidget {
 }
 
 class _CriarColecaoPageState extends State<CriarColecaoPage> {
+  final ImageService _imageService = ImageService();
+
   final TextEditingController _nomeController = TextEditingController();
   final TextEditingController _descricaoController = TextEditingController();
   List<Materia> _materias = [];
 
+  String _imageUrl = ''; // Armazena a URL da imagem carregada
+  bool _isLoadingImage = false; // Controla o estado de carregamento da imagem
+
   void _adicionarMateria() {
     setState(() {
-      _materias.add(Materia(titulo: '', subtitulos: []));
+      _materias.add(Materia(titulo: '', subtitulos: [], imageUrl: ''));
     });
   }
 
@@ -23,8 +34,66 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
     });
   }
 
-  void _selecionarImagem() {
-    // Lógica para abrir diálogo de seleção de imagem
+  Future<void> _selecionarImagem() async {
+    setState(() {
+      _isLoadingImage = true;
+    });
+
+    await _imageService.pickImage((formData) async {
+      final uploadedImageUrl =
+          await _imageService.uploadImage(formData, "", false);
+      setState(() {
+        _imageUrl = uploadedImageUrl!;
+        _isLoadingImage = false;
+      });
+    });
+  }
+
+  Future<void> _selecionarImagemMateria(int index) async {
+    setState(() {
+      _materias[index].isLoadingImage = true;
+    });
+
+    await _imageService.pickImage((formData) async {
+      final uploadedImageUrl =
+          await _imageService.uploadImage(formData, "", false);
+      setState(() {
+        _materias[index].imageUrl = uploadedImageUrl!;
+        _materias[index].isLoadingImage = false;
+      });
+    });
+  }
+
+  bool _validarCampos() {
+    if (_nomeController.text.isEmpty) {
+      _mostrarErro('O nome da coleção não pode estar vazio.');
+      return false;
+    }
+
+    for (int i = 0; i < _materias.length; i++) {
+      if (_materias[i].titulo.isEmpty) {
+        _mostrarErro('O nome da matéria na posição ${i + 1} está vazio.');
+        return false;
+      }
+
+      for (int j = 0; j < _materias[i].subtitulos.length; j++) {
+        if (_materias[i].subtitulos[j].isEmpty) {
+          _mostrarErro('Um tópico na matéria ${i + 1} está vazio.');
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+
+  void _mostrarErro(String mensagem) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(mensagem, style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
 
   @override
@@ -40,7 +109,7 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            // Card para adicionar imagem
+            // Card para adicionar imagem da coleção
             GestureDetector(
               onTap: _selecionarImagem,
               child: Card(
@@ -51,7 +120,18 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
                 child: Container(
                   height: 150,
                   width: double.infinity,
-                  child: Icon(Icons.add_a_photo, color: AppColors.white),
+                  child: _isLoadingImage
+                      ? Center(
+                          child:
+                              CircularProgressIndicator(color: AppColors.white))
+                      : _imageUrl.isNotEmpty
+                          ? Image.network(
+                              _imageUrl,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              height: 150,
+                            )
+                          : Icon(Icons.add_a_photo, color: AppColors.white),
                 ),
               ),
             ),
@@ -123,7 +203,48 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          // Título da matéria
+                          // Seletor de imagem para matéria
+                          GestureDetector(
+                            onTap: () => _selecionarImagemMateria(index),
+                            child: Container(
+                              height: 100,
+                              width:
+                                  double.infinity, // Tamanho total do container
+                              decoration: BoxDecoration(
+                                color: AppColors.lightBlackForFooter,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: AppColors.lightPurple
+                                      .withOpacity(0.5), // Borda do retângulo
+                                  width: 2,
+                                ),
+                                image: materia.imageUrl.isNotEmpty
+                                    ? DecorationImage(
+                                        image: NetworkImage(materia.imageUrl),
+                                        fit: BoxFit.cover,
+                                      )
+                                    : null,
+                              ),
+                              child: materia.imageUrl.isEmpty &&
+                                      !materia.isLoadingImage
+                                  ? Center(
+                                      child: Icon(
+                                        Icons.add_a_photo,
+                                        color: AppColors.white.withOpacity(
+                                            0.6), // Ícone quando não há imagem
+                                        size: 40,
+                                      ),
+                                    )
+                                  : materia.isLoadingImage
+                                      ? Center(
+                                          child: CircularProgressIndicator(
+                                            color: AppColors.white,
+                                          ),
+                                        )
+                                      : null,
+                            ),
+                          ),
+
                           TextField(
                             onChanged: (value) {
                               setState(() {
@@ -153,22 +274,23 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
                                   onChanged: (value) {
                                     setState(() {
                                       _materias[index]
-                                              .subtitulos[subtituloIndex] =
-                                          value;
+                                          .subtitulos[subtituloIndex] = value;
                                     });
                                   },
                                   style: TextStyle(
                                     color: AppColors.lightPurple,
                                   ),
                                   decoration: InputDecoration(
-                                    hintText: 'Subtítulo',
+                                    hintText: 'Tópico',
                                     hintStyle: TextStyle(
-                                      color: AppColors.lightPurple.withOpacity(0.7),
+                                      color: AppColors.lightPurple
+                                          .withOpacity(0.7),
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(16),
                                       borderSide: BorderSide(
-                                          color: AppColors.lightPurple.withOpacity(0.5)),
+                                          color: AppColors.lightPurple
+                                              .withOpacity(0.5)),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(16),
@@ -188,7 +310,9 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
                             child: TextButton.icon(
                               onPressed: () => _adicionarSubtitulo(index),
                               icon: Icon(Icons.add, color: AppColors.white),
-                              label: Text('Adicionar Subtítulo', style: TextStyle(color: AppColors.white)),
+                              label: Text(
+                                  'Adicionar tópico em ordem de dependência',
+                                  style: TextStyle(color: AppColors.white)),
                               style: TextButton.styleFrom(
                                 backgroundColor: AppColors.lightBlackForFooter,
                                 shape: RoundedRectangleBorder(
@@ -211,7 +335,8 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
               child: TextButton.icon(
                 onPressed: _adicionarMateria,
                 icon: Icon(Icons.add, color: AppColors.white),
-                label: Text('Adicionar Matéria', style: TextStyle(color: AppColors.white)),
+                label: Text('Adicionar Matéria',
+                    style: TextStyle(color: AppColors.white)),
                 style: TextButton.styleFrom(
                   backgroundColor: AppColors.lightBlackForFooter,
                   shape: RoundedRectangleBorder(
@@ -225,20 +350,72 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
             // Botão para criar a coleção
             Center(
               child: ElevatedButton(
-                onPressed: () {
-                  // Lógica para criar coleção
+                onPressed: () async {
+                  if (_validarCampos()) {
+                    final collectionData = {
+                      'nome': _nomeController.text,
+                      'descricao': _descricaoController.text,
+                      'linkImagem': _imageUrl,
+                      'idCriador': AppStateSingleton().idUsuario,
+                      'dataCriacao': DateTime.now().toUtc().toIso8601String(),
+                      'materias': _materias.map((materia) {
+                        return {
+                          'nome': materia.titulo,
+                          'capa': materia.imageUrl,
+                          'topicos': materia.subtitulos
+                              .map((subtitulo) => {
+                                    'nome': subtitulo,
+                                  })
+                              .toList(),
+                        };
+                      }).toList(),
+                    };
+                    try {
+                      final response = await http.post(
+                        Uri.parse(
+                            '${AppStateSingleton().apiUrl}api/createCollection'),
+                        headers: {'Content-Type': 'application/json'},
+                        body: jsonEncode(collectionData),
+                      );
+
+                      if (response.statusCode == 200) {
+                        final data = jsonDecode(response.body);
+                        final idColecao = data['idColecao']; 
+                        print('-----------');
+                        print(idColecao);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChatDetailsPage(
+                              idColecao: idColecao,
+                            ),
+                          ),
+                        );
+                      } else {
+                        // Erro ao criar a coleção
+                        // Adicione lógica para lidar com o erro
+                      }
+                    } catch (e) {
+                      // Lidar com exceções, como problemas de rede
+                    }
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.lightPurple,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 16,
+                      horizontal: 32), // Ajuste o padding conforme necessário
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(16), // Formato do botão
                   ),
                 ),
                 child: Text(
                   'Criar Coleção',
-                  style: TextStyle(color: AppColors.white, fontSize: 18),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.white,
+                  ),
                 ),
               ),
             ),
@@ -249,10 +426,15 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
   }
 }
 
-// Modelo para representar uma matéria
 class Materia {
   String titulo;
   List<String> subtitulos;
+  String imageUrl;
+  bool isLoadingImage;
 
-  Materia({required this.titulo, required this.subtitulos});
+  Materia(
+      {required this.titulo,
+      required this.subtitulos,
+      required this.imageUrl,
+      this.isLoadingImage = false});
 }
