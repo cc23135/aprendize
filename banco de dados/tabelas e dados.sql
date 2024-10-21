@@ -28,7 +28,6 @@ CREATE TABLE Aprendize.Materia (
 CREATE TABLE Aprendize.Topico (
     idTopico INT IDENTITY(1,1) PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
-    ordem INT NOT NULL,
     idMateria INT FOREIGN KEY REFERENCES Aprendize.Materia(idMateria) NOT NULL
 );
 

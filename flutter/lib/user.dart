@@ -56,7 +56,7 @@ class _UserPageState extends State<UserPage> {
     if (image != null) {
       _toggleLoadingState(true);
       final formData = await _imageService.prepareFormData(image);
-      await _imageService.uploadImage(formData, AppStateSingleton().username);
+      await _imageService.uploadImage(formData, AppStateSingleton().username, true);
       _toggleLoadingState(false);
     }
   }

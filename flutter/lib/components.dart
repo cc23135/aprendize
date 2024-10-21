@@ -133,16 +133,19 @@ class ImageService {
     }
   }
 
-  Future<void> uploadImage(FormData formData, String username) async {
+  Future<String?> uploadImage(FormData formData, String username, bool user) async {
   try {
     final url = '${AppStateSingleton().apiUrl}api/upload-image';
     formData.fields.add(MapEntry('username', username));
     
     final response = await _dio.post(url, data: formData);
     if (response.statusCode == 200) {
-      AppStateSingleton().userProfileImageUrlNotifier.value =
-          response.data['url'];
-          print(AppStateSingleton().userProfileImageUrlNotifier.value);
+      if(user){
+        AppStateSingleton().userProfileImageUrlNotifier.value =
+            response.data['url'];
+      } else{
+        return response.data['url'];
+      }
     } else {
       print('Falha ao enviar a imagem. Status code: ${response.statusCode}');
     }

@@ -349,13 +349,14 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                             return {
                               'idTopico': topic.idTopico,
                               'exercicios': topic.exercises,
-                              'tempoDeEstudo': topic.studyTime,
+                              'tempoDeEstudo': topic.studyTime == 0 ? int.tryParse('00:00:00.0000000') : topic.studyTime,
                             };
                           }).toList(),
                         };
 
                         final hasValidSubjects = (studyDayData['subjects'] as List).any((subject) {
-                          return subject['exercicios'] > 0 || subject['tempoDeEstudo'] > 0;
+                          print(subject['tempoDeEstudo']);
+                          return subject['exercicios'] > 0 || subject['tempoDeEstudo'] != int.tryParse('00:00:00.0000000');
                         });
 
                         if (!hasValidSubjects) {
