@@ -744,6 +744,12 @@ app.post('/api/createCollection', async (req, res) => {
         linkImagem,
         idCriador,
         dataCriacao,
+        UsuarioColecao: {
+          create: {
+            idUsuario: idCriador,
+            cargo: '2', // adm
+          },
+        },
       },
     });
 
