@@ -98,7 +98,7 @@ class _MyAppState extends State<MyApp> {
             GlobalCupertinoLocalizations.delegate,
           ],
           home: FutureBuilder<bool>(
-            future: _loginStatusFuture, // Usa a variável armazenada
+            future: _loginStatusFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());

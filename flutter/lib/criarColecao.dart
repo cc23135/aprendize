@@ -349,76 +349,87 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
 
             // Botão para criar a coleção
             Center(
-              child: ElevatedButton(
-                onPressed: () async {
-                  if (_validarCampos()) {
-                    final collectionData = {
-                      'nome': _nomeController.text,
-                      'descricao': _descricaoController.text,
-                      'linkImagem': _imageUrl,
-                      'idCriador': AppStateSingleton().idUsuario,
-                      'dataCriacao': DateTime.now().toUtc().toIso8601String(),
-                      'materias': _materias.map((materia) {
-                        return {
-                          'nome': materia.titulo,
-                          'capa': materia.imageUrl,
-                          'topicos': materia.subtitulos
-                              .map((subtitulo) => {
-                                    'nome': subtitulo,
-                                  })
-                              .toList(),
-                        };
-                      }).toList(),
-                    };
-                    try {
-                      final response = await http.post(
-                        Uri.parse(
-                            '${AppStateSingleton().apiUrl}api/createCollection'),
-                        headers: {'Content-Type': 'application/json'},
-                        body: jsonEncode(collectionData),
-                      );
+  child: ElevatedButton(
+    onPressed: () async {
+      if (_validarCampos()) {
+        // Exibe o indicador de progresso
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => Center(
+            child: CircularProgressIndicator(
+              color: AppColors.lightPurple,
+            ),
+          ),
+        );
 
-                      if (response.statusCode == 200) {
-                        final data = jsonDecode(response.body);
-                        final idColecao = data['idColecao']; 
-                        print('-----------');
-                        print(idColecao);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ChatDetailsPage(
-                              idColecao: idColecao,
-                            ),
-                          ),
-                        );
-                      } else {
-                        // Erro ao criar a coleção
-                        // Adicione lógica para lidar com o erro
-                      }
-                    } catch (e) {
-                      // Lidar com exceções, como problemas de rede
-                    }
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.lightPurple,
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 16,
-                      horizontal: 32), // Ajuste o padding conforme necessário
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16), // Formato do botão
-                  ),
-                ),
-                child: Text(
-                  'Criar Coleção',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.white,
-                  ),
+        final collectionData = {
+          'nome': _nomeController.text,
+          'descricao': _descricaoController.text,
+          'linkImagem': _imageUrl,
+          'idCriador': AppStateSingleton().idUsuario,
+          'dataCriacao': DateTime.now().toUtc().toIso8601String(),
+          'materias': _materias.map((materia) {
+            return {
+              'nome': materia.titulo,
+              'capa': materia.imageUrl,
+              'topicos': materia.subtitulos
+                  .map((subtitulo) => {'nome': subtitulo})
+                  .toList(),
+            };
+          }).toList(),
+        };
+
+        try {
+          final response = await http.post(
+            Uri.parse('${AppStateSingleton().apiUrl}api/createCollection'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode(collectionData),
+          );
+
+          // Fecha o indicador de progresso
+          Navigator.of(context).pop();
+
+          if (response.statusCode == 200) {
+            final data = jsonDecode(response.body);
+            final idColecao = data['idColecao'];
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ChatDetailsPage(
+                  idColecao: idColecao,
                 ),
               ),
-            ),
+            );
+          } else {
+            // Lidar com erro ao criar a coleção
+            _mostrarErro('Erro ao criar a coleção. Tente novamente.');
+          }
+        } catch (e) {
+          // Fecha o indicador de progresso em caso de erro
+          Navigator.of(context).pop();
+          _mostrarErro('Erro de rede. Verifique sua conexão.');
+        }
+      }
+    },
+    style: ElevatedButton.styleFrom(
+      backgroundColor: AppColors.lightPurple,
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+    ),
+    child: Text(
+      'Criar Coleção',
+      style: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+        color: AppColors.white,
+      ),
+    ),
+  ),
+)
+,
           ],
         ),
       ),
