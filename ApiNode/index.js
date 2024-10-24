@@ -105,59 +105,56 @@ app.get('/api/statistics', async (req, res) => {
     
     const userId = req.query.userId; // Assuming you have user information in the request
     // Call stored procedures and retrieve data
+    const exerciciosFeitosTotalDiario = await prisma.$executeRaw`EXEC GetTotalExerciciosLastSevenDays @idUsuario = ${userId}`;
+    const exerciciosFeitosTotalSemanal = await prisma.$executeRaw`EXEC GetTotalExerciciosLastFourWeeks @idUsuario = ${userId}`;
 
-    const exerciciosFeitosSemanal = await prisma.$executeRaw`EXEC GetTotalExerciciosLastFourWeeks @idUsuario = ${userId}`;
-    const exerciciosFeitosDiario = await prisma.$executeRaw`EXEC GetTotalExerciciosLastSevenDays @idUsuario = ${userId}`;
-    // const exerciciosFeitosMensal = await prisma.$executeRaw`EXEC GetExerciciosFeitosMensal @idUsuario = ${userId}`;
-    // const tempoGastoTotalSemanal = await prisma.$executeRaw`EXEC GetTotalTempoLastFourWeeks @idUsuario = ${userId}`;
     const tempoGastoTotalDiario = await prisma.$executeRaw`EXEC GetTotalTempoLastSevenDays @idUsuario = ${userId}`;
-    // const tempoGastoTotalMensal = await prisma.$executeRaw`EXEC GetTempoGastoTotalMensal @idUsuario = ${userId}`;
-    // Stored procedures não existem
-    // const nomesMateriasExerciciosSemanal = await prisma.$executeRaw`EXEC GetNomesMateriasExerciciosSemanal @idUsuario = ${userId}`;
-    // const exerciciosFeitosPorMateriaSemanal = await prisma.$executeRaw`EXEC GetExerciciosFeitosPorMateriaSemanal @idUsuario = ${userId}`;
-    // const nomesMateriasExerciciosMensal = await prisma.$executeRaw`EXEC GetNomesMateriasExerciciosMensal @idUsuario = ${userId}`;
-    // const exerciciosFeitosPorMateriaMensal = await prisma.$executeRaw`EXEC GetExerciciosFeitosPorMateriaMensal @idUsuario = ${userId}`;
+    const tempoGastoTotalSemanal = await prisma.$executeRaw`EXEC GetTotalTempoLastFourWeeks @idUsuario = ${userId}`;
+
+    const exerciciosFeitosPorMateriaSemanal  = await prisma.$executeRaw`EXEC GetTopMateriasAndAverageExerciciosLastFourWeeks @idUsuario = ${userId}`;
+    const exerciciosFeitosPorMateriaMensal = await prisma.$executeRaw`EXEC GetTopMateriasAndAverageExerciciosLastSixMonths @idUsuario = ${userId}`;
+
+    const tempoGastoPorMateriaSemanal = await prisma.$executeRaw`EXEC GetTopMateriasAndAverageTempoLastFourWeeks @idUsuario = ${userId}`;
+    const tempoGastoPorMateriaMensal = await prisma.$executeRaw`EXEC GetTopMateriasAndAverageTempoLastSixMonths @idUsuario = ${userId}`;
+
+    const exerciciosFeitosPorColecaoSemanal = await prisma.$executeRaw`EXEC GetTopColecoesAndAverageExerciciosLastFourWeeks @idUsuario = ${userId}`;
+    const exerciciosFeitosPorColecaoMensal = await prisma.$executeRaw`EXEC GetTopColecoesAndAverageExerciciosLastSixMonths @idUsuario = ${userId}`;
+
+    const tempoGastoPorColecaoSemanal = await prisma.$executeRaw`EXEC GetTopColecoesAndAverageTempoLastFourWeeks @idUsuario = ${userId}`;
+    const tempoGastoPorColecaoMensal = await prisma.$executeRaw`EXEC GetTopColecoesAndAverageTempoLastSixMonths @idUsuario = ${userId}`;
     
-    // const nomesMateriasTempoSemanal = await prisma.$executeRaw`EXEC GetNomesMateriasTempoSemanal @idUsuario = ${userId}`;
-    // const tempoGastoPorMateriaSemanal = await prisma.$executeRaw`EXEC GetTempoGastoPorMateriaSemanal @idUsuario = ${userId}`;
-    // const nomesMateriasTempoMensal = await prisma.$executeRaw`EXEC GetNomesMateriasTempoMensal @idUsuario = ${userId}`;
-    // const tempoGastoPorMateriaMensal = await prisma.$executeRaw`EXEC GetTempoGastoPorMateriaMensal @idUsuario = ${userId}`;
-    // 
-    // const nomesColecoesExerciciosSemanal = await prisma.$executeRaw`EXEC GetNomesColecoesExerciciosSemanal @idUsuario = ${userId}`;
-    // const exerciciosFeitosPorColecaoSemanal = await prisma.$executeRaw`EXEC GetExerciciosFeitosPorColecaoSemanal @idUsuario = ${userId}`;
-    // const nomesColecoesExerciciosMensal = await prisma.$executeRaw`EXEC GetNomesColecoesExerciciosMensal @idUsuario = ${userId}`;
-    // const exerciciosFeitosPorColecaoMensal = await prisma.$executeRaw`EXEC GetExerciciosFeitosPorColecaoMensal @idUsuario = ${userId}`;
-    // 
-    // const nomesColecoesTempoSemanal = await prisma.$executeRaw`EXEC GetNomesColecoesTempoSemanal @idUsuario = ${userId}`;
-    // const tempoGastoPorColecaoSemanal = await prisma.$executeRaw`EXEC GetTempoGastoPorColecaoSemanal @idUsuario = ${userId}`;
-    // const nomesColecoesTempoMensal = await prisma.$executeRaw`EXEC GetNomesColecoesTempoMensal @idUsuario = ${userId}`;
-    // const tempoGastoPorColecaoMensal = await prisma.$executeRaw`EXEC GetTempoGastoPorColecaoMensal @idUsuario = ${userId}`;
+    console.log("oi");
+    console.log(exerciciosFeitosTotalDiario)
+    console.log("oi");
 
-    // console.log(tempoGastoPorColecaoMensal + "aaaaaa")
-
+    // console.log(
+    //   exerciciosFeitosTotalDiario,
+    //   exerciciosFeitosTotalSemanal, 
+    //   tempoGastoTotalDiario, 
+    //   tempoGastoTotalSemanal, 
+    //   exerciciosFeitosPorMateriaSemanal, 
+    //   exerciciosFeitosPorMateriaMensal, 
+    //   tempoGastoPorMateriaSemanal, 
+    //   tempoGastoPorMateriaMensal,
+    //   exerciciosFeitosPorColecaoSemanal,
+    //   exerciciosFeitosPorColecaoMensal,
+    //   tempoGastoPorColecaoSemanal,
+    //   tempoGastoPorColecaoMensal
+    // )
+    
     res.json({
-      exerciciosFeitosSemanal,
-      exerciciosFeitosDiario,
-      // exerciciosFeitosMensal,
-      //tempoGastoTotalSemanal,
-      //tempoGastoTotalDiario,
-      //tempoGastoTotalMensal,
-      //nomesMateriasExerciciosSemanal,
-      // exerciciosFeitosPorMateriaSemanal,
-      //nomesMateriasExerciciosMensal,
-      //exerciciosFeitosPorMateriaMensal,
-      //nomesMateriasTempoSemanal,
-      //tempoGastoPorMateriaSemanal,
-      //nomesMateriasTempoMensal,
-      //tempoGastoPorMateriaMensal,
-      //nomesColecoesExerciciosSemanal,
-      //exerciciosFeitosPorColecaoSemanal,
-      //nomesColecoesExerciciosMensal,
-      //exerciciosFeitosPorColecaoMensal,
-      //nomesColecoesTempoSemanal,
-      //tempoGastoPorColecaoSemanal,
-      //nomesColecoesTempoMensal,
-      // tempoGastoPorColecaoMensal,
+      exerciciosFeitosTotalDiario,
+      exerciciosFeitosTotalSemanal, 
+      tempoGastoTotalDiario, 
+      tempoGastoTotalSemanal, 
+      exerciciosFeitosPorMateriaSemanal, 
+      exerciciosFeitosPorMateriaMensal, 
+      tempoGastoPorMateriaSemanal, 
+      tempoGastoPorMateriaMensal,
+      exerciciosFeitosPorColecaoSemanal,
+      exerciciosFeitosPorColecaoMensal,
+      tempoGastoPorColecaoSemanal,
+      tempoGastoPorColecaoMensal
     });
   } catch (error) {
     console.error(error);
@@ -265,6 +262,7 @@ app.get('/api/haveNewNotification', async (req, res) => {
 
 
 app.get('/api/login', async (req, res) => {
+  console.log('oi')
   try {
     const { username, senha } = req.query;
 
@@ -533,9 +531,10 @@ app.post('/api/getGroupMembers', async (req, res) => {
 
 
 app.post('/api/getColecaoInfo', async (req, res) => {
-  const { idColecao } = req.body.query; 
+  const { idColecao, idUsuario } = req.body.query;
 
   try {
+    // Buscar coleção
     const colecao = await prisma.colecao.findUnique({
       where: {
         idColecao: idColecao
@@ -548,7 +547,8 @@ app.post('/api/getColecaoInfo', async (req, res) => {
             capa: true,
             Topico: {
               select: {
-                idTopico: true
+                idTopico: true,
+                nome: true
               }
             }
           }
@@ -560,6 +560,22 @@ app.post('/api/getColecaoInfo', async (req, res) => {
       return res.status(404).json({ error: 'Coleção não encontrada' });
     }
 
+    let cargo = '0';
+    if (colecao.idCriador === idUsuario) {
+      cargo = "3"; // Criador
+    } else {
+      const usuarioColecao = await prisma.usuarioColecao.findFirst({
+        where: {
+          idUsuario: idUsuario,
+          idColecao: idColecao
+        }
+      });
+    
+      if (usuarioColecao) {
+        cargo = usuarioColecao.cargo; // Pode ser 1 (Membro) ou 2 (Moderador)
+      }
+    }
+
     const materias = colecao.Materia.map(materia => ({
       idMateria: materia.idMateria,
       nome: materia.nome,
@@ -567,13 +583,22 @@ app.post('/api/getColecaoInfo', async (req, res) => {
       quantidadeTopicos: materia.Topico.length,
     }));
 
+    console.log({
+      colecao: {
+        ...colecao,
+        materias
+      },
+      cargo: cargo
+    })
+
     res.json({
       colecao: {
         ...colecao,
         materias
-      }
+      },
+      cargo: cargo
     });
-    
+
   } catch (error) {
     console.error('Error fetching colecao:', error);
     res.status(500).json({ error: 'Erro ao buscar coleção' });
@@ -736,6 +761,7 @@ function converterMinutosParaIso(minutos) {
 }
 
 
+
 app.post('/api/createCollection', async (req, res) => {
   const { nome, descricao, linkImagem, idCriador, dataCriacao, materias } = req.body;
 
@@ -785,6 +811,72 @@ app.post('/api/createCollection', async (req, res) => {
     res.status(500).json({ error: 'Erro ao criar a coleção' });
   } 
 });
+
+app.post('/api/updateCollection/:id', async (req, res) => {
+  const { id } = req.params;
+  const { nome, descricao, linkImagem, materias } = req.body;
+
+  try {
+    // Atualizar a coleção
+    const updatedCollection = await prisma.colecao.update({
+      where: { idColecao: Number(id) },
+      data: {
+        nome,
+        descricao,
+        linkImagem,
+      },
+    });
+
+    // Remover tópicos de todas as matérias
+    await prisma.topico.deleteMany({
+      where: {
+        idMateria: {
+          in: await prisma.materia.findMany({
+            where: { idColecao: Number(id) },
+            select: { idMateria: true },
+          }).then(materias => materias.map(m => m.idMateria)),
+        },
+      },
+    });
+
+    // Remover matérias
+    await prisma.materia.deleteMany({
+      where: { idColecao: Number(id) },
+    });
+
+    // Criar novas matérias e tópicos
+    await Promise.all(
+      materias.map(async (materia) => {
+        const createdMateria = await prisma.materia.create({
+          data: {
+            nome: materia.nome,
+            capa: materia.capa,
+            idColecao: Number(id),
+          },
+        });
+
+        // Criar tópicos para cada nova matéria
+        await Promise.all(
+          materia.topicos.map(topico => {
+            return prisma.topico.create({
+              data: {
+                nome: topico.nome,
+                idMateria: createdMateria.idMateria, // Usar o ID da matéria criada
+              },
+            });
+          })
+        );
+      })
+    );
+
+    res.json({ message: 'Coleção atualizada com sucesso!', updatedCollection });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erro ao atualizar a coleção.', error });
+  }
+});
+
+
 
 
 app.post('/api/criarEstudo', async (req, res) => {
@@ -847,7 +939,7 @@ app.post('/api/entrarEmUmaColecao', async (req, res) => {
         cargo: "1"
       },
     });
-
+    
     // Fetch the collection details
     const colecao = await prisma.colecao.findUnique({
       where: { idColecao },
@@ -875,6 +967,7 @@ app.post('/api/entrarEmUmaColecao', async (req, res) => {
         dataCriacao: colecao.dataCriacao,
       }
     });
+    res.status(200).json({ success: true, message: 'Usuário entrou na coleção com sucesso', data: novaConexao });
     
   } catch (error) {
     console.error('Error fetching:', error);
@@ -921,33 +1014,6 @@ app.post('/api/sairDeUmaColecao', async (req, res) => {
   }
 });
 
-
-
-
-
-app.post('/api/ehDeUmaColecao', async (req, res) => {
-  const { username, idColecao } = req.body;
-
-  const user = await prisma.usuario.findUnique({ where: { username } });
-  if (!user) {
-    return res.status(404).json({ error: 'Usuário não encontrado' });
-  }
-
-  try {
-    const pertenceColecao = await prisma.usuarioColecao.findFirst({
-      where: {
-        idUsuario: user.idUsuario,
-        idColecao,
-      },
-    });
-
-    res.json({ success: true, pertence: !!pertenceColecao });
-    
-  } catch (error) {
-    console.error('Error fetching:', error);
-    res.status(500).json({ error: 'Erro ao verificar associação com a coleção' });
-  }
-});
 
 
 

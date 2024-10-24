@@ -8,6 +8,10 @@ import 'package:http/http.dart' as http;
 import 'colors.dart';
 
 class CriarColecaoPage extends StatefulWidget {
+  final Map<String, dynamic>? collection;
+  
+  CriarColecaoPage({this.collection});
+
   @override
   _CriarColecaoPageState createState() => _CriarColecaoPageState();
 }
@@ -15,24 +19,73 @@ class CriarColecaoPage extends StatefulWidget {
 class _CriarColecaoPageState extends State<CriarColecaoPage> {
   final ImageService _imageService = ImageService();
 
+   List<TextEditingController> _tituloControllers = [];
+  List<List<TextEditingController>> _subtituloControllers = [];
+
   final TextEditingController _nomeController = TextEditingController();
   final TextEditingController _descricaoController = TextEditingController();
+  
   List<Materia> _materias = [];
 
   String _imageUrl = ''; // Armazena a URL da imagem carregada
   bool _isLoadingImage = false; // Controla o estado de carregamento da imagem
 
-  void _adicionarMateria() {
-    setState(() {
-      _materias.add(Materia(titulo: '', subtitulos: [], imageUrl: ''));
-    });
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.collection != null) {
+      _nomeController.text = widget.collection!["nome"] ?? '';
+      _descricaoController.text = widget.collection!["descricao"] ?? '';
+      _imageUrl = widget.collection!["linkImagem"] ?? '';
+
+      var materiasJson =
+          widget.collection!["Materia"]; // Acesso correto ao campo "Materia"
+      if (materiasJson != null) {
+        _materias = List<Materia>.from(
+            materiasJson.map((item) => Materia.fromJson(item)));
+      }
+
+      _tituloControllers = List.generate(
+        _materias.length,
+        (index) => TextEditingController(text: _materias[index].titulo),
+      );
+
+      _subtituloControllers = _materias.map((materia) {
+        return List.generate(
+          materia.subtitulos.length,
+          (index) => TextEditingController(text: materia.subtitulos[index]),
+        );
+  }).toList();
+    }
   }
 
-  void _adicionarSubtitulo(int index) {
-    setState(() {
-      _materias[index].subtitulos.add('');
+  @override
+  void dispose() {
+    _tituloControllers.forEach((controller) => controller.dispose());
+    _subtituloControllers.forEach((sublist) {
+      sublist.forEach((controller) => controller.dispose());
     });
+    _nomeController.dispose();
+    _descricaoController.dispose();
+    super.dispose();
   }
+
+void _adicionarMateria() {
+  setState(() {
+    Materia novaMateria = Materia(titulo: '', subtitulos: [], imageUrl: '');
+    _materias.add(novaMateria);
+    _tituloControllers.add(TextEditingController(text: ''));
+    _subtituloControllers.add([]);
+  });
+}
+
+void _adicionarSubtitulo(int index) {
+  setState(() {
+    _materias[index].subtitulos.add('');
+    _subtituloControllers[index].add(TextEditingController(text: '')); // Adiciona um novo controlador para o novo subtítulo
+  });
+}
 
   Future<void> _selecionarImagem() async {
     setState(() {
@@ -101,7 +154,14 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
     return Scaffold(
       backgroundColor: AppColors.black,
       appBar: AppBar(
-        title: Text('Criar Coleção', style: TextStyle(color: AppColors.white)),
+        title: Text(
+          widget.collection == null ? 'Criar Coleção' : 'Atualizar Coleção',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: AppColors.white,
+          ),
+        ),
         backgroundColor: AppColors.lightBlackForFooter,
       ),
       body: SingleChildScrollView(
@@ -188,146 +248,140 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
             const SizedBox(height: 10),
 
             // Lista de matérias e subtópicos
-            Column(
-              children: _materias.map((materia) {
-                int index = _materias.indexOf(materia);
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 16.0),
-                  child: Card(
+Column(
+  children: _materias.map((materia) {
+    int index = _materias.indexOf(materia);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: Card(
+        color: AppColors.lightBlackForFooter,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              // Seletor de imagem para matéria
+              GestureDetector(
+                onTap: () => _selecionarImagemMateria(index),
+                child: Container(
+                  height: 100,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
                     color: AppColors.lightBlackForFooter,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: AppColors.lightPurple.withOpacity(0.5),
+                      width: 2,
+                    ),
+                    image: materia.imageUrl.isNotEmpty
+                        ? DecorationImage(
+                            image: NetworkImage(materia.imageUrl),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
+                  ),
+                  child: materia.imageUrl.isEmpty && !materia.isLoadingImage
+                      ? Center(
+                          child: Icon(
+                            Icons.add_a_photo,
+                            color: AppColors.white.withOpacity(0.6),
+                            size: 40,
+                          ),
+                        )
+                      : materia.isLoadingImage
+                          ? Center(
+                              child: CircularProgressIndicator(
+                                color: AppColors.white,
+                              ),
+                            )
+                          : null,
+                ),
+              ),
+
+              // Campo de título da matéria
+              TextField(
+                onChanged: (value) {
+                  setState(() {
+                    _materias[index].titulo = value; // Atualiza o título
+                  });
+                },
+                style: TextStyle(
+                  color: AppColors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+                decoration: InputDecoration(
+                  hintText: 'Título da Matéria',
+                  hintStyle: TextStyle(color: AppColors.white),
+                  border: InputBorder.none,
+                ),
+                controller: _tituloControllers[index], // Use o controlador existente
+              ),
+              const SizedBox(height: 10),
+
+              // Lista de subtópicos da matéria
+              Column(
+                children: materia.subtitulos.map((subtitulo) {
+                  int subtituloIndex = materia.subtitulos.indexOf(subtitulo);
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: TextField(
+                      onChanged: (value) {
+                        setState(() {
+                          _materias[index].subtitulos[subtituloIndex] = value; // Atualiza o tópico
+                        });
+                      },
+                      style: TextStyle(
+                        color: AppColors.lightPurple,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'Tópico',
+                        hintStyle: TextStyle(
+                          color: AppColors.lightPurple.withOpacity(0.7),
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(color: AppColors.lightPurple.withOpacity(0.5)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(color: AppColors.lightPurple),
+                        ),
+                      ),
+                      controller: _subtituloControllers[index][subtituloIndex], // Use o controlador existente
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 10),
+
+              // Botão para adicionar subtópico
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: () => _adicionarSubtitulo(index),
+                  icon: Icon(Icons.add, color: AppColors.white),
+                  label: Text(
+                    'Adicionar tópico em ordem de dependência',
+                    style: TextStyle(color: AppColors.white),
+                  ),
+                  style: TextButton.styleFrom(
+                    backgroundColor: AppColors.lightBlackForFooter,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          // Seletor de imagem para matéria
-                          GestureDetector(
-                            onTap: () => _selecionarImagemMateria(index),
-                            child: Container(
-                              height: 100,
-                              width:
-                                  double.infinity, // Tamanho total do container
-                              decoration: BoxDecoration(
-                                color: AppColors.lightBlackForFooter,
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(
-                                  color: AppColors.lightPurple
-                                      .withOpacity(0.5), // Borda do retângulo
-                                  width: 2,
-                                ),
-                                image: materia.imageUrl.isNotEmpty
-                                    ? DecorationImage(
-                                        image: NetworkImage(materia.imageUrl),
-                                        fit: BoxFit.cover,
-                                      )
-                                    : null,
-                              ),
-                              child: materia.imageUrl.isEmpty &&
-                                      !materia.isLoadingImage
-                                  ? Center(
-                                      child: Icon(
-                                        Icons.add_a_photo,
-                                        color: AppColors.white.withOpacity(
-                                            0.6), // Ícone quando não há imagem
-                                        size: 40,
-                                      ),
-                                    )
-                                  : materia.isLoadingImage
-                                      ? Center(
-                                          child: CircularProgressIndicator(
-                                            color: AppColors.white,
-                                          ),
-                                        )
-                                      : null,
-                            ),
-                          ),
-
-                          TextField(
-                            onChanged: (value) {
-                              setState(() {
-                                _materias[index].titulo = value;
-                              });
-                            },
-                            style: TextStyle(
-                              color: AppColors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            decoration: InputDecoration(
-                              hintText: 'Título da Matéria',
-                              hintStyle: TextStyle(color: AppColors.white),
-                              border: InputBorder.none,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-
-                          // Lista de subtópicos da matéria
-                          Column(
-                            children: materia.subtitulos.map((subtitulo) {
-                              int subtituloIndex =
-                                  materia.subtitulos.indexOf(subtitulo);
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 8.0),
-                                child: TextField(
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _materias[index]
-                                          .subtitulos[subtituloIndex] = value;
-                                    });
-                                  },
-                                  style: TextStyle(
-                                    color: AppColors.lightPurple,
-                                  ),
-                                  decoration: InputDecoration(
-                                    hintText: 'Tópico',
-                                    hintStyle: TextStyle(
-                                      color: AppColors.lightPurple
-                                          .withOpacity(0.7),
-                                    ),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide(
-                                          color: AppColors.lightPurple
-                                              .withOpacity(0.5)),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide(
-                                          color: AppColors.lightPurple),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                          const SizedBox(height: 10),
-
-                          // Botão para adicionar subtópico
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: TextButton.icon(
-                              onPressed: () => _adicionarSubtitulo(index),
-                              icon: Icon(Icons.add, color: AppColors.white),
-                              label: Text(
-                                  'Adicionar tópico em ordem de dependência',
-                                  style: TextStyle(color: AppColors.white)),
-                              style: TextButton.styleFrom(
-                                backgroundColor: AppColors.lightBlackForFooter,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                   ),
-                );
-              }).toList(),
-            ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }).toList(),
+),
 
             // Botão para adicionar matéria
             Align(
@@ -348,7 +402,7 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
             const SizedBox(height: 20),
 
             // Botão para criar a coleção
-            Center(
+Center(
   child: ElevatedButton(
     onPressed: () async {
       if (_validarCampos()) {
@@ -381,51 +435,38 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
         };
 
         try {
+          
+          final String url = widget.collection == null
+              ? '${AppStateSingleton().apiUrl}api/createCollection'
+              : '${AppStateSingleton().apiUrl}api/updateCollection/${widget.collection?["idColecao"]}'; 
+
           final response = await http.post(
-            Uri.parse('${AppStateSingleton().apiUrl}api/createCollection'),
+            Uri.parse(url),
             headers: {'Content-Type': 'application/json'},
             body: jsonEncode(collectionData),
           );
 
-          // Fecha o indicador de progresso
           Navigator.of(context).pop();
 
           if (response.statusCode == 200) {
-          final data = jsonDecode(response.body);
-          final idColecao = data['idColecao'];
-
-          Map<String, dynamic> newCollection = {
-            'idColecao': idColecao,
-            'nome': _nomeController.text,
-            'descricao': _descricaoController.text,
-            'linkImagem': _imageUrl,
-            'materias': _materias.map((materia) {
-              return {
-                'nome': materia.titulo,
-                'capa': materia.imageUrl,
-                'topicos': materia.subtitulos.map((subtitulo) => {'nome': subtitulo}).toList(),
-              };
-            }).toList(),
-          };
-
-          AppStateSingleton().collections.add(newCollection);
-
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ChatDetailsPage(
-                idColecao: idColecao,
-              ),
-            ),
-          );
-        } else {
-          _mostrarErro('Erro ao criar a coleção. Tente novamente.');
-        }
-
-
-
+              final data = jsonDecode(response.body);
+              var idColecao = data['idColecao'];
+              if(idColecao == null){
+                idColecao = widget.collection?["idColecao"]; 
+              }
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ChatDetailsPage(
+                    idColecao: idColecao,
+                  ),
+                ),
+              );
+          } else {
+            _mostrarErro(
+                'Erro ao criar ou atualizar a coleção. Tente novamente.');
+          }
         } catch (e) {
-          // Fecha o indicador de progresso em caso de erro
           Navigator.of(context).pop();
           _mostrarErro('Erro de rede. Verifique sua conexão.');
         }
@@ -439,7 +480,9 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
       ),
     ),
     child: Text(
-      'Criar Coleção',
+      widget.collection == null
+          ? 'Criar Coleção'
+          : 'Atualizar Coleção',
       style: TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.bold,
@@ -448,7 +491,6 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
     ),
   ),
 )
-,
           ],
         ),
       ),
@@ -458,13 +500,28 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
 
 class Materia {
   String titulo;
-  List<String> subtitulos;
   String imageUrl;
+  List<String> subtitulos;
   bool isLoadingImage;
 
-  Materia(
-      {required this.titulo,
-      required this.subtitulos,
-      required this.imageUrl,
-      this.isLoadingImage = false});
+  Materia({
+    required this.titulo,
+    required this.imageUrl,
+    required this.subtitulos,
+    this.isLoadingImage = false,
+  });
+
+  factory Materia.fromJson(Map<String, dynamic> json) {
+  var topicos = json['Topico'] as List?; // Acesso à lista de tópicos
+  List<String> subtitulos = topicos != null
+      ? List<String>.from(topicos.map((t) => t['nome'])) // Mapeia para o nome do tópico
+      : [];
+
+  return Materia(
+    titulo: json['nome'] ?? '', // Nome da matéria
+    imageUrl: json['capa'] ?? '',
+    subtitulos: subtitulos,
+    isLoadingImage: false,
+  );
+  }
 }

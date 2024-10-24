@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:aprendize/colors.dart';
+import 'package:aprendize/criarColecao.dart';
 import 'package:http/http.dart' as http;
 import 'package:aprendize/AppStateSingleton.dart';
 import 'package:flutter/material.dart';
@@ -17,12 +18,11 @@ class ChatDetailsPage extends StatefulWidget {
 
 class _ChatDetailsPageState extends State<ChatDetailsPage> {
   Map<String, dynamic>? _colecao;
-  bool usuarioEstaNessaColecao = false;
+  int usuarioEstaNessaColecao = 0;
 
   @override
   void initState() {
     super.initState();
-    UsuarioEhDessaColecao();
     _fetchColecaoInfo();
   }
 
@@ -30,7 +30,8 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
     final uri = Uri.parse('${AppStateSingleton().apiUrl}api/getColecaoInfo');
     final response = await http.post(uri, body: jsonEncode({
       "query": {
-        "idColecao": widget.idColecao
+        "idColecao": widget.idColecao,
+        "idUsuario": AppStateSingleton().idUsuario
       }
     }), headers: {
       "Content-Type": "application/json",
@@ -38,33 +39,15 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      print(data);
       setState(() {
         _colecao = Map<String, dynamic>.from(data['colecao']);
+        usuarioEstaNessaColecao = int.parse(data['cargo']);
       });
     } else {
       throw Exception('Falha ao carregar coleção');
     }
   }
 
-  Future<void> UsuarioEhDessaColecao() async {
-  final uri = Uri.parse('${AppStateSingleton().apiUrl}api/ehDeUmaColecao');
-  final response = await http.post(uri, body: jsonEncode({
-    "idColecao": widget.idColecao,
-    "username": AppStateSingleton().username,
-  }), headers: {
-    "Content-Type": "application/json",
-  });
-
-  if (response.statusCode == 200) { 
-    final data = jsonDecode(response.body);
-    setState(() {
-      usuarioEstaNessaColecao = data['pertence']; 
-    });
-  } else {
-    throw Exception('Falha');
-  }
-  }
 
 
   Future<void> EntrarNaColecao() async {
@@ -100,7 +83,9 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
       AppStateSingleton().collections.add(newCollection);
 
       setState(() {
-        usuarioEstaNessaColecao = true; // Update the state
+
+        usuarioEstaNessaColecao = 1; 
+        _fetchColecaoInfo();
       });
     } else {
       throw Exception('Falha ao entrar na coleção: ${response.statusCode} - ${response.body}');
@@ -130,7 +115,8 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
       AppStateSingleton().collections.removeWhere((collection) => collection['idColecao'] == widget.idColecao);
 
       setState(() {
-        usuarioEstaNessaColecao = false; // Update the state
+
+        usuarioEstaNessaColecao = 0; 
       });
     } else {
       throw Exception('Falha ao sair da coleção: ${response.statusCode} - ${response.body}');
@@ -141,10 +127,24 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("ID: " + widget.idColecao.toString()),
-      ),
+  return Scaffold(
+    appBar: AppBar(
+      title: Text("ID: " + widget.idColecao.toString()),
+      actions: [
+        if (usuarioEstaNessaColecao > 1) 
+          IconButton(
+            icon: Icon(Icons.edit), // Ícone de lápis
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CriarColecaoPage(collection: _colecao), 
+                ),
+              );
+            },
+          ),
+      ],
+    ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: _colecao == null
@@ -174,12 +174,10 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                           style: const TextStyle(fontSize: 15),
                         ),
                         const SizedBox(height: 20),
-
-                        if(usuarioEstaNessaColecao == false) ...[ 
+                        if(usuarioEstaNessaColecao == 0) ...[ 
                           ElevatedButton(
                             onPressed: () {
                               EntrarNaColecao();
-                              Navigator.pop(context);
                             },
                             child: const Text('Entrar no grupo'),
                           ),
@@ -239,7 +237,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                   ),
                   const SizedBox(height: 20),
 
-                  if(usuarioEstaNessaColecao == true) ...[ 
+                  if(usuarioEstaNessaColecao > 0) ...[ 
                     ElevatedButton(
                       onPressed: () {
                         SairDaColecao();
