@@ -32,7 +32,6 @@ class AppStateSingleton {
   }
 
   void clear() {
-    apiUrl = '';
     userProfileImageUrlNotifier.value = '';
     idUsuario = 0;
     username = '';

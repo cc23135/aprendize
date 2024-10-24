@@ -260,6 +260,7 @@ app.get('/api/haveNewNotification', async (req, res) => {
 
 
 app.get('/api/login', async (req, res) => {
+  console.log('oi')
   try {
     const { username, senha } = req.query;
 

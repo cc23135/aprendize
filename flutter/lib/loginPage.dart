@@ -1,5 +1,6 @@
 import 'package:aprendize/components.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert'; // Para converter a resposta em JSON
 import 'AppStateSingleton.dart';
@@ -16,8 +17,11 @@ class LoginPage extends StatefulWidget {
 }
 
 class LoginService {
-  Future<bool> attemptLogin(
-      String username, String senha) async {
+  Future<bool> attemptLogin(String username, String senha) async {
+   print('----');
+    print(username);
+    print(senha);
+    print('${AppStateSingleton().apiUrl}api/login?username=$username&senha=$senha');
     try {
       final response = await http.get(
         Uri.parse(
@@ -25,6 +29,7 @@ class LoginService {
       );
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+        print(data);
 
         if (data['success']) {
           validations().salvarDados(data);
@@ -62,8 +67,6 @@ class LoginPageState extends State<LoginPage> {
     setState(() {
       _isLoading = true;
     });
-
-    print(username + " " + senha);
 
     try{
       success = await LoginService().attemptLogin(username, senha);
@@ -134,6 +137,9 @@ class LoginPageState extends State<LoginPage> {
                   fillColor: AppColors.black,
                   filled: true,
                 ),
+                inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+                  ]
               ),
               const SizedBox(height: 20),
               TextField(
