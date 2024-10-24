@@ -547,7 +547,8 @@ app.post('/api/getColecaoInfo', async (req, res) => {
             capa: true,
             Topico: {
               select: {
-                idTopico: true
+                idTopico: true,
+                nome: true
               }
             }
           }
@@ -760,6 +761,7 @@ function converterMinutosParaIso(minutos) {
 }
 
 
+
 app.post('/api/createCollection', async (req, res) => {
   const { nome, descricao, linkImagem, idCriador, dataCriacao, materias } = req.body;
 
@@ -809,6 +811,72 @@ app.post('/api/createCollection', async (req, res) => {
     res.status(500).json({ error: 'Erro ao criar a coleção' });
   } 
 });
+
+app.post('/api/updateCollection/:id', async (req, res) => {
+  const { id } = req.params;
+  const { nome, descricao, linkImagem, materias } = req.body;
+
+  try {
+    // Atualizar a coleção
+    const updatedCollection = await prisma.colecao.update({
+      where: { idColecao: Number(id) },
+      data: {
+        nome,
+        descricao,
+        linkImagem,
+      },
+    });
+
+    // Remover tópicos de todas as matérias
+    await prisma.topico.deleteMany({
+      where: {
+        idMateria: {
+          in: await prisma.materia.findMany({
+            where: { idColecao: Number(id) },
+            select: { idMateria: true },
+          }).then(materias => materias.map(m => m.idMateria)),
+        },
+      },
+    });
+
+    // Remover matérias
+    await prisma.materia.deleteMany({
+      where: { idColecao: Number(id) },
+    });
+
+    // Criar novas matérias e tópicos
+    await Promise.all(
+      materias.map(async (materia) => {
+        const createdMateria = await prisma.materia.create({
+          data: {
+            nome: materia.nome,
+            capa: materia.capa,
+            idColecao: Number(id),
+          },
+        });
+
+        // Criar tópicos para cada nova matéria
+        await Promise.all(
+          materia.topicos.map(topico => {
+            return prisma.topico.create({
+              data: {
+                nome: topico.nome,
+                idMateria: createdMateria.idMateria, // Usar o ID da matéria criada
+              },
+            });
+          })
+        );
+      })
+    );
+
+    res.json({ message: 'Coleção atualizada com sucesso!', updatedCollection });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erro ao atualizar a coleção.', error });
+  }
+});
+
+
 
 
 app.post('/api/criarEstudo', async (req, res) => {
