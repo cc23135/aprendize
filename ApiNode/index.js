@@ -125,6 +125,7 @@ app.get('/api/statistics', async (req, res) => {
     
     console.log("oi");
     console.log(exerciciosFeitosTotalDiario)
+    console.log("oi");
 
     // console.log(
     //   exerciciosFeitosTotalDiario,

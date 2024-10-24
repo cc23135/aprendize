@@ -251,10 +251,10 @@ BEGIN
     GROUP BY 
         m.nome;
 
-    -- Select top 9 materias with total time converted back to time format
+    -- Select top 9 materias with total time in seconds
     SELECT 
         NomeMateria,
-        CAST(DATEADD(SECOND, TotalTempo, '00:00:00') AS TIME) AS TotalTempo  -- Convert seconds back to TIME format
+        TotalTempo  -- Return total time in seconds
     FROM 
         #RankedMaterias
     WHERE 
@@ -262,9 +262,9 @@ BEGIN
     ORDER BY 
         TotalTempo DESC;
 
-    -- Calculate the average of the non-top 9 materias
+    -- Calculate the average time for non-top 9 materias in seconds
     SELECT 
-        CAST(DATEADD(SECOND, AVG(TotalTempo), '00:00:00') AS TIME) AS AvgTempoNonTop9  -- Average time converted back to TIME format
+        AVG(TotalTempo) AS AvgTempoNonTop9  -- Return average time in seconds for non-top 9
     FROM 
         #RankedMaterias
     WHERE 
@@ -273,6 +273,7 @@ BEGIN
     -- Drop the temporary table
     DROP TABLE #RankedMaterias;
 END;
+
 
 ----------------------------------------------------------------------------------------------------------------------
 
@@ -301,15 +302,15 @@ BEGIN
         Aprendize.Materia m ON t.idMateria = m.idMateria
     WHERE 
         e.idUsuario = @idUsuario
-        AND e.dataEstudo >= DATEADD(MONTH, -6, CAST(GETDATE() AS DATE))  -- Last 6 months
+        AND e.dataEstudo >= DATEADD(MONTH, -6, CAST(GETDATE() AS DATE))  -- Last 4 weeks
         AND e.dataEstudo <= CAST(GETDATE() AS DATE) 
     GROUP BY 
         m.nome;
 
-    -- Select top 9 materias with total time converted back to time format
+    -- Select top 9 materias with total time in seconds
     SELECT 
         NomeMateria,
-        CAST(DATEADD(SECOND, TotalTempo, '00:00:00') AS TIME) AS TotalTempo  -- Convert seconds back to TIME format
+        TotalTempo  -- Return total time in seconds
     FROM 
         #RankedMaterias
     WHERE 
@@ -317,9 +318,9 @@ BEGIN
     ORDER BY 
         TotalTempo DESC;
 
-    -- Calculate the average of the non-top 9 materias
+    -- Calculate the average time for non-top 9 materias in seconds
     SELECT 
-        CAST(DATEADD(SECOND, AVG(TotalTempo), '00:00:00') AS TIME) AS AvgTempoNonTop9  -- Average time converted back to TIME format
+        AVG(TotalTempo) AS AvgTempoNonTop9  -- Return average time in seconds for non-top 9
     FROM 
         #RankedMaterias
     WHERE 
@@ -452,7 +453,7 @@ BEGIN
     -- Create a temporary table to store the ranked collections
     CREATE TABLE #RankedColecoes (
         NomeColecao VARCHAR(100),
-        TotalTempo INT,  -- Store total time in seconds for easier calculations
+        TotalTempo INT,  -- Store total time in seconds
         ColecaoRank INT
     );
 
@@ -472,15 +473,15 @@ BEGIN
         Aprendize.Colecao c ON m.idColecao = c.idColecao  -- Join with the collection table
     WHERE 
         e.idUsuario = @idUsuario
-        AND e.dataEstudo >= DATEADD(WEEK, -4, CAST(GETDATE() AS DATE))  -- Last 6 months
+        AND e.dataEstudo >= DATEADD(WEEK, -4, CAST(GETDATE() AS DATE))  -- Last 4 weeks
         AND e.dataEstudo <= CAST(GETDATE() AS DATE) 
     GROUP BY 
         c.nome;
 
-    -- Select top 9 collections with total time converted back to time format
+    -- Select top 9 collections with total time in seconds
     SELECT 
         NomeColecao,
-        CAST(DATEADD(SECOND, TotalTempo, '00:00:00') AS TIME) AS TotalTempo  -- Convert seconds back to TIME format
+        TotalTempo  -- Return total time in seconds
     FROM 
         #RankedColecoes
     WHERE 
@@ -488,9 +489,9 @@ BEGIN
     ORDER BY 
         TotalTempo DESC;
 
-    -- Calculate the average time for non-top 9 collections
+    -- Calculate the average time for non-top 9 collections in seconds
     SELECT 
-        CAST(DATEADD(SECOND, AVG(TotalTempo), '00:00:00') AS TIME) AS AvgTempoNonTop9  -- Average time converted back to TIME format
+        AVG(TotalTempo) AS AvgTempoNonTop9  -- Return average time in seconds for non-top 9
     FROM 
         #RankedColecoes
     WHERE 
@@ -499,6 +500,7 @@ BEGIN
     -- Drop the temporary table
     DROP TABLE #RankedColecoes;
 END;
+
 
 
 
@@ -511,7 +513,7 @@ BEGIN
     -- Create a temporary table to store the ranked collections
     CREATE TABLE #RankedColecoes (
         NomeColecao VARCHAR(100),
-        TotalTempo INT,  -- Store total time in seconds for easier calculations
+        TotalTempo INT,  -- Store total time in seconds
         ColecaoRank INT
     );
 
@@ -531,15 +533,15 @@ BEGIN
         Aprendize.Colecao c ON m.idColecao = c.idColecao  -- Join with the collection table
     WHERE 
         e.idUsuario = @idUsuario
-        AND e.dataEstudo >= DATEADD(MONTH, -6, CAST(GETDATE() AS DATE))  -- Last 6 months
+        AND e.dataEstudo >= DATEADD(MONTH, -6, CAST(GETDATE() AS DATE))  -- Last 4 weeks
         AND e.dataEstudo <= CAST(GETDATE() AS DATE) 
     GROUP BY 
         c.nome;
 
-    -- Select top 9 collections with total time converted back to time format
+    -- Select top 9 collections with total time in seconds
     SELECT 
         NomeColecao,
-        CAST(DATEADD(SECOND, TotalTempo, '00:00:00') AS TIME) AS TotalTempo  -- Convert seconds back to TIME format
+        TotalTempo  -- Return total time in seconds
     FROM 
         #RankedColecoes
     WHERE 
@@ -547,9 +549,9 @@ BEGIN
     ORDER BY 
         TotalTempo DESC;
 
-    -- Calculate the average time for non-top 9 collections
+    -- Calculate the average time for non-top 9 collections in seconds
     SELECT 
-        CAST(DATEADD(SECOND, AVG(TotalTempo), '00:00:00') AS TIME) AS AvgTempoNonTop9  -- Average time converted back to TIME format
+        AVG(TotalTempo) AS AvgTempoNonTop9  -- Return average time in seconds for non-top 9
     FROM 
         #RankedColecoes
     WHERE 
