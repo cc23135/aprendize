@@ -105,59 +105,56 @@ app.get('/api/statistics', async (req, res) => {
     
     const userId = req.query.userId; // Assuming you have user information in the request
     // Call stored procedures and retrieve data
+    const exerciciosFeitosTotalDiario = await prisma.$executeRaw`EXEC GetTotalExerciciosLastSevenDays @idUsuario = ${userId}`;
+    const exerciciosFeitosTotalSemanal = await prisma.$executeRaw`EXEC GetTotalExerciciosLastFourWeeks @idUsuario = ${userId}`;
 
-    const exerciciosFeitosSemanal = await prisma.$executeRaw`EXEC GetTotalExerciciosLastFourWeeks @idUsuario = ${userId}`;
-    const exerciciosFeitosDiario = await prisma.$executeRaw`EXEC GetTotalExerciciosLastSevenDays @idUsuario = ${userId}`;
-    // const exerciciosFeitosMensal = await prisma.$executeRaw`EXEC GetExerciciosFeitosMensal @idUsuario = ${userId}`;
-    // const tempoGastoTotalSemanal = await prisma.$executeRaw`EXEC GetTotalTempoLastFourWeeks @idUsuario = ${userId}`;
     const tempoGastoTotalDiario = await prisma.$executeRaw`EXEC GetTotalTempoLastSevenDays @idUsuario = ${userId}`;
-    // const tempoGastoTotalMensal = await prisma.$executeRaw`EXEC GetTempoGastoTotalMensal @idUsuario = ${userId}`;
-    // Stored procedures não existem
-    // const nomesMateriasExerciciosSemanal = await prisma.$executeRaw`EXEC GetNomesMateriasExerciciosSemanal @idUsuario = ${userId}`;
-    // const exerciciosFeitosPorMateriaSemanal = await prisma.$executeRaw`EXEC GetExerciciosFeitosPorMateriaSemanal @idUsuario = ${userId}`;
-    // const nomesMateriasExerciciosMensal = await prisma.$executeRaw`EXEC GetNomesMateriasExerciciosMensal @idUsuario = ${userId}`;
-    // const exerciciosFeitosPorMateriaMensal = await prisma.$executeRaw`EXEC GetExerciciosFeitosPorMateriaMensal @idUsuario = ${userId}`;
+    const tempoGastoTotalSemanal = await prisma.$executeRaw`EXEC GetTotalTempoLastFourWeeks @idUsuario = ${userId}`;
+
+    const exerciciosFeitosPorMateriaSemanal  = await prisma.$executeRaw`EXEC GetTopMateriasAndAverageExerciciosLastFourWeeks @idUsuario = ${userId}`;
+    const exerciciosFeitosPorMateriaMensal = await prisma.$executeRaw`EXEC GetTopMateriasAndAverageExerciciosLastSixMonths @idUsuario = ${userId}`;
+
+    const tempoGastoPorMateriaSemanal = await prisma.$executeRaw`EXEC GetTopMateriasAndAverageTempoLastFourWeeks @idUsuario = ${userId}`;
+    const tempoGastoPorMateriaMensal = await prisma.$executeRaw`EXEC GetTopMateriasAndAverageTempoLastSixMonths @idUsuario = ${userId}`;
+
+    const exerciciosFeitosPorColecaoSemanal = await prisma.$executeRaw`EXEC GetTopColecoesAndAverageExerciciosLastFourWeeks @idUsuario = ${userId}`;
+    const exerciciosFeitosPorColecaoMensal = await prisma.$executeRaw`EXEC GetTopColecoesAndAverageExerciciosLastSixMonths @idUsuario = ${userId}`;
+
+    const tempoGastoPorColecaoSemanal = await prisma.$executeRaw`EXEC GetTopColecoesAndAverageTempoLastFourWeeks @idUsuario = ${userId}`;
+    const tempoGastoPorColecaoMensal = await prisma.$executeRaw`EXEC GetTopColecoesAndAverageTempoLastSixMonths @idUsuario = ${userId}`;
     
-    // const nomesMateriasTempoSemanal = await prisma.$executeRaw`EXEC GetNomesMateriasTempoSemanal @idUsuario = ${userId}`;
-    // const tempoGastoPorMateriaSemanal = await prisma.$executeRaw`EXEC GetTempoGastoPorMateriaSemanal @idUsuario = ${userId}`;
-    // const nomesMateriasTempoMensal = await prisma.$executeRaw`EXEC GetNomesMateriasTempoMensal @idUsuario = ${userId}`;
-    // const tempoGastoPorMateriaMensal = await prisma.$executeRaw`EXEC GetTempoGastoPorMateriaMensal @idUsuario = ${userId}`;
-    // 
-    // const nomesColecoesExerciciosSemanal = await prisma.$executeRaw`EXEC GetNomesColecoesExerciciosSemanal @idUsuario = ${userId}`;
-    // const exerciciosFeitosPorColecaoSemanal = await prisma.$executeRaw`EXEC GetExerciciosFeitosPorColecaoSemanal @idUsuario = ${userId}`;
-    // const nomesColecoesExerciciosMensal = await prisma.$executeRaw`EXEC GetNomesColecoesExerciciosMensal @idUsuario = ${userId}`;
-    // const exerciciosFeitosPorColecaoMensal = await prisma.$executeRaw`EXEC GetExerciciosFeitosPorColecaoMensal @idUsuario = ${userId}`;
-    // 
-    // const nomesColecoesTempoSemanal = await prisma.$executeRaw`EXEC GetNomesColecoesTempoSemanal @idUsuario = ${userId}`;
-    // const tempoGastoPorColecaoSemanal = await prisma.$executeRaw`EXEC GetTempoGastoPorColecaoSemanal @idUsuario = ${userId}`;
-    // const nomesColecoesTempoMensal = await prisma.$executeRaw`EXEC GetNomesColecoesTempoMensal @idUsuario = ${userId}`;
-    // const tempoGastoPorColecaoMensal = await prisma.$executeRaw`EXEC GetTempoGastoPorColecaoMensal @idUsuario = ${userId}`;
+    console.log("oi");
+    console.log(exerciciosFeitosTotalDiario)
+    console.log("oi");
 
-    // console.log(tempoGastoPorColecaoMensal + "aaaaaa")
-
+    // console.log(
+    //   exerciciosFeitosTotalDiario,
+    //   exerciciosFeitosTotalSemanal, 
+    //   tempoGastoTotalDiario, 
+    //   tempoGastoTotalSemanal, 
+    //   exerciciosFeitosPorMateriaSemanal, 
+    //   exerciciosFeitosPorMateriaMensal, 
+    //   tempoGastoPorMateriaSemanal, 
+    //   tempoGastoPorMateriaMensal,
+    //   exerciciosFeitosPorColecaoSemanal,
+    //   exerciciosFeitosPorColecaoMensal,
+    //   tempoGastoPorColecaoSemanal,
+    //   tempoGastoPorColecaoMensal
+    // )
+    
     res.json({
-      exerciciosFeitosSemanal,
-      exerciciosFeitosDiario,
-      // exerciciosFeitosMensal,
-      //tempoGastoTotalSemanal,
-      //tempoGastoTotalDiario,
-      //tempoGastoTotalMensal,
-      //nomesMateriasExerciciosSemanal,
-      // exerciciosFeitosPorMateriaSemanal,
-      //nomesMateriasExerciciosMensal,
-      //exerciciosFeitosPorMateriaMensal,
-      //nomesMateriasTempoSemanal,
-      //tempoGastoPorMateriaSemanal,
-      //nomesMateriasTempoMensal,
-      //tempoGastoPorMateriaMensal,
-      //nomesColecoesExerciciosSemanal,
-      //exerciciosFeitosPorColecaoSemanal,
-      //nomesColecoesExerciciosMensal,
-      //exerciciosFeitosPorColecaoMensal,
-      //nomesColecoesTempoSemanal,
-      //tempoGastoPorColecaoSemanal,
-      //nomesColecoesTempoMensal,
-      // tempoGastoPorColecaoMensal,
+      exerciciosFeitosTotalDiario,
+      exerciciosFeitosTotalSemanal, 
+      tempoGastoTotalDiario, 
+      tempoGastoTotalSemanal, 
+      exerciciosFeitosPorMateriaSemanal, 
+      exerciciosFeitosPorMateriaMensal, 
+      tempoGastoPorMateriaSemanal, 
+      tempoGastoPorMateriaMensal,
+      exerciciosFeitosPorColecaoSemanal,
+      exerciciosFeitosPorColecaoMensal,
+      tempoGastoPorColecaoSemanal,
+      tempoGastoPorColecaoMensal
     });
   } catch (error) {
     console.error(error);

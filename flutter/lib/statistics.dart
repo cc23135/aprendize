@@ -1,3 +1,6 @@
+// day para dia
+// day vira week -> mudar quantidade de dados também
+
 import 'dart:ui';
 import 'package:aprendize/AppStateSingleton.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -772,26 +775,41 @@ Future<void> _fetchStatisticsData() async {
       
       setState(() {
         // Accessing the data returned by your API
-        exerciciosFeitosSemanal = data['exerciciosFeitosSemanal'];
-        exerciciosFeitosDiario = data['exerciciosFeitosDiario'];
-        exerciciosFeitosMensal = data['exerciciosFeitosMensal'];
+
+        // Diário - > 7 dias
+        // Semanal - > 4 semanas
+        // Mensal -> 6 meses
+
+        // conf API
+        exerciciosFeitosSemanal = data['exerciciosFeitosSemanal']; 
+        exerciciosFeitosDiario = data['exerciciosFeitosDiario']; 
+        exerciciosFeitosMensal = data['exerciciosFeitosMensal']; // SEM NADA
+
         tempoGastoTotalSemanal = data['tempoGastoTotalSemanal'];
         tempoGastoTotalDiario = data['tempoGastoTotalDiario'];
-        tempoGastoTotalMensal = data['tempoGastoTotalMensal'];
+        tempoGastoTotalMensal = data['tempoGastoTotalMensal']; // SEM NADA
+
         nomesMateriasExerciciosSemanal = data['nomesMateriasExerciciosSemanal'];
         exerciciosFeitosPorMateriaSemanal = data['exerciciosFeitosPorMateriaSemanal'];
-        nomesMateriasExerciciosMensal = data['nomesMateriasExerciciosMensal'];
-        exerciciosFeitosPorMateriaMensal = data['exerciciosFeitosPorMateriaMensal'];
-        nomesMateriasTempoSemanal = data['nomesMateriasTempoSemanal'];
-        tempoGastoPorMateriaSemanal = data['tempoGastoPorMateriaSemanal'];
-        nomesMateriasTempoMensal = data['nomesMateriasTempoMensal'];
+
+        nomesMateriasExerciciosMensal = data['nomesMateriasExerciciosMensal']; 
+        exerciciosFeitosPorMateriaMensal = data['exerciciosFeitosPorMateriaMensal']; 
+
+        nomesMateriasTempoSemanal = data['nomesMateriasTempoSemanal']; 
+        tempoGastoPorMateriaSemanal = data['tempoGastoPorMateriaSemanal']; 
+
+        nomesMateriasTempoMensal = data['nomesMateriasTempoMensal']; 
         tempoGastoPorMateriaMensal = data['tempoGastoPorMateriaMensal'];
+
         nomesColecoesExerciciosSemanal = data['nomesColecoesExerciciosSemanal'];
         exerciciosFeitosPorColecaoSemanal = data['exerciciosFeitosPorColecaoSemanal'];
+
         nomesColecoesExerciciosMensal = data['nomesColecoesExerciciosMensal'];
         exerciciosFeitosPorColecaoMensal = data['exerciciosFeitosPorColecaoMensal'];
+
         nomesColecoesTempoSemanal = data['nomesColecoesTempoSemanal'];
         tempoGastoPorColecaoSemanal = data['tempoGastoPorColecaoSemanal'];
+
         nomesColecoesTempoMensal = data['nomesColecoesTempoMensal'];
         tempoGastoPorColecaoMensal = data['tempoGastoPorColecaoMensal'];
 
