@@ -531,9 +531,10 @@ app.post('/api/getGroupMembers', async (req, res) => {
 
 
 app.post('/api/getColecaoInfo', async (req, res) => {
-  const { idColecao } = req.body.query; 
+  const { idColecao, idUsuario } = req.body.query;
 
   try {
+    // Buscar coleção
     const colecao = await prisma.colecao.findUnique({
       where: {
         idColecao: idColecao
@@ -558,6 +559,22 @@ app.post('/api/getColecaoInfo', async (req, res) => {
       return res.status(404).json({ error: 'Coleção não encontrada' });
     }
 
+    let cargo = '0';
+    if (colecao.idCriador === idUsuario) {
+      cargo = "3"; // Criador
+    } else {
+      const usuarioColecao = await prisma.usuarioColecao.findFirst({
+        where: {
+          idUsuario: idUsuario,
+          idColecao: idColecao
+        }
+      });
+    
+      if (usuarioColecao) {
+        cargo = usuarioColecao.cargo; // Pode ser 1 (Membro) ou 2 (Moderador)
+      }
+    }
+
     const materias = colecao.Materia.map(materia => ({
       idMateria: materia.idMateria,
       nome: materia.nome,
@@ -565,13 +582,22 @@ app.post('/api/getColecaoInfo', async (req, res) => {
       quantidadeTopicos: materia.Topico.length,
     }));
 
+    console.log({
+      colecao: {
+        ...colecao,
+        materias
+      },
+      cargo: cargo
+    })
+
     res.json({
       colecao: {
         ...colecao,
         materias
-      }
+      },
+      cargo: cargo
     });
-    
+
   } catch (error) {
     console.error('Error fetching colecao:', error);
     res.status(500).json({ error: 'Erro ao buscar coleção' });
@@ -844,8 +870,9 @@ app.post('/api/entrarEmUmaColecao', async (req, res) => {
         cargo: "1"
       },
     });
+    
 
-    res.status(201).json({ success: true, message: 'Usuário entrou na coleção com sucesso', data: novaConexao });
+    res.status(200).json({ success: true, message: 'Usuário entrou na coleção com sucesso', data: novaConexao });
     
   } catch (error) {
     console.error('Error fetching:', error);
@@ -891,33 +918,6 @@ app.post('/api/sairDeUmaColecao', async (req, res) => {
   }
 });
 
-
-
-
-
-app.post('/api/ehDeUmaColecao', async (req, res) => {
-  const { username, idColecao } = req.body;
-
-  const user = await prisma.usuario.findUnique({ where: { username } });
-  if (!user) {
-    return res.status(404).json({ error: 'Usuário não encontrado' });
-  }
-
-  try {
-    const pertenceColecao = await prisma.usuarioColecao.findFirst({
-      where: {
-        idUsuario: user.idUsuario,
-        idColecao,
-      },
-    });
-
-    res.json({ success: true, pertence: !!pertenceColecao });
-    
-  } catch (error) {
-    console.error('Error fetching:', error);
-    res.status(500).json({ error: 'Erro ao verificar associação com a coleção' });
-  }
-});
 
 
 
