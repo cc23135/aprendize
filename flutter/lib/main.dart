@@ -123,28 +123,32 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 0; // Track the currently selected index
   bool _showNotifications = false;
   bool _showUserPage = false;
 
-  final List<Widget> _pages = [
-    const HomePage(),
-    const StatisticsPage(),
-    const RankingPage(),
-    const ColecaoPage(),
-    const CalendarPage(),
-  ];
-
-  @override
-  void initState() {
-    super.initState();
+  Widget _buildPage(int index) {
+    switch (index) {
+      case 0:
+        return const HomePage();
+      case 1:
+        return const StatisticsPage();
+      case 2:
+        return const RankingPage();
+      case 3:
+        return const ColecaoPage();
+      case 4:
+        return const CalendarPage();
+      default:
+        return const SizedBox(); // Fallback in case of an unknown index
+    }
   }
 
   void _onItemTapped(int index) {
     setState(() {
-      _selectedIndex = index;
-      _showNotifications = false;
-      _showUserPage = false;
+      _selectedIndex = index; // Update the selected index
+      _showNotifications = false; // Reset notifications
+      _showUserPage = false; // Reset user page
     });
   }
 
@@ -153,121 +157,57 @@ class _MyHomePageState extends State<MyHomePage> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
-        child: Container(
-          decoration: BoxDecoration(
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.white.withOpacity(0.4),
-                spreadRadius: 0,
-                blurRadius: 4,
-                offset: const Offset(0, 1),
-              ),
-            ],
-          ),
-          child: AppBar(
-            surfaceTintColor: Colors.transparent,
-            scrolledUnderElevation: 0.0,
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                IconButton(
-                  icon: const Icon(Icons.notifications),
-                  color: theme.brightness == Brightness.light
-                      ? Colors.black 
-                      : theme.iconTheme.color, 
-                  onPressed: () {
-                    setState(() {
-                      _showNotifications = true;
-                      _showUserPage = false;
-                    });
-                  },
-                ),
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _showUserPage = true;
-                      _showNotifications = false;
-                    });
-                  },
-                  child: ValueListenableBuilder<String>(
-                    valueListenable: AppStateSingleton().userProfileImageUrlNotifier,
-                    builder: (context, profileUrl, child) {
-                      return CircleAvatar(
-                        radius: 16,
-                        backgroundImage: profileUrl.isNotEmpty
-                            ? NetworkImage(profileUrl)
-                            : const AssetImage('assets/images/mona.png') as ImageProvider,
-                        backgroundColor: Colors.transparent,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: _showUserPage
-                                  ? AppColors.lightPurple
-                                  : Colors.transparent,
-                              width: 2,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
+      appBar: AppBar(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            IconButton(
+              icon: const Icon(Icons.notifications),
+              onPressed: () {
+                setState(() {
+                  _showNotifications = true;
+                  _showUserPage = false;
+                });
+              },
             ),
-          ),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _showUserPage = true;
+                  _showNotifications = false;
+                });
+              },
+              child: ValueListenableBuilder<String>(
+                valueListenable: AppStateSingleton().userProfileImageUrlNotifier,
+                builder: (context, profileUrl, child) {
+                  return CircleAvatar(
+                    radius: 16,
+                    backgroundImage: profileUrl.isNotEmpty
+                        ? NetworkImage(profileUrl)
+                        : const AssetImage('assets/images/default_user.png') as ImageProvider,
+                    backgroundColor: Colors.transparent,
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
       body: _showNotifications
-          ? NotificationsPage()
+          ? NotificationsPage() // Your notifications page
           : _showUserPage
-              ? UserPage()
-              : IndexedStack(
-                  index: _selectedIndex,
-                  children: _pages,
-                ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.8),
-              spreadRadius: 0,
-              blurRadius: 4,
-              offset: const Offset(0, 0),
-            ),
-          ],
-        ),
-        child: BottomNavigationBar(
-          backgroundColor: theme.bottomNavigationBarTheme.backgroundColor,
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.trending_up),
-              label: 'Estatísticas',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.leaderboard),
-              label: 'Ranking',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.chat),
-              label: 'Coleções',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.calendar_today),
-              label: 'Calendário',
-            ),
-          ],
-          currentIndex: _selectedIndex,
-          selectedItemColor: theme.bottomNavigationBarTheme.selectedItemColor,
-          unselectedItemColor: theme.bottomNavigationBarTheme.unselectedItemColor,
-          onTap: _onItemTapped,
-        ),
+              ? UserPage() // Your user page
+              : _buildPage(_selectedIndex), // Build the selected page
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.trending_up), label: 'Estatísticas'),
+          BottomNavigationBarItem(icon: Icon(Icons.leaderboard), label: 'Ranking'),
+          BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Coleções'),
+          BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Calendário'),
+        ],
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
       ),
     );
   }

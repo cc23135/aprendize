@@ -391,20 +391,39 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
           Navigator.of(context).pop();
 
           if (response.statusCode == 200) {
-            final data = jsonDecode(response.body);
-            final idColecao = data['idColecao'];
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ChatDetailsPage(
-                  idColecao: idColecao,
-                ),
+          final data = jsonDecode(response.body);
+          final idColecao = data['idColecao'];
+
+          Map<String, dynamic> newCollection = {
+            'idColecao': idColecao,
+            'nome': _nomeController.text,
+            'descricao': _descricaoController.text,
+            'linkImagem': _imageUrl,
+            'materias': _materias.map((materia) {
+              return {
+                'nome': materia.titulo,
+                'capa': materia.imageUrl,
+                'topicos': materia.subtitulos.map((subtitulo) => {'nome': subtitulo}).toList(),
+              };
+            }).toList(),
+          };
+
+          AppStateSingleton().collections.add(newCollection);
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ChatDetailsPage(
+                idColecao: idColecao,
               ),
-            );
-          } else {
-            // Lidar com erro ao criar a coleção
-            _mostrarErro('Erro ao criar a coleção. Tente novamente.');
-          }
+            ),
+          );
+        } else {
+          _mostrarErro('Erro ao criar a coleção. Tente novamente.');
+        }
+
+
+
         } catch (e) {
           // Fecha o indicador de progresso em caso de erro
           Navigator.of(context).pop();

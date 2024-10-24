@@ -66,42 +66,77 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
   }
   }
 
+
   Future<void> EntrarNaColecao() async {
     final uri = Uri.parse('${AppStateSingleton().apiUrl}api/entrarEmUmaColecao');
-    final response = await http.post(uri, body: jsonEncode({
-      "idColecao": widget.idColecao,
-      "username": AppStateSingleton().username,
-    }), headers: {
-      "Content-Type": "application/json",
-    });
+    final response = await http.post(
+      uri,
+      body: jsonEncode({
+        "idColecao": widget.idColecao,
+        "username": AppStateSingleton().username,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    );
 
-    if (response.statusCode == 200) { 
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    if (response.statusCode == 201) {
+      final preData = jsonDecode(response.body);
+      final data = preData['data'];
+
+      Map<String, dynamic> newCollection = {
+        'idColecao': data['idColecao'],
+        'nome': data['nome'],
+        'descricao': data['descricao'],
+        'linkImagem': data['linkImagem'],
+        'idCriador': data['idCriador'],
+        'dataCriacao': data['dataCriacao'],
+      };
+
+      // Add the new collection to the AppStateSingleton
+      AppStateSingleton().collections.add(newCollection);
+
       setState(() {
-        usuarioEstaNessaColecao = true; 
+        usuarioEstaNessaColecao = true; // Update the state
       });
     } else {
-      throw Exception('Falha');
+      throw Exception('Falha ao entrar na coleção: ${response.statusCode} - ${response.body}');
     }
   }
+
 
 
   Future<void> SairDaColecao() async {
     final uri = Uri.parse('${AppStateSingleton().apiUrl}api/sairDeUmaColecao');
-    final response = await http.post(uri, body: jsonEncode({
-      "idColecao": widget.idColecao,
-      "username": AppStateSingleton().username,
-    }), headers: {
-      "Content-Type": "application/json",
-    });
+    final response = await http.post(
+      uri,
+      body: jsonEncode({
+        "idColecao": widget.idColecao,
+        "username": AppStateSingleton().username,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    );
 
-    if (response.statusCode == 200) { 
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      // Assuming successful exit means removing the collection from the AppStateSingleton
+      AppStateSingleton().collections.removeWhere((collection) => collection['idColecao'] == widget.idColecao);
+
       setState(() {
-        usuarioEstaNessaColecao = false; 
+        usuarioEstaNessaColecao = false; // Update the state
       });
     } else {
-      throw Exception('Falha');
+      throw Exception('Falha ao sair da coleção: ${response.statusCode} - ${response.body}');
     }
   }
+
 
 
   @override

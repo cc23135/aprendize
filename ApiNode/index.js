@@ -187,11 +187,13 @@ app.get('/api/getNotifications', async (req, res) => {
 
 app.post('/api/existeUsuario', async (req, res) => {
   const { username } = req.body;
+  console.log("existeUsuario " + username)
 
   if (!username) return res.status(400).json({ error: 'Username é necessário.' });
 
   try {
     const userExists = await prisma.usuario.findFirst({ where: { username } });
+    console.log(!!userExists)
     res.json({ success: !!userExists }); 
   } catch (error) {
     console.error('Error:', error);
@@ -717,8 +719,8 @@ app.get('/api/getEstudos', async (req, res) => {
         Aprendize.Estudo.idUsuario = ${parseInt(idUsuario, 10)} 
       ORDER BY Aprendize.Estudo.dataEstudo ASC
     `;
-
-
+    console.log(idUsuario)
+    console.log(estudos)
     res.status(200).json(estudos);
   } catch (error) {
     console.error('Erro ao buscar estudos:', error);
@@ -837,6 +839,7 @@ app.post('/api/entrarEmUmaColecao', async (req, res) => {
   }
 
   try {
+    // Create a new connection in UsuarioColecao
     const novaConexao = await prisma.usuarioColecao.create({
       data: {
         idUsuario: user.idUsuario,
@@ -845,13 +848,40 @@ app.post('/api/entrarEmUmaColecao', async (req, res) => {
       },
     });
 
-    res.status(201).json({ success: true, message: 'Usuário entrou na coleção com sucesso', data: novaConexao });
+    // Fetch the collection details
+    const colecao = await prisma.colecao.findUnique({
+      where: { idColecao },
+      include: {
+        Usuario: {
+          select: { idUsuario: true, nome: true } // Include creator info if needed
+        }
+      }
+    });
+
+    // Return success response with additional fields
+    res.status(201).json({
+      success: true,
+      message: 'Usuário entrou na coleção com sucesso',
+      data: {
+        idUsuarioColecao: novaConexao.idUsuarioColecao, // Include this field
+        idUsuario: novaConexao.idUsuario, // Include this field
+        idColecao: novaConexao.idColecao, // Include this field
+        cargo: novaConexao.cargo, // Include this field
+        // Include the collection details
+        nome: colecao.nome,
+        descricao: colecao.descricao,
+        linkImagem: colecao.linkImagem,
+        idCriador: colecao.idCriador,
+        dataCriacao: colecao.dataCriacao,
+      }
+    });
     
   } catch (error) {
     console.error('Error fetching:', error);
     res.status(500).json({ error: 'Erro' });
   }
 });
+
 
 
 

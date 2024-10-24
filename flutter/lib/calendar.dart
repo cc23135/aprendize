@@ -45,6 +45,8 @@ class _CalendarPageState extends State<CalendarPage> {
           estudosAgrupados[dataEstudo]!.add(estudo);
         }
 
+        print(dados);
+
         setState(() {
           _estudos = estudosAgrupados;
         });

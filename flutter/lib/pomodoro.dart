@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:aprendize/AppStateSingleton.dart';
 import 'package:aprendize/colors.dart';
+import 'package:aprendize/home.dart';
 import 'package:aprendize/main.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -100,7 +101,7 @@ class _PomodoroPageState extends State<PomodoroPage> {
 
       if (response.statusCode == 201) {
         print('Estudo finalizado e tarefa deletada com sucesso');
-        Navigator.push(context, MaterialPageRoute(builder: (context) => MyApp()));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => MyHomePage()));
       } else {
         print('Falha ao finalizar estudo: ${response.statusCode}');
       }

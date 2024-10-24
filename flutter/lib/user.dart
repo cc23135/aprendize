@@ -38,6 +38,7 @@ class _UserPageState extends State<UserPage> {
   void initState() {
     super.initState();
     _loadThemePreference();
+    print(AppStateSingleton().collections);
     _nameController.text = AppStateSingleton().nome;
     _usernameController.text = AppStateSingleton().username;
     _newPasswordController.text = AppStateSingleton().senha;
