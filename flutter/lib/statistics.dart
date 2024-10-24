@@ -775,27 +775,31 @@ Future<void> _fetchStatisticsData() async {
       
       setState(() {
         // Accessing the data returned by your API
-        exerciciosFeitosSemanal = data['exerciciosFeitosSemanal']; // 4 semanas // BD
-        exerciciosFeitosDiario = data['exerciciosFeitosDiario']; // 7 dias // bd
+
+        // Diário - > 7 dias
+        // Semanal - > 4 semanas
+        // Mensal -> 6 meses
+
+        // conf API
+        exerciciosFeitosSemanal = data['exerciciosFeitosSemanal']; 
+        exerciciosFeitosDiario = data['exerciciosFeitosDiario']; 
         exerciciosFeitosMensal = data['exerciciosFeitosMensal']; // SEM NADA
 
-        tempoGastoTotalSemanal = data['tempoGastoTotalSemanal']; // BD
-        tempoGastoTotalDiario = data['tempoGastoTotalDiario']; // BD
+        tempoGastoTotalSemanal = data['tempoGastoTotalSemanal'];
+        tempoGastoTotalDiario = data['tempoGastoTotalDiario'];
         tempoGastoTotalMensal = data['tempoGastoTotalMensal']; // SEM NADA
 
-        nomesMateriasExerciciosSemanal = data['nomesMateriasExerciciosSemanal']; // BD
-        exerciciosFeitosPorMateriaSemanal = data['exerciciosFeitosPorMateriaSemanal'];  // BD
+        nomesMateriasExerciciosSemanal = data['nomesMateriasExerciciosSemanal'];
+        exerciciosFeitosPorMateriaSemanal = data['exerciciosFeitosPorMateriaSemanal'];
 
-        nomesMateriasExerciciosMensal = data['nomesMateriasExerciciosMensal']; // BD
-        exerciciosFeitosPorMateriaMensal = data['exerciciosFeitosPorMateriaMensal']; // BD
+        nomesMateriasExerciciosMensal = data['nomesMateriasExerciciosMensal']; 
+        exerciciosFeitosPorMateriaMensal = data['exerciciosFeitosPorMateriaMensal']; 
 
-        nomesMateriasTempoSemanal = data['nomesMateriasTempoSemanal']; // BD
-        tempoGastoPorMateriaSemanal = data['tempoGastoPorMateriaSemanal']; // BD
+        nomesMateriasTempoSemanal = data['nomesMateriasTempoSemanal']; 
+        tempoGastoPorMateriaSemanal = data['tempoGastoPorMateriaSemanal']; 
 
-        nomesMateriasTempoMensal = data['nomesMateriasTempoMensal']; // BD
-        tempoGastoPorMateriaMensal = data['tempoGastoPorMateriaMensal']; // BD
-
-        // a fazer BD abaixo
+        nomesMateriasTempoMensal = data['nomesMateriasTempoMensal']; 
+        tempoGastoPorMateriaMensal = data['tempoGastoPorMateriaMensal'];
 
         nomesColecoesExerciciosSemanal = data['nomesColecoesExerciciosSemanal'];
         exerciciosFeitosPorColecaoSemanal = data['exerciciosFeitosPorColecaoSemanal'];
