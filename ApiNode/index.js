@@ -181,16 +181,32 @@ app.get('/api/getNotifications', async (req, res) => {
   }
 });
 
+app.delete('/api/deleteNotification', async (req, res) => {
+  try {
+    const notificationId = req.query.id;
+
+    if (!notificationId) {
+      return res.status(400).json({ error: 'ID da notificação não fornecido.' });
+    }
+
+    await prisma.notificacao.delete({
+      where: { idNotificacao: parseInt(notificationId) },
+    });
+
+    res.status(200).json({ success: true, message: 'Notificação deletada com sucesso!' });
+  } catch (error) {
+    console.error('Erro ao deletar a notificação:', error);
+    res.status(500).json({ success: false, error: 'Erro ao deletar a notificação.' });
+  }
+});
 
 app.post('/api/existeUsuario', async (req, res) => {
   const { username } = req.body;
-  console.log("existeUsuario " + username)
 
   if (!username) return res.status(400).json({ error: 'Username é necessário.' });
 
   try {
     const userExists = await prisma.usuario.findFirst({ where: { username } });
-    console.log(!!userExists)
     res.json({ success: !!userExists }); 
   } catch (error) {
     console.error('Error:', error);
@@ -262,11 +278,8 @@ app.get('/api/haveNewNotification', async (req, res) => {
 
 
 app.get('/api/login', async (req, res) => {
-  console.log('oi')
   try {
     const { username, senha } = req.query;
-
-    console.log(username + " " + senha)
     
     if (!username || !senha) {
       return res.json({ success: false, message: 'Nome de usuário e senha são obrigatórios.' });
@@ -323,7 +336,6 @@ app.post('/api/signUp', async (req, res) => {
     const existingUser = await prisma.$queryRaw`SELECT * FROM Aprendize.Usuario WHERE "username" = ${username}`;
 
     if (existingUser.length > 0) {
-      console.log("Já existe!");
       return res.status(409).json({ error: 'Nome de usuário já está em uso.' });
     }
 
@@ -583,14 +595,6 @@ app.post('/api/getColecaoInfo', async (req, res) => {
       quantidadeTopicos: materia.Topico.length,
     }));
 
-    console.log({
-      colecao: {
-        ...colecao,
-        materias
-      },
-      cargo: cargo
-    })
-
     res.json({
       colecao: {
         ...colecao,
@@ -744,7 +748,6 @@ app.get('/api/getEstudos', async (req, res) => {
         Aprendize.Estudo.idUsuario = ${parseInt(idUsuario, 10)} 
       ORDER BY Aprendize.Estudo.dataEstudo ASC
     `;
-    console.log(idUsuario)
     console.log(estudos)
     res.status(200).json(estudos);
   } catch (error) {

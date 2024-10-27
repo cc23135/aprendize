@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:aprendize/AppStateSingleton.dart';
 import 'package:aprendize/colors.dart';
-import 'package:aprendize/home.dart';
 import 'package:aprendize/main.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -13,8 +12,15 @@ class PomodoroPage extends StatefulWidget {
   String topicoNome;
   int idTopico;
   int idTarefa;
-  
-  PomodoroPage({super.key, required this.metaTempo, required this.metaExercicios, required this.topicoNome, required this.idTopico, required this.idTarefa});
+
+  PomodoroPage({
+    super.key,
+    required this.metaTempo,
+    required this.metaExercicios,
+    required this.topicoNome,
+    required this.idTopico,
+    required this.idTarefa,
+  });
 
   @override
   _PomodoroPageState createState() => _PomodoroPageState();
@@ -22,8 +28,9 @@ class PomodoroPage extends StatefulWidget {
 
 class _PomodoroPageState extends State<PomodoroPage> {
   Timer? _timer;
-  late final int _totalSeconds; 
-  late int _remainingSeconds; 
+  late final int _totalSeconds;
+  late int _remainingSeconds;
+  late int _elapsedSeconds; // Tempo decorrido em segundos
   bool _isRunning = false;
   int _exerciciosFeitos = 0;
   int _exerciciosAcertados = 0;
@@ -32,24 +39,25 @@ class _PomodoroPageState extends State<PomodoroPage> {
   @override
   void initState() {
     super.initState();
-    _totalSeconds = widget.metaTempo * 60; 
-    _remainingSeconds = _totalSeconds; 
+    _totalSeconds = widget.metaTempo * 60;
+    _remainingSeconds = _totalSeconds;
+    _elapsedSeconds = 0; // Inicializa o tempo decorrido
   }
 
   void _startTimer() {
-    setState(() {
-      _isRunning = true;
-      _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+  setState(() {
+    _isRunning = true;
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
         if (_remainingSeconds > 0) {
-          setState(() {
-            _remainingSeconds--;
-          });
-        } else {
-          _stopTimer(); 
+          _remainingSeconds--;
         }
+        _elapsedSeconds++; // Continua incrementando o tempo decorrido
       });
     });
-  }
+  });
+}
+
 
   void _stopTimer() {
     setState(() {
@@ -60,27 +68,28 @@ class _PomodoroPageState extends State<PomodoroPage> {
 
   void _resetTimer() {
     if (_isRunning) {
-      _stopTimer(); 
+      _stopTimer();
     }
     setState(() {
       _remainingSeconds = _totalSeconds;
+      _elapsedSeconds = 0; // Reseta o tempo decorrido
     });
   }
-
 
   void FinalizarEstudo() async {
     _stopTimer();
 
     final uri = Uri.parse('${AppStateSingleton().apiUrl}api/criarEstudo');
-    final idTarefa = widget.idTarefa; 
+    final idTarefa = widget.idTarefa;
     final idTopico = widget.idTopico;
-    final username = AppStateSingleton().username; 
+    final username = AppStateSingleton().username;
     final metaExercicios = widget.metaExercicios;
     final metaTempo = widget.metaTempo;
     final qtosExercicios = _exerciciosFeitos;
-    final qtosExerciciosAcertados = _exerciciosAcertados; 
-    final qtoTempo = ((_totalSeconds - _remainingSeconds) / 60).ceil();
-    final dataEstudo = DateTime.now().toIso8601String();
+    final qtosExerciciosAcertados = _exerciciosAcertados;
+    final qtoTempo = (_elapsedSeconds / 60).ceil();
+    DateTime now = DateTime.now();
+    final dataEstudo = DateTime.utc(now.year, now.month, now.day).toUtc().toIso8601String();
 
     try {
       final response = await http.post(
@@ -110,11 +119,12 @@ class _PomodoroPageState extends State<PomodoroPage> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-    final minutes = (_remainingSeconds / 60).floor();
-    final seconds = _remainingSeconds % 60;
+    final remainingMinutes = (_remainingSeconds / 60).floor();
+    final remainingSeconds = _remainingSeconds % 60;
+    final elapsedMinutes = (_elapsedSeconds / 60).floor();
+    final elapsedSeconds = _elapsedSeconds % 60;
 
     return Scaffold(
       appBar: AppBar(
@@ -122,7 +132,7 @@ class _PomodoroPageState extends State<PomodoroPage> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context); 
+            Navigator.pop(context);
           },
         ),
       ),
@@ -139,76 +149,91 @@ class _PomodoroPageState extends State<PomodoroPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 ElevatedButton(
-                  onPressed: (){setState(() {_exerciciosFeitos++;_exerciciosAcertados++;});},
-                  child: Text('✔ ${_exerciciosAcertados}'),
+                  onPressed: () {
+                    setState(() {
+                      _exerciciosFeitos++;
+                      _exerciciosAcertados++;
+                    });
+                  },
+                  child: Text('✔ $_exerciciosAcertados'),
                 ),
                 const SizedBox(width: 20),
                 Text(
-                  'Ex. ${_exerciciosFeitos}/${widget.metaExercicios} ',
+                  'Ex. $_exerciciosFeitos/${widget.metaExercicios} ',
                   style: TextStyle(
                     fontSize: 18,
-                    fontWeight: _exerciciosFeitos >= widget.metaExercicios ? FontWeight.bold : FontWeight.normal, // Define o peso da fonte
-                    color: _exerciciosFeitos >= widget.metaExercicios ? Colors.green : Colors.white, // Altera a cor
+                    fontWeight: _exerciciosFeitos >= widget.metaExercicios
+                        ? FontWeight.bold
+                        : FontWeight.normal,
+                    color: _exerciciosFeitos >= widget.metaExercicios
+                        ? Colors.green
+                        : Colors.white,
                   ),
                 ),
                 const SizedBox(width: 20),
                 ElevatedButton(
-                  onPressed: (){setState(() {_exerciciosFeitos++;_exerciciosErrados++;});},
-                  child: Text('❌ ${_exerciciosErrados}'),
+                  onPressed: () {
+                    setState(() {
+                      _exerciciosFeitos++;
+                      _exerciciosErrados++;
+                    });
+                  },
+                  child: Text('❌ $_exerciciosErrados'),
                 ),
               ],
             ),
-
             const SizedBox(height: 40),
-
             SizedBox(
               width: 100,
               height: 100,
               child: CircularProgressIndicator(
-                value: _isRunning ? (_totalSeconds - _remainingSeconds) / _totalSeconds : 0,
+                value: (_totalSeconds - _remainingSeconds) / _totalSeconds,
                 strokeWidth: 10,
                 backgroundColor: Colors.grey[300],
                 valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
               ),
             ),
-            const SizedBox(height: 30), 
-
+            const SizedBox(height: 10),
             Text(
-              '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}',
-              style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+              '${remainingMinutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}',
+              style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
-            
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 ElevatedButton(
                   onPressed: _isRunning ? null : _startTimer,
-                  child: const Text('Start'),
+                  child: const Text('Começar'),
                 ),
                 const SizedBox(width: 10),
                 ElevatedButton(
                   onPressed: !_isRunning ? null : _stopTimer,
-                  child: const Text('Stop'),
+                  child: const Text('Parar'),
                 ),
                 const SizedBox(width: 10),
                 ElevatedButton(
                   onPressed: _resetTimer,
-                  child: const Text('Reset'),
+                  child: const Text('Resetar'),
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
+            Text(
+              '${elapsedMinutes.toString().padLeft(2, '0')}:${elapsedSeconds.toString().padLeft(2, '0')}',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
             ElevatedButton(
-              onPressed: () {FinalizarEstudo();},
+              onPressed: () {
+                FinalizarEstudo();
+              },
               style: ElevatedButton.styleFrom(
-                foregroundColor: AppColors.white, 
-                backgroundColor: AppColors.darkPurple, 
+                foregroundColor: AppColors.white,
+                backgroundColor: AppColors.darkPurple,
               ),
               child: const Text('Finalizar Estudo'),
             ),
-
-
           ],
         ),
       ),

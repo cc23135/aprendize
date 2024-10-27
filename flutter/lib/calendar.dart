@@ -16,7 +16,9 @@ class CalendarPage extends StatefulWidget {
 }
 
 class _CalendarPageState extends State<CalendarPage> {
-  DateTime _selectedDay =  DateTime.now().toUtc().copyWith(hour: 0, minute: 0, second: 0, millisecond: 0, microsecond: 0);
+  DateTime now = DateTime.now();
+  late DateTime _selectedDay =
+      DateTime.utc(now.year, now.month, now.day).toUtc();
   DateTime _focusedDay = DateTime.now();
 
   Map<DateTime, List<dynamic>> _estudos = {};
@@ -44,8 +46,6 @@ class _CalendarPageState extends State<CalendarPage> {
           }
           estudosAgrupados[dataEstudo]!.add(estudo);
         }
-
-        print(dados);
 
         setState(() {
           _estudos = estudosAgrupados;
@@ -222,15 +222,17 @@ class _CalendarPageState extends State<CalendarPage> {
                     child: _getIconForDay(date),
                   );
                 }
-                return Container(); 
+                return Container();
               },
             ),
           ),
-         ElevatedButton(
+          ElevatedButton(
             onPressed: () {
               setState(() {
-                _selectedDay = DateTime.now().toUtc().copyWith(hour: 0, minute: 0, second: 0, millisecond: 0, microsecond: 0);
-                _focusedDay = DateTime.now();
+                final now = DateTime.now();
+                _selectedDay =
+                    DateTime.utc(now.year, now.month, now.day).toUtc();
+                _focusedDay = now;
               });
             },
             child: const Text('Voltar ao Hoje'),
@@ -273,25 +275,23 @@ class _CalendarPageState extends State<CalendarPage> {
                               fontSize: 16,
                             ),
                           ),
-                          Text(
-                            'Porcentagem de Acertos: ${((_estudos[_selectedDay]?.fold<int>(0, (sum, estudo) => sum + (estudo['qtosExerciciosAcertados'] as int? ?? 0)) ?? 0) * 100 / (_estudos[_selectedDay]?.fold<int>(0, (sum, estudo) => sum + (estudo['qtosExercicios'] as int? ?? 0)) ?? 1)).toStringAsFixed(1)}% (${_estudos[_selectedDay]?.fold<int>(0, (sum, estudo) => sum + (estudo['qtosExerciciosAcertados'] as int? ?? 0)) ?? 0}/${_estudos[_selectedDay]?.fold<int>(0, (sum, estudo) => sum + (estudo['qtosExercicios'] as int? ?? 0)) ?? 1})',
-                            style: TextStyle(
-                              color: AppColors.white,
-                              fontSize: 16,
+                          if ((_estudos[_selectedDay]?.fold<int>(0,(sum, estudo) =>sum +(estudo['qtosExercicios'] as int? ??0)) ?? 0) >0)
+                            Text(
+                              'Porcentagem de Acertos: ${((_estudos[_selectedDay]?.fold<int>(0, (sum, estudo) => sum + (estudo['qtosExerciciosAcertados'] as int? ?? 0)) ?? 0) * 100 / (_estudos[_selectedDay]?.fold<int>(0, (sum, estudo) => sum + (estudo['qtosExercicios'] as int? ?? 0)) ?? 1)).toStringAsFixed(1)}% (${_estudos[_selectedDay]?.fold<int>(0, (sum, estudo) => sum + (estudo['qtosExerciciosAcertados'] as int? ?? 0)) ?? 0}/${_estudos[_selectedDay]?.fold<int>(0, (sum, estudo) => sum + (estudo['qtosExercicios'] as int? ?? 0)) ?? 1})',
+                              style: TextStyle(
+                                color: AppColors.white,
+                                fontSize: 16,
+                              ),
                             ),
-                          ),
                         ],
                       ),
                     ),
                   ),
                 // Cards individuais
                 ..._estudos[_selectedDay]?.map((estudo) {
-                      final qtosExercicios =
-                          estudo['qtosExercicios'] as int? ?? 0;
-                      final metaExercicios =
-                          estudo['metaExercicios'] as int? ?? 0;
-                      final qtosAcertos =
-                          estudo['qtosExerciciosAcertados'] as int? ?? 0;
+                      final qtosExercicios = estudo['qtosExercicios'] as int? ?? 0;
+                      final metaExercicios = estudo['metaExercicios'] as int? ?? 0;
+                      final qtosAcertos = estudo['qtosExerciciosAcertados'] as int? ?? 0;
 
                       return Card(
                         margin: const EdgeInsets.symmetric(vertical: 8),
@@ -333,20 +333,22 @@ class _CalendarPageState extends State<CalendarPage> {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 8),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Acertos: ${qtosAcertos * 100 ~/ (qtosExercicios == 0 ? 1 : qtosExercicios)}% ($qtosAcertos/$qtosExercicios)',
-                                    style: TextStyle(
-                                      color: AppColors.white,
-                                      fontSize: 16,
+                              if (qtosExercicios > 0) ...[
+                                const SizedBox(height: 8),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Acertos: ${qtosAcertos * 100 ~/ (qtosExercicios == 0 ? 1 : qtosExercicios)}% ($qtosAcertos/$qtosExercicios)',
+                                      style: TextStyle(
+                                        color: AppColors.white,
+                                        fontSize: 16,
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
+                                  ],
+                                ),
+                              ],
                               const SizedBox(height: 8),
                               Row(
                                 mainAxisAlignment:
@@ -381,11 +383,9 @@ class _CalendarPageState extends State<CalendarPage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           DateTime today = DateTime.now();
-          DateTime selectedDayOnlyDate =
-              DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day);
+          DateTime selectedDayOnlyDate = DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day);
 
-          if (selectedDayOnlyDate
-              .isBefore(DateTime(today.year, today.month, today.day))) {
+          if (selectedDayOnlyDate.isBefore(DateTime(today.year, today.month, today.day))) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('Não se pode criar tarefa para dias anteriores!',
