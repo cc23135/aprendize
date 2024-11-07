@@ -22,6 +22,7 @@ class _CalendarPageState extends State<CalendarPage> {
   DateTime _focusedDay = DateTime.now();
 
   Map<DateTime, List<dynamic>> _estudos = {};
+  Map<DateTime, List<dynamic>> _tarefas = {};
 
   @override
   void initState() {
@@ -30,83 +31,99 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   Future<void> _fetchEstudos() async {
-    try {
-      final response = await http.get(Uri.parse(
-          '${AppStateSingleton().apiUrl}api/getEstudos?idUsuario=${AppStateSingleton().idUsuario}'));
+  try {
+    final response = await http.get(Uri.parse(
+        '${AppStateSingleton().apiUrl}api/getEstudos?idUsuario=${AppStateSingleton().idUsuario}'));
 
-      if (response.statusCode == 200) {
-        List<dynamic> dados = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      Map<String, dynamic> dados = jsonDecode(response.body);
 
-        Map<DateTime, List<dynamic>> estudosAgrupados = {};
+      List<dynamic> estudosData = dados['estudos'];
+      List<dynamic> tarefasData = dados['tarefas'];
 
-        for (var estudo in dados) {
-          DateTime dataEstudo = DateTime.parse(estudo['dataEstudo']);
-          if (estudosAgrupados[dataEstudo] == null) {
-            estudosAgrupados[dataEstudo] = [];
-          }
-          estudosAgrupados[dataEstudo]!.add(estudo);
+      Map<DateTime, List<dynamic>> estudosAgrupados = {};
+      Map<DateTime, List<dynamic>> tarefasAgrupadas = {};
+
+      // Agrupando os estudos por data
+      for (var estudo in estudosData) {
+        DateTime dataEstudo = DateTime.parse(estudo['dataEstudo']);
+        if (estudosAgrupados[dataEstudo] == null) {
+          estudosAgrupados[dataEstudo] = [];
         }
-
-        setState(() {
-          _estudos = estudosAgrupados;
-        });
-      } else {
-        throw Exception('Erro ao carregar dados');
+        estudosAgrupados[dataEstudo]!.add(estudo);
       }
-    } catch (e) {
-      print('Erro: $e');
+
+      for (var tarefa in tarefasData) {
+        DateTime dataTarefa = DateTime.parse(tarefa['dataTarefa']);
+        if (tarefasAgrupadas[dataTarefa] == null) {
+          tarefasAgrupadas[dataTarefa] = [];
+        }
+        tarefasAgrupadas[dataTarefa]!.add(tarefa);
+      }
+
+      setState(() {
+        _estudos = estudosAgrupados;
+        _tarefas = tarefasAgrupadas;
+      });
+    } else {
+      throw Exception('Erro ao carregar dados');
     }
+  } catch (e) {
+    print('Erro: $e');
   }
+}
 
   Widget _getIconForDay(DateTime day) {
-    List<dynamic>? estudosNoDia = _estudos[day];
-
-    if (estudosNoDia == null || estudosNoDia.isEmpty) {
-      return const SizedBox.shrink(); // Sem ícone se não houver estudos
-    }
-
-    int totalExercicios = 0;
-    int totalAcertos = 0;
-    int totalTempoSegundos = 0;
-    int totalMetaTempoSegundos = 0;
-
-    for (var estudo in estudosNoDia) {
-      totalExercicios += estudo['metaExercicios'] as int;
-      totalAcertos += estudo['qtosExercicios'] as int;
-
-      // Converte a string de tempo em segundos
-      totalTempoSegundos += _isoTimeToSeconds(estudo['qtoTempo']);
-      totalMetaTempoSegundos += _isoTimeToSeconds(estudo['metaTempo']);
-    }
-
-    double porcentagemExercicios =
-        totalExercicios > 0 ? totalAcertos / totalExercicios : 0;
-    double porcentagemTempo = totalMetaTempoSegundos > 0
-        ? totalTempoSegundos / totalMetaTempoSegundos
-        : 0;
-
-    String iconUrl;
-
-    if (porcentagemExercicios >= 1 && porcentagemTempo >= 1) {
-      iconUrl = 'assets/images/CarinhaFeliz.svg'; // Carinha feliz
-    } else if ((porcentagemExercicios >= 0.5 && porcentagemExercicios < 1) ||
-        (porcentagemTempo >= 0.5 && porcentagemTempo < 1)) {
-      iconUrl = 'assets/images/CarinhaMedia.svg'; // Carinha média
-    } else {
-      iconUrl = 'assets/images/CarinhaTriste.svg'; // Carinha triste
-    }
-
-    return Container(
-      padding:
-          const EdgeInsets.all(4), // Adiciona espaçamento ao redor do ícone
-      child: SvgPicture.asset(
-        iconUrl,
-        width: 20,
-        height: 20,
-        fit: BoxFit.cover,
-      ),
-    );
+  // Verifica se há tarefas no dia, retornando automaticamente o ícone triste
+  if (_tarefas[day]?.isNotEmpty ?? false) {
+    return _buildIcon('assets/images/CarinhaTriste.svg');
   }
+
+  // Obtém os estudos no dia e, se não houver, retorna sem ícone
+  final estudosNoDia = _estudos[day];
+  if (estudosNoDia == null || estudosNoDia.isEmpty) {
+    return const SizedBox.shrink();
+  }
+
+  // Inicializa as variáveis para os cálculos
+  int totalExercicios = 0, totalAcertos = 0, totalTempoSegundos = 0, totalMetaTempoSegundos = 0;
+
+  // Acumula os dados dos estudos do dia
+  for (var estudo in estudosNoDia) {
+    totalExercicios += estudo['metaExercicios'] as int;
+    totalAcertos += estudo['qtosExercicios'] as int;
+    totalTempoSegundos += _isoTimeToSeconds(estudo['qtoTempo']);
+    totalMetaTempoSegundos += _isoTimeToSeconds(estudo['metaTempo']);
+  }
+
+  double porcentagemExercicios = totalExercicios > 0 ? totalAcertos / totalExercicios : 0;
+  double porcentagemTempo = totalMetaTempoSegundos > 0 ? totalTempoSegundos / totalMetaTempoSegundos : 0;
+
+  return _buildIcon(_selectIcon(porcentagemExercicios, porcentagemTempo));
+}
+
+Widget _buildIcon(String iconUrl) {
+  return Container(
+    padding: const EdgeInsets.all(4),
+    child: SvgPicture.asset(
+      iconUrl,
+      width: 20,
+      height: 20,
+      fit: BoxFit.cover,
+    ),
+  );
+}
+
+// Função auxiliar para selecionar o ícone baseado nas porcentagens
+String _selectIcon(double porcentagemExercicios, double porcentagemTempo) {
+  if (porcentagemExercicios >= 1 && porcentagemTempo >= 1) {
+    return 'assets/images/CarinhaFeliz.svg';
+  } else if (porcentagemExercicios >= 0.5 || porcentagemTempo >= 0.5) {
+    return 'assets/images/CarinhaMedia.svg';
+  } else {
+    return 'assets/images/CarinhaTriste.svg';
+  }
+}
 
 // Função auxiliar para converter a string ISO 8601 em segundos
   int _isoTimeToSeconds(String timeString) {
@@ -125,11 +142,11 @@ class _CalendarPageState extends State<CalendarPage> {
     ];
   }
 
-  String formatTime(String timeString) {
-    DateTime time = DateTime.parse(timeString);
-    // Formatando para "HH:mm"
-    return DateFormat.Hm().format(time);
-  }
+String formatTime(String timeString) {
+  DateTime time = DateTime.parse(timeString);
+  int totalMinutes = time.hour * 60 + time.minute; 
+  return '$totalMinutes'; 
+}
 
   int calcularMetaTempoTotal() {
     int totalMetaTempoEmMinutos = 0;
@@ -240,8 +257,62 @@ class _CalendarPageState extends State<CalendarPage> {
           Expanded(
             child: ListView(
               padding: const EdgeInsets.all(16),
+    children: [
+      // Exibe Tarefas do Dia
+      if (_tarefas[_selectedDay]?.isNotEmpty ?? false)
+        Card(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          elevation: 4,
+          color: AppColors.black,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (_estudos[_selectedDay]?.isNotEmpty ?? false)
+                Text(
+                  'Tarefas do Dia',
+                  style: TextStyle(
+                    color: AppColors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ..._tarefas[_selectedDay]!.asMap().entries.map((entry) {
+                  int index = entry.key;
+                  var tarefa = entry.value;
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        tarefa['topicoNome'],
+                        style: TextStyle(
+                          color: AppColors.white,
+                          fontSize: 18,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Meta de Exercícios: ${tarefa['metaExercicios'] ?? 0}',
+                        style: TextStyle(color: AppColors.white, fontSize: 16),
+                      ),
+                      Text(
+                        'Meta de Tempo: ${formatTime(tarefa['metaTempo'])} minutos',
+                        style: TextStyle(color: AppColors.white, fontSize: 16),
+                      ),
+                      if (index != _tarefas[_selectedDay]!.length - 1)
+                        Divider(color: AppColors.white),
+                    ],
+                  );
+                }).toList(),
+              ],
+            ),
+          ),
+        ),
+        
+      // Exibe Resultados Totais e Estudos do Dia
+      if (_estudos[_selectedDay]?.isNotEmpty ?? false)
                   Card(
                     margin: const EdgeInsets.symmetric(vertical: 8),
                     elevation: 4,
@@ -269,7 +340,7 @@ class _CalendarPageState extends State<CalendarPage> {
                           ),
                           // Exiba o texto com o tempo total meta
                           Text(
-                            'Meta de Tempo Total: ${formatarTempoVisual(calcularTempoGasto())}/${formatarTempoVisual(calcularMetaTempoTotal())}',
+                            'Meta de Tempo Total: ${calcularTempoGasto()}/${calcularMetaTempoTotal()} minutos',
                             style: TextStyle(
                               color: AppColors.white,
                               fontSize: 16,
@@ -355,7 +426,7 @@ class _CalendarPageState extends State<CalendarPage> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    'Meta de Tempo: ${formatTime(estudo['qtoTempo'])}/${formatTime(estudo['metaTempo'])}',
+                                    'Meta de Tempo: ${formatTime(estudo['qtoTempo'])}/${formatTime(estudo['metaTempo'])} minutos',
                                     style: TextStyle(
                                       color: AppColors.white,
                                       fontSize: 16,

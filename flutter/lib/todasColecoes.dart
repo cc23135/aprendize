@@ -109,13 +109,13 @@ class _ChatsPageState extends State<ColecaoPage> {
                       contentPadding: const EdgeInsets.all(16),
                       title: Text(
                         colecao['nome'],
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
                       ),
                       subtitle: Text(
                         '${colecao['numEstudantes']} estudantes',
-                        style: const TextStyle(color: Colors.white),
+                        style: TextStyle(color: AppColors.white),
                       ),
-                      trailing: const Icon(Icons.chat, color: Colors.white),
+                      trailing: Icon(Icons.chat, color: AppColors.white),
                       onTap: () {
                         Navigator.push(
                           context,

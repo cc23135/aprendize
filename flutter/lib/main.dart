@@ -161,7 +161,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             IconButton(
-              icon: const Icon(Icons.notifications),
+              icon: Icon(Icons.notifications, color: AppColors.white),
               onPressed: () {
                 setState(() {
                   _showNotifications = true;

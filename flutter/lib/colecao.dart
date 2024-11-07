@@ -133,7 +133,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
       actions: [
         if (usuarioEstaNessaColecao > 1) 
           IconButton(
-            icon: Icon(Icons.edit), // Ícone de lápis
+            icon: Icon(Icons.edit, color: AppColors.white,), // Ícone de lápis
             onPressed: () {
               Navigator.push(
                 context,
