@@ -774,20 +774,19 @@ Future<void> _fetchStatisticsData() async {
       final data = json.decode(jsonString);
       
       setState(() {
-        // Accessing the data returned by your API
+        // Accessing the data returned by the API
 
         // Diário - > 7 dias
         // Semanal - > 4 semanas
         // Mensal -> 6 meses
 
-        // conf API
         exerciciosFeitosSemanal = data['exerciciosFeitosSemanal']; 
         exerciciosFeitosDiario = data['exerciciosFeitosDiario']; 
-        exerciciosFeitosMensal = data['exerciciosFeitosMensal']; // SEM NADA
+        // exerciciosFeitosMensal = data['exerciciosFeitosMensal']; // SEM NADA
 
         tempoGastoTotalSemanal = data['tempoGastoTotalSemanal'];
         tempoGastoTotalDiario = data['tempoGastoTotalDiario'];
-        tempoGastoTotalMensal = data['tempoGastoTotalMensal']; // SEM NADA
+        // tempoGastoTotalMensal = data['tempoGastoTotalMensal']; // SEM NADA
 
         nomesMateriasExerciciosSemanal = data['nomesMateriasExerciciosSemanal'];
         exerciciosFeitosPorMateriaSemanal = data['exerciciosFeitosPorMateriaSemanal'];
@@ -813,6 +812,7 @@ Future<void> _fetchStatisticsData() async {
         nomesColecoesTempoMensal = data['nomesColecoesTempoMensal'];
         tempoGastoPorColecaoMensal = data['tempoGastoPorColecaoMensal'];
 
+        print("oi");
         print(data);
 
         // Process the data as needed, e.g., updating state variables

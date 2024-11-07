@@ -1,10 +1,10 @@
 -- Stored procedures
-CREATE PROCEDURE GetTotalExerciciosLastSevenDays
+CREATE or ALTER PROCEDURE GetTotalExerciciosLastSevenDays
     @idUsuario INT
 AS
 BEGIN
     SELECT 
-        e.dataEstudo AS Dia,
+        --e.dataEstudo AS Dia,
         SUM(e.qtosExercicios) AS TotalExerciciosFeitos
     FROM 
         Aprendize.Estudo e
@@ -26,14 +26,14 @@ END;
 
 ----------------------------------------------------------------------------------------------------------------------
 
-CREATE PROCEDURE GetTotalExerciciosLastFourWeeks
+CREATE or ALTER PROCEDURE GetTotalExerciciosLastFourWeeks
     @idUsuario INT
 AS
 BEGIN
     SELECT 
-        DATEPART(WEEK, e.dataEstudo) AS Semana,
-        MIN(e.dataEstudo) AS InicioSemana,
-        MAX(e.dataEstudo) AS FimSemana,
+        --DATEPART(WEEK, e.dataEstudo) AS Semana,
+        --MIN(e.dataEstudo) AS InicioSemana,
+        --MAX(e.dataEstudo) AS FimSemana,
         SUM(e.qtosExercicios) AS TotalExerciciosFeitos
     FROM 
         Aprendize.Estudo e
@@ -44,7 +44,7 @@ BEGIN
     GROUP BY 
         DATEPART(WEEK, e.dataEstudo)
     ORDER BY 
-        Semana ASC;
+        DATEPART(WEEK, e.dataEstudo) ASC; -- CONFERIR SE ESTÁ INDO DO MAIS VELHO PARA O MAIS NOVO
 
     -- Check if any results were found
     IF @@ROWCOUNT = 0
@@ -55,12 +55,12 @@ END;
 
 ----------------------------------------------------------------------------------------------------------------------
 
-CREATE PROCEDURE GetTotalTempoLastSevenDays
+CREATE or ALTER PROCEDURE GetTotalTempoLastSevenDays
     @idUsuario INT
 AS
 BEGIN
     SELECT 
-        e.dataEstudo AS Dia,
+        --e.dataEstudo AS Dia,
         SUM(DATEDIFF(SECOND, '00:00:00', e.qtoTempo)) AS TotalTempoSegundos
     FROM 
         Aprendize.Estudo e
@@ -82,14 +82,14 @@ END;
 
 ----------------------------------------------------------------------------------------------------------------------
 
-CREATE PROCEDURE GetTotalTempoLastFourWeeks
+CREATE or ALTER PROCEDURE GetTotalTempoLastFourWeeks
     @idUsuario INT
 AS
 BEGIN
     SELECT 
-        DATEPART(WEEK, e.dataEstudo) AS Semana,
-        MIN(e.dataEstudo) AS InicioSemana,
-        MAX(e.dataEstudo) AS FimSemana,
+        --DATEPART(WEEK, e.dataEstudo) AS Semana,
+        --MIN(e.dataEstudo) AS InicioSemana,
+        --MAX(e.dataEstudo) AS FimSemana,
         SUM(DATEDIFF(SECOND, '00:00:00', e.qtoTempo)) AS TotalTempoSegundos
     FROM 
         Aprendize.Estudo e
@@ -100,7 +100,7 @@ BEGIN
     GROUP BY 
         DATEPART(WEEK, e.dataEstudo)
     ORDER BY 
-        Semana ASC;
+        DATEPART(WEEK, e.dataEstudo) ASC;
 
     -- Check if any results were found
     IF @@ROWCOUNT = 0
@@ -111,7 +111,7 @@ END;
 
 ----------------------------------------------------------------------------------------------------------------------
 
-CREATE PROCEDURE GetTopMateriasAndAverageExerciciosLastFourWeeks
+CREATE or ALTER PROCEDURE GetTopMateriasAndAverageExerciciosLastFourWeeks
     @idUsuario INT
 AS
 BEGIN
@@ -166,7 +166,7 @@ END;
 
 ----------------------------------------------------------------------------------------------------------------------
 
-CREATE PROCEDURE GetTopMateriasAndAverageExerciciosLastSixMonths
+CREATE or ALTER PROCEDURE GetTopMateriasAndAverageExerciciosLastSixMonths
     @idUsuario INT
 AS
 BEGIN
@@ -218,10 +218,9 @@ BEGIN
     -- Drop the temporary table
     DROP TABLE #RankedMaterias;
 END;
-
 ----------------------------------------------------------------------------------------------------------------------
 
-CREATE PROCEDURE GetTopMateriasAndAverageTempoLastFourWeeks
+CREATE or ALTER PROCEDURE GetTopMateriasAndAverageTempoLastFourWeeks
     @idUsuario INT
 AS
 BEGIN
@@ -274,10 +273,9 @@ BEGIN
     DROP TABLE #RankedMaterias;
 END;
 
-
 ----------------------------------------------------------------------------------------------------------------------
 
-CREATE PROCEDURE GetTopMateriasAndAverageTempoLastSixMonths
+CREATE or ALTER PROCEDURE GetTopMateriasAndAverageTempoLastSixMonths
     @idUsuario INT
 AS
 BEGIN
@@ -331,7 +329,7 @@ BEGIN
 END;
 
 ----------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE GetTopColecoesAndAverageExerciciosLastFourWeeks
+CREATE or ALTER PROCEDURE GetTopColecoesAndAverageExerciciosLastFourWeeks
     @idUsuario INT
 AS
 BEGIN
@@ -389,7 +387,7 @@ END;
 
 ----------------------------------------------------------------------------------------------------------------------
 
-CREATE PROCEDURE GetTopColecoesAndAverageExerciciosLastSixMonths
+CREATE or ALTER PROCEDURE GetTopColecoesAndAverageExerciciosLastSixMonths
     @idUsuario INT
 AS
 BEGIN
@@ -444,9 +442,10 @@ BEGIN
     DROP TABLE #RankedColecoes;
 END;
 
+
 ----------------------------------------------------------------------------------------------------------------------
 
-CREATE PROCEDURE GetTopColecoesAndAverageTempoLastFourWeeks
+CREATE or ALTER PROCEDURE GetTopColecoesAndAverageTempoLastFourWeeks
     @idUsuario INT
 AS
 BEGIN
@@ -502,11 +501,9 @@ BEGIN
 END;
 
 
-
-
 ----------------------------------------------------------------------------------------------------------------------
 
-CREATE PROCEDURE GetTopColecoesAndAverageTempoLastSixMonths
+CREATE or ALTER PROCEDURE GetTopColecoesAndAverageTempoLastSixMonths
     @idUsuario INT
 AS
 BEGIN

@@ -105,6 +105,7 @@ app.get('/api/statistics', async (req, res) => {
     
     const userId = req.query.userId; // Assuming you have user information in the request
     // Call stored procedures and retrieve data
+    // retorna mais antigo primeiro em cima
     const exerciciosFeitosTotalDiario = await prisma.$queryRaw`EXEC GetTotalExerciciosLastSevenDays @idUsuario = ${userId}`;
     const exerciciosFeitosTotalSemanal = await prisma.$queryRaw`EXEC GetTotalExerciciosLastFourWeeks @idUsuario = ${userId}`;
 
@@ -123,22 +124,7 @@ app.get('/api/statistics', async (req, res) => {
     const tempoGastoPorColecaoSemanal = await prisma.$queryRaw`EXEC GetTopColecoesAndAverageTempoLastFourWeeks @idUsuario = ${userId}`;
     const tempoGastoPorColecaoMensal = await prisma.$queryRaw`EXEC GetTopColecoesAndAverageTempoLastSixMonths @idUsuario = ${userId}`;
 
-    console.log(
-      exerciciosFeitosTotalDiario,
-      exerciciosFeitosTotalSemanal, 
-      tempoGastoTotalDiario, 
-      tempoGastoTotalSemanal, 
-      exerciciosFeitosPorMateriaSemanal, 
-      exerciciosFeitosPorMateriaMensal, 
-      tempoGastoPorMateriaSemanal, 
-      tempoGastoPorMateriaMensal,
-      exerciciosFeitosPorColecaoSemanal,
-      exerciciosFeitosPorColecaoMensal,
-      tempoGastoPorColecaoSemanal,
-      tempoGastoPorColecaoMensal
-    )
-    
-    // res.json({
+    // console.log(
     //   exerciciosFeitosTotalDiario,
     //   exerciciosFeitosTotalSemanal, 
     //   tempoGastoTotalDiario, 
@@ -151,7 +137,22 @@ app.get('/api/statistics', async (req, res) => {
     //   exerciciosFeitosPorColecaoMensal,
     //   tempoGastoPorColecaoSemanal,
     //   tempoGastoPorColecaoMensal
-    // });
+    // )
+    
+    res.json({
+      exerciciosFeitosTotalDiario,
+      exerciciosFeitosTotalSemanal, 
+      tempoGastoTotalDiario, 
+      tempoGastoTotalSemanal, 
+      exerciciosFeitosPorMateriaSemanal, 
+      exerciciosFeitosPorMateriaMensal, 
+      tempoGastoPorMateriaSemanal, 
+      tempoGastoPorMateriaMensal,
+      exerciciosFeitosPorColecaoSemanal,
+      exerciciosFeitosPorColecaoMensal,
+      tempoGastoPorColecaoSemanal,
+      tempoGastoPorColecaoMensal
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Erro ao buscar estatísticas' });
