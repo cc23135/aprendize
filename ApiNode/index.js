@@ -123,9 +123,8 @@ app.get('/api/statistics', async (req, res) => {
     const tempoGastoPorColecaoSemanal = await prisma.$executeRaw`EXEC GetTopColecoesAndAverageTempoLastFourWeeks @idUsuario = ${userId}`;
     const tempoGastoPorColecaoMensal = await prisma.$executeRaw`EXEC GetTopColecoesAndAverageTempoLastSixMonths @idUsuario = ${userId}`;
     
-    console.log("oi");
-    console.log(exerciciosFeitosTotalDiario)
-    console.log("oi");
+    //console.log("oi");
+    //console.log(exerciciosFeitosTotalDiario)
 
     // console.log(
     //   exerciciosFeitosTotalDiario,
@@ -627,11 +626,11 @@ app.post('/api/criarTarefa', async (req, res) => {
       };
     });
 
-    // Inserir tarefas utilizando createMany
     await prisma.tarefa.createMany({
       data: tarefas,
     });
 
+    console.log("tarefa criada! " + new Date(data).toISOString())
     res.status(200).json({ message: 'Tarefas criadas com sucesso!' });
   } catch (error) {
     console.error('Erro ao criar as tarefas:', error);
@@ -748,7 +747,6 @@ app.get('/api/getEstudos', async (req, res) => {
         Aprendize.Estudo.idUsuario = ${parseInt(idUsuario, 10)} 
       ORDER BY Aprendize.Estudo.dataEstudo ASC
     `;
-    console.log(estudos)
     res.status(200).json(estudos);
   } catch (error) {
     console.error('Erro ao buscar estudos:', error);
