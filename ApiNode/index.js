@@ -105,26 +105,29 @@ app.get('/api/statistics', async (req, res) => {
     
     const userId = req.query.userId; // Assuming you have user information in the request
     // Call stored procedures and retrieve data
-    const exerciciosFeitosTotalDiario = await prisma.$executeRaw`EXEC GetTotalExerciciosLastSevenDays @idUsuario = ${userId}`;
-    const exerciciosFeitosTotalSemanal = await prisma.$executeRaw`EXEC GetTotalExerciciosLastFourWeeks @idUsuario = ${userId}`;
+    // retorna mais antigo primeiro em cima
+    const exerciciosFeitosTotalDiario = await prisma.$queryRaw`EXEC GetTotalExerciciosLastSevenDays @idUsuario = ${userId}`;
+    const exerciciosFeitosTotalSemanal = await prisma.$queryRaw`EXEC GetTotalExerciciosLastFourWeeks @idUsuario = ${userId}`;
 
-    const tempoGastoTotalDiario = await prisma.$executeRaw`EXEC GetTotalTempoLastSevenDays @idUsuario = ${userId}`;
-    const tempoGastoTotalSemanal = await prisma.$executeRaw`EXEC GetTotalTempoLastFourWeeks @idUsuario = ${userId}`;
+    const tempoGastoTotalDiario = await prisma.$queryRaw`EXEC GetTotalTempoLastSevenDays @idUsuario = ${userId}`;
+    const tempoGastoTotalSemanal = await prisma.$queryRaw`EXEC GetTotalTempoLastFourWeeks @idUsuario = ${userId}`;
 
-    const exerciciosFeitosPorMateriaSemanal  = await prisma.$executeRaw`EXEC GetTopMateriasAndAverageExerciciosLastFourWeeks @idUsuario = ${userId}`;
-    const exerciciosFeitosPorMateriaMensal = await prisma.$executeRaw`EXEC GetTopMateriasAndAverageExerciciosLastSixMonths @idUsuario = ${userId}`;
+    const exerciciosFeitosPorMateriaSemanal  = await prisma.$queryRaw`EXEC GetTopMateriasAndAverageExerciciosLastFourWeeks @idUsuario = ${userId}`;
+    const exerciciosFeitosPorMateriaMensal = await prisma.$queryRaw`EXEC GetTopMateriasAndAverageExerciciosLastSixMonths @idUsuario = ${userId}`;
 
-    const tempoGastoPorMateriaSemanal = await prisma.$executeRaw`EXEC GetTopMateriasAndAverageTempoLastFourWeeks @idUsuario = ${userId}`;
-    const tempoGastoPorMateriaMensal = await prisma.$executeRaw`EXEC GetTopMateriasAndAverageTempoLastSixMonths @idUsuario = ${userId}`;
+    const tempoGastoPorMateriaSemanal = await prisma.$queryRaw`EXEC GetTopMateriasAndAverageTempoLastFourWeeks @idUsuario = ${userId}`;
+    const tempoGastoPorMateriaMensal = await prisma.$queryRaw`EXEC GetTopMateriasAndAverageTempoLastSixMonths @idUsuario = ${userId}`;
 
-    const exerciciosFeitosPorColecaoSemanal = await prisma.$executeRaw`EXEC GetTopColecoesAndAverageExerciciosLastFourWeeks @idUsuario = ${userId}`;
-    const exerciciosFeitosPorColecaoMensal = await prisma.$executeRaw`EXEC GetTopColecoesAndAverageExerciciosLastSixMonths @idUsuario = ${userId}`;
+    const exerciciosFeitosPorColecaoSemanal = await prisma.$queryRaw`EXEC GetTopColecoesAndAverageExerciciosLastFourWeeks @idUsuario = ${userId}`;
+    const exerciciosFeitosPorColecaoMensal = await prisma.$queryRaw`EXEC GetTopColecoesAndAverageExerciciosLastSixMonths @idUsuario = ${userId}`;
 
-    const tempoGastoPorColecaoSemanal = await prisma.$executeRaw`EXEC GetTopColecoesAndAverageTempoLastFourWeeks @idUsuario = ${userId}`;
-    const tempoGastoPorColecaoMensal = await prisma.$executeRaw`EXEC GetTopColecoesAndAverageTempoLastSixMonths @idUsuario = ${userId}`;
+
+    //const tempoGastoPorColecaoSemanal = await prisma.$executeRaw`EXEC GetTopColecoesAndAverageTempoLastFourWeeks @idUsuario = ${userId}`;
+    //const tempoGastoPorColecaoMensal = await prisma.$executeRaw`EXEC GetTopColecoesAndAverageTempoLastSixMonths @idUsuario = ${userId}`;
     
-    //console.log("oi");
-    //console.log(exerciciosFeitosTotalDiario)
+
+    const tempoGastoPorColecaoSemanal = await prisma.$queryRaw`EXEC GetTopColecoesAndAverageTempoLastFourWeeks @idUsuario = ${userId}`;
+    const tempoGastoPorColecaoMensal = await prisma.$queryRaw`EXEC GetTopColecoesAndAverageTempoLastSixMonths @idUsuario = ${userId}`;
 
     // console.log(
     //   exerciciosFeitosTotalDiario,
