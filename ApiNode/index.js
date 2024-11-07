@@ -738,21 +738,34 @@ app.get('/api/getEstudos', async (req, res) => {
   const { idUsuario } = req.query; 
   try {
     const estudos = await prisma.$queryRaw`
-      SELECT Aprendize.Estudo.*, Aprendize.Topico.nome AS topicoNome, Aprendize.Materia.nome AS materiaNome 
-      FROM Aprendize.Estudo
+      SELECT 
+        Aprendize.Estudo.*, 
+        Aprendize.Topico.nome AS topicoNome, 
+        Aprendize.Materia.nome AS materiaNome
+      FROM 
+        Aprendize.Estudo
       JOIN 
         Aprendize.Topico ON Aprendize.Estudo.idTopico = Aprendize.Topico.idTopico
       JOIN 
         Aprendize.Materia ON Aprendize.Topico.idMateria = Aprendize.Materia.idMateria
       WHERE 
         Aprendize.Estudo.idUsuario = ${parseInt(idUsuario, 10)} 
-      ORDER BY Aprendize.Estudo.dataEstudo ASC
+      ORDER BY 
+        Aprendize.Estudo.dataEstudo ASC
     `;
-    console.log(estudos)
-    res.status(200).json(estudos);
+
+    const tarefas = await prisma.$queryRaw`
+    SELECT Aprendize.Tarefa.*, Aprendize.Topico.nome AS topicoNome 
+    FROM Aprendize.Tarefa
+    JOIN Aprendize.Topico ON Aprendize.Tarefa.idTopico = Aprendize.Topico.idTopico
+    WHERE Aprendize.Tarefa.idUsuario = ${parseInt(idUsuario, 10)}
+    ORDER BY Aprendize.Tarefa.dataTarefa ASC
+  `;
+
+    res.status(200).json({ estudos, tarefas });
   } catch (error) {
-    console.error('Erro ao buscar estudos:', error);
-    res.status(500).json({ error: 'Erro ao buscar estudos' });
+    console.error('Erro ao buscar estudos e tarefas:', error);
+    res.status(500).json({ error: 'Erro ao buscar estudos e tarefas' });
   }
 });
 
@@ -830,45 +843,68 @@ app.post('/api/updateCollection/:id', async (req, res) => {
       },
     });
 
-    // Remover tópicos de todas as matérias
-    await prisma.topico.deleteMany({
-      where: {
-        idMateria: {
-          in: await prisma.materia.findMany({
-            where: { idColecao: Number(id) },
-            select: { idMateria: true },
-          }).then(materias => materias.map(m => m.idMateria)),
-        },
-      },
-    });
-
-    // Remover matérias
-    await prisma.materia.deleteMany({
-      where: { idColecao: Number(id) },
-    });
-
-    // Criar novas matérias e tópicos
+    // Atualizar as matérias
     await Promise.all(
       materias.map(async (materia) => {
-        const createdMateria = await prisma.materia.create({
-          data: {
-            nome: materia.nome,
-            capa: materia.capa,
-            idColecao: Number(id),
-          },
+        const existingMateria = await prisma.materia.findUnique({
+          where: { idMateria: materia.idMateria }, // Verificar se a matéria existe
         });
 
-        // Criar tópicos para cada nova matéria
-        await Promise.all(
-          materia.topicos.map(topico => {
-            return prisma.topico.create({
-              data: {
-                nome: topico.nome,
-                idMateria: createdMateria.idMateria, // Usar o ID da matéria criada
-              },
-            });
-          })
-        );
+        if (existingMateria) {
+          await prisma.materia.update({
+            where: { idMateria: materia.idMateria },
+            data: {
+              nome: materia.nome,
+              capa: materia.capa,
+              idColecao: Number(id),
+            },
+          });
+
+          await Promise.all(
+            materia.topicos.map(async (topico) => {
+              console.log(topico)
+              const existingTopico = await prisma.topico.findUnique({
+                where: { idTopico: topico.idTopico }, 
+              });
+
+              if (existingTopico) {
+                await prisma.topico.update({
+                  where: { idTopico: topico.idTopico },
+                  data: {
+                    nome: topico.nome,
+                    idMateria: materia.idMateria, // Atualizar o id da matéria
+                  },
+                });
+              } else {
+                await prisma.topico.create({
+                  data: {
+                    nome: topico.nome,
+                    idMateria: materia.idMateria,
+                  },
+                });
+              }
+            })
+          );
+        } else {
+          const createdMateria = await prisma.materia.create({
+            data: {
+              nome: materia.nome,
+              capa: materia.capa,
+              idColecao: Number(id),
+            },
+          });
+
+          await Promise.all(
+            materia.topicos.map(topico => {
+              return prisma.topico.create({
+                data: {
+                  nome: topico.nome,
+                  idMateria: createdMateria.idMateria,
+                },
+              });
+            })
+          );
+        }
       })
     );
 
@@ -878,6 +914,7 @@ app.post('/api/updateCollection/:id', async (req, res) => {
     res.status(500).json({ message: 'Erro ao atualizar a coleção.', error });
   }
 });
+
 
 
 
