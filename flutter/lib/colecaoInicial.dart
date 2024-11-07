@@ -28,7 +28,7 @@ class colecaoInicialPage extends StatefulWidget {
 class _colecaoInicialPageState extends State<colecaoInicialPage> {
   final _pesquisaColecaoController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  Color _iconColor = Colors.white54;
+  Color _iconColor = AppColors.white;
   int? _hoveredIndexCard;
   int? _selectedCardIndex;
   List<Map<String, dynamic>> _collections = [];
@@ -212,7 +212,7 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
                       color: _iconColor,
                     ),
                     hintText: 'Search',
-                    hintStyle: const TextStyle(color: Colors.white54),
+                    hintStyle: TextStyle(color: AppColors.white),
                   ),
                 ),
               ),
@@ -308,7 +308,7 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    child: Text('Voltar', style: TextStyle(color: AppColors.black, fontSize: 18)),
+                    child: Text('Voltar', style: TextStyle(color: Colors.black, fontSize: 18)),
                   ),
                   ElevatedButton(
                     onPressed: _escolher,

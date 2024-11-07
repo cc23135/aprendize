@@ -259,8 +259,10 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                                           SizedBox(
                                             width: 150,
                                             child: TextField(
+                                              style: TextStyle(color: Colors.white),
                                               decoration: InputDecoration(
                                                 labelText: 'Exercícios',
+                                                labelStyle: TextStyle(color: Colors.white),
                                                 fillColor: Colors.black
                                                     .withOpacity(0.9),
                                                 filled: true,
@@ -285,8 +287,10 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                                           SizedBox(
                                             width: 150,
                                             child: TextField(
+                                              style: TextStyle(color: Colors.white),
                                               decoration: InputDecoration(
                                                 labelText: 'Tempo (min)',
+                                                labelStyle: TextStyle(color: Colors.white),
                                                 fillColor: Colors.black
                                                     .withOpacity(0.9),
                                                 filled: true,
@@ -385,7 +389,7 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                           );
                         }
                       },
-                      child: const Text('Salvar Dia de Estudos'),
+                      child: const Text('Salvar Dia de Estudos', style: TextStyle(color: Colors.white),),
                     ),
                     SizedBox(
                       height: 20,
