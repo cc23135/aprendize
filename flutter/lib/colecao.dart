@@ -200,19 +200,6 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                   ),
                   const SizedBox(height: 20),
                   const Text(
-                    'Estatísticas',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _buildStatisticCard('Exercícios', '- -'),
-                      _buildStatisticCard('Horas de Estudo', '- -'),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
                     'Matérias',
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                   ),

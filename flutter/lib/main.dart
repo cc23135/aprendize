@@ -183,7 +183,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     radius: 16,
                     backgroundImage: profileUrl.isNotEmpty
                         ? NetworkImage(profileUrl)
-                        : const AssetImage('assets/images/default_user.png') as ImageProvider,
+                        : const AssetImage('../assets/images/mona.png') as ImageProvider,
                     backgroundColor: Colors.transparent,
                   );
                 },

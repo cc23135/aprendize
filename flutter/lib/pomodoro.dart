@@ -76,7 +76,87 @@ class _PomodoroPageState extends State<PomodoroPage> {
     });
   }
 
-  void FinalizarEstudo() async {
+
+
+void _showAgendarRevisaoDialog() {
+  TextEditingController _diasRevisaoController = TextEditingController(); // Controlador para o TextField
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Agendar revisão?'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  FinalizarEstudo(7); // Chama a função com 7 dias
+                });
+              },
+              child: const Text('7 dias'),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  FinalizarEstudo(30); // Chama a função com 30 dias
+                });
+              },
+              child: const Text('30 dias'),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  FinalizarEstudo(100); // Chama a função com 100 dias
+                });
+              },
+              child: const Text('100 dias'),
+            ),
+            const SizedBox(height: 30),
+            TextField(
+              controller: _diasRevisaoController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Digite os dias para revisão:',
+                hintText: 'Ex: 7, 30, 100',
+              ),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                String inputValue = _diasRevisaoController.text;
+                if (inputValue.isNotEmpty) {
+                  int dias = int.tryParse(inputValue) ?? 0;
+                  if (dias > 0) {
+                    FinalizarEstudo(dias);
+                  } else {
+                    print('Número de dias inválido');
+                  }
+                }
+              },
+              child: const Text('Agendar com o valor inserido'),
+            ),
+            const SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context); 
+                FinalizarEstudo(-1); 
+              },
+              child: const Text('Terminar estudo sem revisões'),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+
+
+  void FinalizarEstudo(int diasRevisao) async {
     _stopTimer();
 
     final uri = Uri.parse('${AppStateSingleton().apiUrl}api/criarEstudo');
@@ -90,6 +170,9 @@ class _PomodoroPageState extends State<PomodoroPage> {
     final qtoTempo = (_elapsedSeconds / 60).ceil();
     DateTime now = DateTime.now();
     final dataEstudo = DateTime.utc(now.year, now.month, now.day).toUtc().toIso8601String();
+
+    DateTime dataRevisao = now.add(Duration(days: diasRevisao));
+    final dataRevisaoIso = DateTime.utc(dataRevisao.year, dataRevisao.month, dataRevisao.day).toUtc().toIso8601String();
 
     try {
       final response = await http.post(
@@ -110,10 +193,37 @@ class _PomodoroPageState extends State<PomodoroPage> {
 
       if (response.statusCode == 201) {
         print('Estudo finalizado e tarefa deletada com sucesso');
-        Navigator.push(context, MaterialPageRoute(builder: (context) => MyHomePage()));
       } else {
         print('Falha ao finalizar estudo: ${response.statusCode}');
       }
+
+      if(diasRevisao>0){
+        final uriRevisao = Uri.parse('${AppStateSingleton().apiUrl}api/criarTarefa');
+        final responseRevisao = await http.post(
+        uriRevisao,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'idUsuario': AppStateSingleton().idUsuario, 
+          'data': dataRevisaoIso, 
+          'subjects': [
+            {
+              'idTopico': idTopico,
+              'exercicios': metaExercicios,
+              'tempoDeEstudo': metaTempo,
+            },
+          ],
+        }),
+      );
+
+      if (responseRevisao.statusCode == 200) {
+        print('Tarefa de revisão criada com sucesso');
+      } else {
+        print('Falha ao criar tarefa de revisão: ${responseRevisao.statusCode}');
+      }
+    }
+
+    Navigator.push(context, MaterialPageRoute(builder: (context) => MyHomePage()));
+
     } catch (e) {
       print('Erro ao finalizar estudo: $e');
     }
@@ -226,7 +336,8 @@ class _PomodoroPageState extends State<PomodoroPage> {
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {
-                FinalizarEstudo();
+                _showAgendarRevisaoDialog();
+                //FinalizarEstudo();
               },
               style: ElevatedButton.styleFrom(
                 foregroundColor: AppColors.white,
