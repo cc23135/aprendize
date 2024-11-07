@@ -611,12 +611,42 @@ app.post('/api/getColecaoInfo', async (req, res) => {
   }
 });
 
+app.post('/api/criarRevisao', async (req, res) => {
+  const { idUsuario, dias, subjects } = req.body; // Extrair dados do corpo da requisição
+
+  try {
+    const tarefas = dias.flatMap(dia => 
+      subjects.map(subject => {
+        const tempoDeEstudo = subject.tempoDeEstudo === 0 ? null : new Date(new Date(dia).getTime() + subject.tempoDeEstudo * 60000); // Converte minutos em milissegundos
+
+        return {
+          idUsuario: idUsuario,
+          idTopico: subject.idTopico,
+          metaExercicios: subject.exercicios,
+          metaTempo: tempoDeEstudo ? tempoDeEstudo.toISOString() : null,
+          dataTarefa: new Date(dia).toISOString(), // Formato ISO 8601 para dataTarefa
+          ehRevisao: true,
+        };
+      })
+    );
+
+    await prisma.tarefa.createMany({
+      data: tarefas,
+    });
+
+    res.status(200).json({ message: 'Revisões criadas com sucesso!' });
+  } catch (error) {
+    console.error('Erro ao criar as revisões:', error);
+    res.status(500).json({ error: 'Erro ao criar as revisões' });
+  }
+});
+
 app.post('/api/criarTarefa', async (req, res) => {
   const { idUsuario, data, subjects } = req.body; // Extrair dados do corpo da requisição
 
   try {
     const tarefas = subjects.map(subject => {
-      const tempoDeEstudo = subject.tempoDeEstudo === 0 ? null : new Date(new Date(data).getTime() + subject.tempoDeEstudo * 60000); // Converte minutos em milissegundos
+      const tempoDeEstudo = new Date(new Date(data).getTime() + subject.tempoDeEstudo * 60000); // Converte minutos em milissegundos
 
       return {
         idUsuario: idUsuario,
