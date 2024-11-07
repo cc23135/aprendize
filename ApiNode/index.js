@@ -615,15 +615,14 @@ app.post('/api/criarTarefa', async (req, res) => {
   const { idUsuario, data, subjects } = req.body; // Extrair dados do corpo da requisição
 
   try {
-
     const tarefas = subjects.map(subject => {
       const tempoDeEstudo = subject.tempoDeEstudo === 0 ? null : new Date(new Date(data).getTime() + subject.tempoDeEstudo * 60000); // Converte minutos em milissegundos
 
       return {
         idUsuario: idUsuario,
         idTopico: subject.idTopico,
-        metaExercicios: subject.exercicios === 0 ? null : subject.exercicios,
-        metaTempo: tempoDeEstudo ? tempoDeEstudo.toISOString() : null, // Formato ISO 8601 se não for null
+        metaExercicios: subject.exercicios,
+        metaTempo: tempoDeEstudo.toISOString(),
         dataTarefa: new Date(data).toISOString(), // Formato ISO 8601 para dataTarefa
         ehRevisao: false,
       };
