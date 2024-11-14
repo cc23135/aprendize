@@ -123,7 +123,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _selectedIndex = 0; // Track the currently selected index
+  int _selectedIndex = 0; 
   bool _showNotifications = false;
   bool _showUserPage = false;
 
@@ -140,15 +140,15 @@ class _MyHomePageState extends State<MyHomePage> {
       case 4:
         return const CalendarPage();
       default:
-        return const SizedBox(); // Fallback in case of an unknown index
+        return const SizedBox(); 
     }
   }
 
   void _onItemTapped(int index) {
     setState(() {
-      _selectedIndex = index; // Update the selected index
-      _showNotifications = false; // Reset notifications
-      _showUserPage = false; // Reset user page
+      _selectedIndex = index; 
+      _showNotifications = false; 
+      _showUserPage = false; 
     });
   }
 
@@ -157,6 +157,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false, 
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
@@ -193,10 +194,10 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       body: _showNotifications
-          ? NotificationsPage() // Your notifications page
+          ? NotificationsPage() 
           : _showUserPage
-              ? UserPage() // Your user page
-              : _buildPage(_selectedIndex), // Build the selected page
+              ? UserPage()
+              : _buildPage(_selectedIndex), 
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),

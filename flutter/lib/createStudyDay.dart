@@ -220,6 +220,16 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                                     child: Image.network(
                                       topicData.capa,
                                       fit: BoxFit.cover,
+                                      loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                                        if (loadingProgress == null) {
+                                          return child; // A imagem foi carregada com sucesso
+                                        } else {
+                                          return Container(); // Se a imagem estiver carregando, mostra um contêiner vazio
+                                        }
+                                      },
+                                      errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                                        return Container(); // Se houver erro ao carregar, mostra um contêiner vazio
+                                      },
                                     ),
                                   ),
                                 ),
