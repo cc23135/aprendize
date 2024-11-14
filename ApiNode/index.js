@@ -828,75 +828,43 @@ app.post('/api/updateCollection/:id', async (req, res) => {
     // Atualizar a coleção
     const updatedCollection = await prisma.colecao.update({
       where: { idColecao: Number(id) },
-      data: {
-        nome,
-        descricao,
-        linkImagem,
-      },
+      data: { nome, descricao, linkImagem },
     });
 
     // Atualizar as matérias
     await Promise.all(
       materias.map(async (materia) => {
-        const existingMateria = await prisma.materia.findUnique({
-          where: { idMateria: materia.idMateria }, // Verificar se a matéria existe
-        });
-
-        if (existingMateria) {
+        if (materia.idMateria) {
+          // Atualiza a matéria existente
           await prisma.materia.update({
             where: { idMateria: materia.idMateria },
-            data: {
-              nome: materia.nome,
-              capa: materia.capa,
-              idColecao: Number(id),
-            },
+            data: { nome: materia.nome, capa: materia.capa, idColecao: Number(id) },
           });
-
-          await Promise.all(
-            materia.topicos.map(async (topico) => {
-              console.log(topico)
-              const existingTopico = await prisma.topico.findUnique({
-                where: { idTopico: topico.idTopico }, 
-              });
-
-              if (existingTopico) {
-                await prisma.topico.update({
-                  where: { idTopico: topico.idTopico },
-                  data: {
-                    nome: topico.nome,
-                    idMateria: materia.idMateria, // Atualizar o id da matéria
-                  },
-                });
-              } else {
-                await prisma.topico.create({
-                  data: {
-                    nome: topico.nome,
-                    idMateria: materia.idMateria,
-                  },
-                });
-              }
-            })
-          );
         } else {
+          // Cria nova matéria se ID for null
           const createdMateria = await prisma.materia.create({
-            data: {
-              nome: materia.nome,
-              capa: materia.capa,
-              idColecao: Number(id),
-            },
+            data: { nome: materia.nome, capa: materia.capa, idColecao: Number(id) },
           });
-
-          await Promise.all(
-            materia.topicos.map(topico => {
-              return prisma.topico.create({
-                data: {
-                  nome: topico.nome,
-                  idMateria: createdMateria.idMateria,
-                },
-              });
-            })
-          );
+          materia.idMateria = createdMateria.idMateria; // Atribui o ID recém-criado
         }
+
+        // Atualizar ou criar tópicos
+        await Promise.all(
+          materia.topicos.map(async (topico) => {
+            if (topico.idTopico) {
+              // Atualiza o tópico existente
+              await prisma.topico.update({
+                where: { idTopico: topico.idTopico },
+                data: { nome: topico.nome, idMateria: materia.idMateria },
+              });
+            } else {
+              // Cria novo tópico se ID for null
+              await prisma.topico.create({
+                data: { nome: topico.nome, idMateria: materia.idMateria },
+              });
+            }
+          })
+        );
       })
     );
 
