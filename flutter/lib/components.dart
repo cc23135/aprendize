@@ -152,6 +152,7 @@ class ImageService {
   } catch (e) {
     print('Erro ao enviar a imagem: $e');
   }
+  return null;
   }
 }
 

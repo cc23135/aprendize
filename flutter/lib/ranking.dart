@@ -76,33 +76,33 @@ class _RankingPageState extends State<RankingPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            /*Container(
+            Container(
               height: 60,
               child: DropdownButtonFormField<int>(
-                value: selectedColecao,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                items: [
-                  DropdownMenuItem<int>(
-                    value: 0, // Valor para "Todos"
-                    child: const Text('Todos'),
-                  ),
-                  ...List.generate(
-                    collections.length,
-                    (index) => DropdownMenuItem<int>(
-                      value: index + 1, // Ajuste o valor conforme a coleção
-                      child: Text(collections[index][
-                          'nome']), // Supondo que 'nome' é a chave para o nome da coleção
-                    ),
-                  ),
-                ],
-                onChanged: _onDropdownChanged,
-                isExpanded: true,
-              ),
-            ),*/
+  value: selectedColecao,
+  decoration: InputDecoration(
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+    ),
+  ),
+  items: [
+    DropdownMenuItem<int>(
+      value: 0, // Valor para "Todos"
+      child: const Text('Todos'),
+    ),
+    ...List.generate(
+      collections.length,
+      (index) => DropdownMenuItem<int>(
+        value: collections[index]['idColecao'], // Use o idColecao real
+        child: Text(collections[index]['nome']), // Supondo que 'nome' é a chave para o nome da coleção
+      ),
+    ),
+  ],
+  onChanged: _onDropdownChanged,
+  isExpanded: true,
+),
+
+            ),
             const SizedBox(height: 20),
             const Text(
               'Ranking dos Usuários',

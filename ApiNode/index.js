@@ -368,7 +368,6 @@ app.get('/api/rankingUsers', async (req, res) => {
       },
     });
 
-    // Agregar dados por usuário
     const rankings = estudos.reduce((acc, estudo) => {
       const tempo = parseTimeToSeconds(estudo.qtoTempo); // Converte para segundos
 
