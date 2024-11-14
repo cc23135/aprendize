@@ -76,7 +76,7 @@ class _RankingPageState extends State<RankingPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Container(
+            /*Container(
               height: 60,
               child: DropdownButtonFormField<int>(
                 value: selectedColecao,
@@ -102,7 +102,7 @@ class _RankingPageState extends State<RankingPage> {
                 onChanged: _onDropdownChanged,
                 isExpanded: true,
               ),
-            ),
+            ),*/
             const SizedBox(height: 20),
             const Text(
               'Ranking dos Usuários',
