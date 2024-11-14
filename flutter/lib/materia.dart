@@ -52,8 +52,8 @@ class _MateriaPageState extends State<MateriaPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: _isLoading // Verifica se está carregando
-            ? Center(child: CircularProgressIndicator()) // Exibe o indicador de progresso
+        child: _isLoading 
+            ? Center(child: CircularProgressIndicator()) 
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -64,9 +64,19 @@ class _MateriaPageState extends State<MateriaPage> {
                   const SizedBox(height: 20),
                   Center(
                     child: Image.network(
-                      _materia!["linkCapa"] ?? 'assets/images/mona.png',
+                      _materia!["linkCapa"],
                       height: 100,
                       fit: BoxFit.cover,
+                      loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                        if (loadingProgress == null) {
+                          return child; 
+                        } else {
+                          return Container();
+                        }
+                      },
+                      errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                        return Container(); 
+                      },
                     ),
                   ),
                   const SizedBox(height: 20),

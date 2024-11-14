@@ -967,7 +967,7 @@ app.post('/api/entrarEmUmaColecao', async (req, res) => {
         dataCriacao: colecao.dataCriacao,
       }
     });
-    res.status(200).json({ success: true, message: 'Usuário entrou na coleção com sucesso', data: novaConexao });
+    //res.status(200).json({ success: true, message: 'Usuário entrou na coleção com sucesso', data: novaConexao });
     
   } catch (error) {
     console.error('Error fetching:', error);

@@ -150,8 +150,8 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
         padding: const EdgeInsets.all(16.0),
         child: _colecao == null
           ? Center(child: CircularProgressIndicator())
-          : SingleChildScrollView( // Adicionado
-              child: Column( // Mantido
+          : SingleChildScrollView( 
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Center(
@@ -159,6 +159,16 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                       _colecao!["linkImagem"],
                       height: 100,
                       fit: BoxFit.cover,
+                      loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                        if (loadingProgress == null) {
+                          return child; 
+                        } else {
+                          return Container(); 
+                        }
+                      },
+                      errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                        return Container();
+                      },
                     ),
                   ),
                   const SizedBox(height: 20),
