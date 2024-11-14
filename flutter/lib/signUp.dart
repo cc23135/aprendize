@@ -105,28 +105,14 @@ class _SignUpPageState extends State<SignUpPage> {
     }
 
     if (loginCorreto){
-      // estabelece conexão com o banco de dados e pergunta se as informações estão corretas, fazer isso depois
-      // bool resposta = true;
-
       String urlImage = AppStateSingleton().userProfileImageUrlNotifier.value;
 
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => colecaoInicialPage(username: _usernameController.text, name: _nameController.text, password: _passwordController.text, urlImagem: urlImage,)),
       );
-
-      // if (resposta){
-      //   // define informações do usuário e sua senha
-      //   Navigator.of(context).pushReplacement(
-      //     MaterialPageRoute(builder: (context) => colecaoInicialPage()),
-      //   );
-      // } else{
-      //   // nome igual, senha inválida, problema com a imagem, outro erro 
-      //   print("Tratar banco de dados");
-      // }
     }
 
     if (loginCorreto) {
-      // Estabelece conexão com o banco de dados e pergunta se as informações estão corretas
       bool resposta = true;
 
       if (resposta) {
@@ -135,8 +121,6 @@ class _SignUpPageState extends State<SignUpPage> {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) =>  colecaoInicialPage(username: _usernameController.text, name: _nameController.text, password: _passwordController.text, urlImagem: urlImage,)),
         );
-      } else {
-        print("Tratar banco de dados");
       }
     }
   }

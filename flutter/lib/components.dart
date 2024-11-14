@@ -1,6 +1,6 @@
 import 'package:aprendize/colecao.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart'; // Para verificar a plataforma
+import 'package:flutter/foundation.dart'; 
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
 import 'package:aprendize/AppStateSingleton.dart';
@@ -25,15 +25,14 @@ class CardColecao extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-    cursor: SystemMouseCursors.click, // Defina o cursor como ponteiro
+    cursor: SystemMouseCursors.click, 
     child: GestureDetector(
       onTap: () {
-      // Aqui você pode adicionar a navegação para a página de detalhes do chat
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => ChatDetailsPage(
-            idColecao: this.idColecao, // Substitua pelo ID que você deseja passar
+            idColecao: this.idColecao, 
           ),
         ),
       );
@@ -48,7 +47,6 @@ class CardColecao extends StatelessWidget {
                 fit: BoxFit.cover,
               ),
             ),
-            // Gradient Overlay
             Positioned.fill(
               child: Container(
                 decoration: BoxDecoration(
@@ -60,7 +58,6 @@ class CardColecao extends StatelessWidget {
                 ),
               ),
             ),
-            // Content on top of image and gradient
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(
@@ -74,9 +71,9 @@ class CardColecao extends StatelessWidget {
                       fontSize: 18,
                       shadows: [
                         Shadow(
-                          color: Color(0x80000000), // 50% opacity black
+                          color: Color(0x80000000), 
                           blurRadius: 4.45,
-                          offset: Offset(0, 2), // Ajuste a posição da sombra conforme necessário
+                          offset: Offset(0, 2), 
                         ),
                       ],
                     ),
@@ -89,9 +86,9 @@ class CardColecao extends StatelessWidget {
                       fontSize: 14,
                       shadows: [
                         Shadow(
-                          color: Color(0x80000000), // 50% opacity black
+                          color: Color(0x80000000), 
                           blurRadius: 4.45,
-                          offset: Offset(0, 2), // Ajuste a posição da sombra conforme necessário
+                          offset: Offset(0, 2),
                         ),
                       ],
                     ),

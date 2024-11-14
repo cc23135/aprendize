@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'AppStateSingleton.dart';
 
 class AppColors {
-  // Cores base
   static const Color _darkPurple = Color(0xFF5E17EB);
   static const Color _lightPurple = Color(0xFF8C52FF);
   static const Color _black = Color(0xFF0E0E0E);

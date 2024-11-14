@@ -2,12 +2,11 @@ import 'package:aprendize/components.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert'; // Para converter a resposta em JSON
+import 'dart:convert'; 
 import 'AppStateSingleton.dart';
-
 import 'main.dart';
 import 'signUp.dart';
-import 'colors.dart'; // Certifique-se de importar o arquivo colors.dart
+import 'colors.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -33,7 +32,7 @@ class LoginService {
 
         if (data['success']) {
           validations().salvarDados(data);
-          return true; // Login bem-sucedido
+          return true; 
         }
       }
       return false;
@@ -79,12 +78,12 @@ class LoginPageState extends State<LoginPage> {
           _tamUsername = 0;
           _tamSenha = 0;
           _showSnackBar(
-              'Nome de usuário ou senha inválidos'); // Exibe o SnackBar diretamente no LoginPageState
+              'Nome de usuário ou senha inválidos'); 
         });
       }
 
       setState(() {
-        _isLoading = false; // Termina o carregamento
+        _isLoading = false; 
       });
 
     }catch(e){
@@ -98,7 +97,7 @@ class LoginPageState extends State<LoginPage> {
         SnackBar(
           content: Text(
             message,
-            style: TextStyle(color: AppColors.white), // Texto branco
+            style: TextStyle(color: AppColors.white), 
           ),
           backgroundColor: AppColors.darkPurple,
         ),
@@ -128,7 +127,7 @@ class LoginPageState extends State<LoginPage> {
               const SizedBox(height: 65),
               TextField(
                 controller: _usernameController,
-                style: TextStyle(color: AppColors.white), // Texto branco
+                style: TextStyle(color: AppColors.white), 
                 decoration: InputDecoration(
                   labelText: 'Username',
                   labelStyle: TextStyle(color: AppColors.white),
@@ -145,7 +144,7 @@ class LoginPageState extends State<LoginPage> {
               TextField(
                 controller: _passwordController,
                 obscureText: true,
-                style: TextStyle(color: AppColors.white), // Texto branco
+                style: TextStyle(color: AppColors.white), 
                 decoration: InputDecoration(
                   labelText: 'Senha',
                   labelStyle: TextStyle(color: AppColors.white),

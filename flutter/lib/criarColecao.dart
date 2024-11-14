@@ -27,8 +27,8 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
 
   List<Materia> _materias = [];
 
-  String _imageUrl = ''; // Armazena a URL da imagem carregada
-  bool _isLoadingImage = false; // Controla o estado de carregamento da imagem
+  String _imageUrl = ''; 
+  bool _isLoadingImage = false; 
 
   @override
   void initState() {
@@ -40,7 +40,7 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
       _imageUrl = widget.collection!["linkImagem"] ?? '';
 
       var materiasJson =
-          widget.collection!["Materia"]; // Acesso correto ao campo "Materia"
+          widget.collection!["Materia"];
       if (materiasJson != null) {
         _materias = List<Materia>.from(
             materiasJson.map((item) => Materia.fromJson(item)));
@@ -306,8 +306,7 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
                           TextField(
                             onChanged: (value) {
                               setState(() {
-                                _materias[index].titulo =
-                                    value; // Atualiza o título
+                                _materias[index].titulo = value; // Atualiza o título
                               });
                             },
                             style: TextStyle(

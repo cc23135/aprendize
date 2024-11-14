@@ -13,13 +13,13 @@ class RankingPage extends StatefulWidget {
 class _RankingPageState extends State<RankingPage> {
   List<UserRanking> rankings = [];
   bool isLoading = true;
-  bool comBaseEmTempo = true; // Define se é baseado em tempo ou não
+  bool comBaseEmTempo = true;
   int selectedColecao = 0;
 
   @override
   void initState() {
     super.initState();
-    _fetchRanking(); // Carregar o ranking inicialmente
+    _fetchRanking(); 
   }
 
   Future<void> _fetchRanking() async {
@@ -67,7 +67,6 @@ class _RankingPageState extends State<RankingPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Obtendo as coleções do AppStateSingleton
     final collections = AppStateSingleton().collections;
 
     return Scaffold(
@@ -93,8 +92,8 @@ class _RankingPageState extends State<RankingPage> {
     ...List.generate(
       collections.length,
       (index) => DropdownMenuItem<int>(
-        value: collections[index]['idColecao'], // Use o idColecao real
-        child: Text(collections[index]['nome']), // Supondo que 'nome' é a chave para o nome da coleção
+        value: collections[index]['idColecao'],
+        child: Text(collections[index]['nome']),
       ),
     ),
   ],
@@ -140,13 +139,13 @@ Expanded(
               // Define a cor de fundo com base na posição
               Color backgroundColor;
               if (index == 0) {
-                backgroundColor = Colors.amber.withOpacity(0.3); // Dourado
+                backgroundColor = Colors.amber.withOpacity(0.3);
               } else if (index == 1) {
-                backgroundColor = Colors.grey.withOpacity(0.3); // Prata
+                backgroundColor = Colors.grey.withOpacity(0.3); 
               } else if (index == 2) {
-                backgroundColor = Colors.brown.withOpacity(0.3); // Bronze
+                backgroundColor = Colors.brown.withOpacity(0.3);
               } else {
-                backgroundColor = Colors.transparent; // Fundo padrão
+                backgroundColor = Colors.transparent; 
               }
 
               return Container(
@@ -160,7 +159,7 @@ Expanded(
                   subtitle: comBaseEmTempo
                       ? Text('${(user.qtoTempo / 3600).toStringAsFixed(0)} horas estudadas')
                       : Text('${user.qtosExercicios} exercícios feitos'),
-                  trailing: Text('#${index + 1}'), // Usando o índice como posição
+                  trailing: Text('#${index + 1}'), 
                   isThreeLine: false,
                 ),
               );

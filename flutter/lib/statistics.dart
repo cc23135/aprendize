@@ -1,9 +1,8 @@
-import 'dart:ui';
 import 'package:aprendize/AppStateSingleton.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert'; //  json.decode()
-import 'package:http/http.dart' as http; // http.get()
+import 'dart:convert'; 
+import 'package:http/http.dart' as http; 
 
 class StatisticsPage extends StatefulWidget {
   const StatisticsPage({super.key});
@@ -70,7 +69,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
   Future<void> _fetchStatisticsData() async {
     try {
       final userId = AppStateSingleton().idUsuario;
-      final response = await http.get(Uri.parse('http://localhost:6060/api/statistics?userId=$userId'));
+      final response = await http.get(Uri.parse('${AppStateSingleton().apiUrl}api/statistics?userId=$userId'));
       
       if (response.statusCode == 200) {
         final String jsonString = response.body;
@@ -251,12 +250,6 @@ class _StatisticsPageState extends State<StatisticsPage> {
     );
   }
 
-
-
-
-
-
-/////////////////////////////////////////
 
   Widget buildLineGraph(List<FlSpot> spots) {
     double maxYValue = spots.isNotEmpty 

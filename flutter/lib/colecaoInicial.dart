@@ -39,7 +39,7 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
     super.initState();
     _focusNode.addListener(_onFocusChange);
     _pesquisaColecaoController.addListener(_filterCollections);
-    _fetchColecoes(); // Fetch colecoes when the page loads
+    _fetchColecoes(); 
   }
 
   @override
@@ -74,7 +74,7 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
         final data = jsonDecode(response.body);
         setState(() {
           _collections = List<Map<String, dynamic>>.from(data['colecoes']);
-          _filteredCollections = _collections; // Initially, show all collections
+          _filteredCollections = _collections; 
         });
       } else {
         print('Failed to fetch colecoes: ${response.body}');
@@ -252,7 +252,7 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
                               width: double.infinity,
                               decoration: BoxDecoration(
                                 image: DecorationImage(
-                                  image: NetworkImage(_filteredCollections[index]['linkImagem']), // Alterado para usar a imagem da coleção
+                                  image: NetworkImage(_filteredCollections[index]['linkImagem']),
                                   fit: BoxFit.cover,
                                   colorFilter: ColorFilter.mode(
                                     AppColors.lightPurple.withOpacity(0.4),
@@ -268,7 +268,7 @@ class _colecaoInicialPageState extends State<colecaoInicialPage> {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Container(
-                                color: Colors.black.withOpacity(0.5), // Fundo preto com 50% de opacidade
+                                color: Colors.black.withOpacity(0.5), 
                                 padding: const EdgeInsets.all(8.0),
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

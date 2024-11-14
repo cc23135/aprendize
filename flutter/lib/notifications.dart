@@ -72,7 +72,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   ),
                 )
               : Padding(
-                  padding: const EdgeInsets.all(20.0), // Ajuste o valor da margem aqui
+                  padding: const EdgeInsets.all(20.0), 
                   child: ListView.builder(
                     itemCount: notifications.length,
                     itemBuilder: (context, index) {

@@ -79,7 +79,6 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
         'dataCriacao': data['dataCriacao'],
       };
 
-      // Add the new collection to the AppStateSingleton
       AppStateSingleton().collections.add(newCollection);
 
       setState(() {
@@ -111,7 +110,6 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
     print('Response body: ${response.body}');
 
     if (response.statusCode == 200) {
-      // Assuming successful exit means removing the collection from the AppStateSingleton
       AppStateSingleton().collections.removeWhere((collection) => collection['idColecao'] == widget.idColecao);
 
       setState(() {
@@ -134,7 +132,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
       actions: [
         if (usuarioEstaNessaColecao > 1) 
           IconButton(
-            icon: Icon(Icons.edit, color: AppColors.white,), // Ícone de lápis
+            icon: Icon(Icons.edit, color: AppColors.white,), 
             onPressed: () {
               Navigator.push(
                 context,

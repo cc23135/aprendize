@@ -70,9 +70,8 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
     const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
 
     blobStream.on('finish', async () => {
-      const { username } = req.body; // Supondo que username seja passado no corpo da requisição
+      const { username } = req.body; 
 
-      // Verifica se o username não está vazio
       if (username) {
           await prisma.$executeRaw`UPDATE Aprendize.Usuario SET linkFotoDePerfil = ${publicUrl} WHERE "username" = ${username}`; // Execute a consulta raw para atualizar a imagem
       }
@@ -930,7 +929,6 @@ app.post('/api/entrarEmUmaColecao', async (req, res) => {
   }
 
   try {
-    // Create a new connection in UsuarioColecao
     const novaConexao = await prisma.usuarioColecao.create({
       data: {
         idUsuario: user.idUsuario,
@@ -939,26 +937,23 @@ app.post('/api/entrarEmUmaColecao', async (req, res) => {
       },
     });
     
-    // Fetch the collection details
     const colecao = await prisma.colecao.findUnique({
       where: { idColecao },
       include: {
         Usuario: {
-          select: { idUsuario: true, nome: true } // Include creator info if needed
+          select: { idUsuario: true, nome: true }
         }
       }
     });
 
-    // Return success response with additional fields
     res.status(201).json({
       success: true,
       message: 'Usuário entrou na coleção com sucesso',
       data: {
-        idUsuarioColecao: novaConexao.idUsuarioColecao, // Include this field
-        idUsuario: novaConexao.idUsuario, // Include this field
-        idColecao: novaConexao.idColecao, // Include this field
-        cargo: novaConexao.cargo, // Include this field
-        // Include the collection details
+        idUsuarioColecao: novaConexao.idUsuarioColecao, 
+        idUsuario: novaConexao.idUsuario,
+        idColecao: novaConexao.idColecao,
+        cargo: novaConexao.cargo, 
         nome: colecao.nome,
         descricao: colecao.descricao,
         linkImagem: colecao.linkImagem,
@@ -966,7 +961,7 @@ app.post('/api/entrarEmUmaColecao', async (req, res) => {
         dataCriacao: colecao.dataCriacao,
       }
     });
-    //res.status(200).json({ success: true, message: 'Usuário entrou na coleção com sucesso', data: novaConexao });
+
     
   } catch (error) {
     console.error('Error fetching:', error);

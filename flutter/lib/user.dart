@@ -88,10 +88,9 @@ class _UserPageState extends State<UserPage> {
     await http.post(
       uri,
       headers: {
-        'Content-Type': 'application/json', // Defina o cabeçalho Content-Type
+        'Content-Type': 'application/json', 
       },
       body: jsonEncode({
-        // Certifique-se de usar jsonEncode
         'username': AppStateSingleton().username,
         'novoNome': name,
       }),
@@ -122,10 +121,9 @@ class _UserPageState extends State<UserPage> {
     await http.post(
       uri,
       headers: {
-        'Content-Type': 'application/json', // Defina o cabeçalho Content-Type
+        'Content-Type': 'application/json', 
       },
       body: jsonEncode({
-        // Certifique-se de usar jsonEncode
         'usernameAntigo': AppStateSingleton().username,
         'novoUsername': username,
       }),
@@ -175,10 +173,9 @@ class _UserPageState extends State<UserPage> {
     await http.post(
       uri,
       headers: {
-        'Content-Type': 'application/json', // Defina o cabeçalho Content-Type
+        'Content-Type': 'application/json', 
       },
       body: jsonEncode({
-        // Certifique-se de usar jsonEncode
         'username': AppStateSingleton().username,
         'novaSenha': newPassword,
       }),
@@ -195,8 +192,8 @@ class _UserPageState extends State<UserPage> {
       _newPasswordController.clear();
       _confirmPasswordController.clear();
       _usernameError = null;
-      _nameError = null; // Limpar erro ao cancelar edição
-      _passwordError = null; // Limpar erro ao cancelar edição
+      _nameError = null; 
+      _passwordError = null; 
     });
   }
 

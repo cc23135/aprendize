@@ -105,7 +105,6 @@ class _PomodoroPageState extends State<PomodoroPage> {
                 child: const Text('Revisão 7-14-30 dias'),
               ),
               const SizedBox(height: 10),
-              // Campo para digitar intervalo customizado
               TextField(
                 controller: _diasRevisaoController,
                 keyboardType: TextInputType.text,
@@ -222,19 +221,19 @@ class _PomodoroPageState extends State<PomodoroPage> {
                   .toUtc()
                   .toIso8601String();
           diasRevisaoFormatados
-              .add(dataRevisaoIso); // Adiciona o dia formatado à lista
+              .add(dataRevisaoIso); 
         }
 
         final uriRevisao =
             Uri.parse('${AppStateSingleton().apiUrl}api/criarRevisao');
 
-        // Preparando os dados para enviar, incluindo a lista de dias e os subjects
+    
         final responseRevisao = await http.post(
           uriRevisao,
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             'idUsuario': AppStateSingleton().idUsuario,
-            'dias': diasRevisaoFormatados, // Passa a lista de dias formatados
+            'dias': diasRevisaoFormatados, 
             'subjects': [
               {
                 'idTopico': idTopico,

@@ -34,11 +34,11 @@ class _MembersPageState extends State<MembersPage> {
       final data = jsonDecode(response.body);
       setState(() {
         _membros = List<Map<String, dynamic>>.from(data['membros']);
-        _isLoading = false; // Carregamento concluído
+        _isLoading = false; 
       });
     } else {
       setState(() {
-        _isLoading = false; // Carregamento concluído mesmo em caso de erro
+        _isLoading = false; 
       });
       throw Exception('Falha ao carregar membros');
     }

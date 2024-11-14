@@ -107,7 +107,7 @@ class _ChatsPageState extends State<ColecaoPage> {
                         : null, // Se a imagem não for válida, não aplica a decoração da imagem
                     color: colecao['linkImagem'].isEmpty
                         ? AppColors.darkPurple // Fundo roxo se não houver imagem
-                        : Colors.transparent, // Caso contrário, usa o transparente
+                        : Colors.transparent, 
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: ListTile(

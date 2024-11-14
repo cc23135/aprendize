@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:aprendize/AppStateSingleton.dart';
 import 'package:flutter/material.dart';
 import 'pomodoro.dart';
-import 'package:intl/intl.dart'; // Para formatar a data
+import 'package:intl/intl.dart'; 
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -103,8 +103,6 @@ class _HomePageState extends State<HomePage> {
               'Olá, ${nomeUsuario}!',
               style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
-
-            //const SizedBox(height: 20),
 
             // Row com cartões e botões
             Container(

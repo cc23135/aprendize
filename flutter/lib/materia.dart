@@ -14,7 +14,7 @@ class MateriaPage extends StatefulWidget {
 
 class _MateriaPageState extends State<MateriaPage> {
   Map<String, dynamic>? _materia; 
-  bool _isLoading = true; // Variável para rastrear o estado de carregamento
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -37,7 +37,7 @@ class _MateriaPageState extends State<MateriaPage> {
       print(data);
       setState(() {
         _materia = data; 
-        _isLoading = false; // Atualiza o estado de carregamento
+        _isLoading = false; 
       });
     } else {
       throw Exception('Falha ao carregar coleção');

@@ -46,8 +46,7 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
           topic['idTopico'] as int,
           topic['nome'] as String,
           capa: topic['Materia']['capa'] as String,
-          materia: topic['Materia']['nome']
-              as String, // Adicionando o nome da matéria
+          materia: topic['Materia']['nome'] as String,
         );
       }).toList();
       setState(() {
@@ -150,8 +149,7 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                             );
                           }
 
-                          final topic = topics[index -
-                              1]; // Ajustando o índice para ignorar o título da matéria
+                          final topic = topics[index - 1]; 
                           final isSelected = _selectedTopics
                               .any((data) => data.topic == topic.topic);
                           return ListTile(
@@ -174,8 +172,7 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                             },
                           );
                         },
-                        childCount: topics.length +
-                            1, // +1 para incluir o título da matéria
+                        childCount: topics.length + 1, 
                       ),
                     ),
                   );
@@ -222,13 +219,13 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                                       fit: BoxFit.cover,
                                       loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
                                         if (loadingProgress == null) {
-                                          return child; // A imagem foi carregada com sucesso
+                                          return child;
                                         } else {
-                                          return Container(); // Se a imagem estiver carregando, mostra um contêiner vazio
+                                          return Container();
                                         }
                                       },
                                       errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
-                                        return Container(); // Se houver erro ao carregar, mostra um contêiner vazio
+                                        return Container(); 
                                       },
                                     ),
                                   ),
@@ -341,7 +338,7 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                       child: Column(children: [
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.darkPurple, // Cor de fundo
+                        backgroundColor: AppColors.darkPurple, 
                       ),
                       onPressed: () async {
                         if (_selectedTopics.isEmpty) {
@@ -356,7 +353,7 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
 
                         final studyDayData = {
                           'idUsuario': AppStateSingleton()
-                              .idUsuario, // Garantir que o idUsuario esteja correto
+                              .idUsuario, 
                           'data': DateFormat('yyyy-MM-dd')
                               .format(widget.selectedDay),
                           'subjects': _selectedTopics.map((topic) {
