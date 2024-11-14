@@ -83,8 +83,7 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
   void _adicionarSubtitulo(int index) {
     setState(() {
       _materias[index].subtitulos.add('');
-      _subtituloControllers[index].add(TextEditingController(
-          text: '')); // Adiciona um novo controlador para o novo subtítulo
+      _subtituloControllers[index].add(TextEditingController(text: '')); 
     });
   }
 
@@ -445,11 +444,12 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
                               .map((index, subtitulo) {
                                 return MapEntry(
                                   index,
-                                  {
-                                    'nome': subtitulo,
-                                    'idTopico': materia.idsTopicos?[
-                                        index], 
-                                  },
+                                      {
+                                        'nome': subtitulo,
+                                        'idTopico': materia.idsTopicos != null && materia.idsTopicos!.length > index
+                                          ? materia.idsTopicos![index]
+                                          : null, 
+                                      }
                                 );
                               })
                               .values
@@ -457,7 +457,6 @@ class _CriarColecaoPageState extends State<CriarColecaoPage> {
                         };
                       }).toList(),
                     };
-                    print(collectionData['materias']);
 
                     try {
                       final String url = widget.collection == null
