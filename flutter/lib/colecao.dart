@@ -130,6 +130,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
   return Scaffold(
     appBar: AppBar(
       title: Text("ID: " + widget.idColecao.toString()),
+      iconTheme: IconThemeData(color: AppColors.white),
       actions: [
         if (usuarioEstaNessaColecao > 1) 
           IconButton(
@@ -267,7 +268,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
           image: NetworkImage(linkImagem),
           fit: BoxFit.cover,
           colorFilter: ColorFilter.mode(
-            AppColors.black.withOpacity(0.8),
+            Colors.black.withOpacity(0.8),
             BlendMode.darken,
           ),
         ),
@@ -275,8 +276,8 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
       ),
       margin: const EdgeInsets.only(bottom: 10),
       child: ListTile(
-        title: Text(title),
-        subtitle: Text(subtitle),
+      title: Text(title, style: TextStyle(color: Colors.white),),
+        subtitle: Text(subtitle, style: TextStyle(color: Colors.white),),
         onTap: onTap,
       ),
     );

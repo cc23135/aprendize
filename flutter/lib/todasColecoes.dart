@@ -86,36 +86,41 @@ class _ChatsPageState extends State<ColecaoPage> {
                 ),
               ),
               const SizedBox(height: 20),
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _filteredColecoes.length,
-                itemBuilder: (context, index) {
-                  final colecao = _filteredColecoes[index];
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 10),
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: NetworkImage(colecao['linkImagem']),
-                        fit: BoxFit.cover,
-                        colorFilter: ColorFilter.mode(
-                          AppColors.darkPurple.withOpacity(0.4), // Altere para AppColors.lightPurple quando disponível
-                          BlendMode.darken,
-                        ),
-                      ),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: ListTile(
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _filteredColecoes.length,
+              itemBuilder: (context, index) {
+                final colecao = _filteredColecoes[index];
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  decoration: BoxDecoration(
+                    image: colecao['linkImagem'].isNotEmpty
+                        ? DecorationImage(
+                            image: NetworkImage(colecao['linkImagem']),
+                            fit: BoxFit.cover,
+                            colorFilter: ColorFilter.mode(
+                              AppColors.darkPurple.withOpacity(0.5), // Filtro roxo no fundo
+                              BlendMode.darken,
+                            ),
+                          )
+                        : null, // Se a imagem não for válida, não aplica a decoração da imagem
+                    color: colecao['linkImagem'].isEmpty
+                        ? AppColors.darkPurple // Fundo roxo se não houver imagem
+                        : Colors.transparent, // Caso contrário, usa o transparente
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: ListTile(
                       contentPadding: const EdgeInsets.all(16),
                       title: Text(
                         colecao['nome'],
-                        style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                       subtitle: Text(
                         '${colecao['numEstudantes']} estudantes',
-                        style: TextStyle(color: AppColors.white),
+                        style: TextStyle(color: Colors.white),
                       ),
-                      trailing: Icon(Icons.chat, color: AppColors.white),
+                      trailing: Icon(Icons.chat, color: Colors.white),
                       onTap: () {
                         Navigator.push(
                           context,
