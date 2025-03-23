@@ -62,6 +62,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   int formatarTempo(String metaTempo) {
+    if(metaTempo.length < 19)
+      return 0;
     String tempo = metaTempo.substring(11, 19);
     List<String> partes = tempo.split(':');
     int horas = int.parse(partes[0]);
@@ -248,7 +250,7 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 5),
               if (int.parse(metaExercicios) > 0)
                 Text("Meta exercícios: " + metaExercicios),
-              if (formatarTempo(metaTempo) > 0)
+              if (formatarTempo(metaTempo) != 0)
                 Text("Meta tempo: " + minutosEmTexto(formatarTempo(metaTempo))),
             ],
           ),
