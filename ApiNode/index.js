@@ -748,7 +748,7 @@ app.get('/api/getEstudos', async (req, res) => {
     SELECT Aprendize.Tarefa.*, Aprendize.Topico.nome AS topicoNome 
     FROM Aprendize.Tarefa
     JOIN Aprendize.Topico ON Aprendize.Tarefa.idTopico = Aprendize.Topico.idTopico
-    WHERE Aprendize.Tarefa.idUsuario = ${parseInt(idUsuario, 10)}
+    WHERE Aprendize.Tarefa.idUsuario = ${parseInt(idUsuario, 10)} AND ehRevisao = 0
     ORDER BY Aprendize.Tarefa.dataTarefa ASC
   `;
 

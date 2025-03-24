@@ -396,7 +396,7 @@ class _CreateStudyDayPageState extends State<CreateStudyDayPage> {
                           );
                         }
                       },
-                      child: const Text('Salvar Dia de Estudos', style: TextStyle(color: Colors.white),),
+                      child: const Text('Salvar tarefa', style: TextStyle(color: Colors.white),),
                     ),
                     SizedBox(
                       height: 20,
